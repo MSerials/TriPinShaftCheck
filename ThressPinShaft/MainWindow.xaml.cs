@@ -237,19 +237,17 @@ namespace ThressPinShaft
         List<string> lstCOM = new List<string>();
 
         HObject Obj_A, Obj_B, Obj_C, Obj_D, ho_Rectange_Again;
-        //做为校准的线
-       // HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
 
-        HDevelopExportGrab CameraA = new HDevelopExportGrab();
+        HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
         HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraB = new HDevelopExportGrab();
+        HDevelopExportGrab CameraB = new HDevelopExportGrab("B");
         HDevelopExportDisp CameraBDisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraC = new HDevelopExportGrab();
+        HDevelopExportGrab CameraC = new HDevelopExportGrab("C");
         HDevelopExportDisp CameraCDisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraD = new HDevelopExportGrab();
+        HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
         HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
 
         HDevelopExportDisp CameraSettingDisp = new HDevelopExportDisp();
@@ -478,18 +476,56 @@ namespace ThressPinShaft
             try
             {
                 CameraA.InitHalcon("A");
-                CameraB.InitHalcon("B");
-                CameraC.InitHalcon("C");
-                CameraD.InitHalcon("D");
             } catch (HalconException HDevExpDefaultException)
              {
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
 #else
-                MessageBox.Show("初始化相机失败");
+                MessageBox.Show("初始化相机一失败");
 #endif
             }
+
+            try
+            {
+                CameraB.InitHalcon("B");
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                HTuple hv_exception = null;
+                HDevExpDefaultException.ToHTuple(out hv_exception);
+#if DEBUG
+#else
+                MessageBox.Show("初始化相机二失败");
+#endif
+            }
+            try
+            {
+                CameraC.InitHalcon("C");
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                HTuple hv_exception = null;
+                HDevExpDefaultException.ToHTuple(out hv_exception);
+#if DEBUG
+#else
+                MessageBox.Show("初始化相机三失败");
+#endif
+            }
+            try
+            {
+                CameraD.InitHalcon("D");
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                HTuple hv_exception = null;
+                HDevExpDefaultException.ToHTuple(out hv_exception);
+#if DEBUG
+#else
+                MessageBox.Show("初始化相机四失败");
+#endif
+            }
+
             hd.InitHalcon(width, height);
 
             //相机的combox选择

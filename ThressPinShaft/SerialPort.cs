@@ -4,24 +4,26 @@ using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using HalconDotNet;
 
 namespace ThressPinShaft
 {
-        public partial class MainWindow
-        {
-            //串口设置
-            SerialPort serial_port = new SerialPort();
-            //private bool serial_port_opened = false;
-            delegate void HandleInterfaceUpdateDelagate(string text);//委托       
-            HandleInterfaceUpdateDelagate interfaceUpdateHandle;
-            static Thread threadReceive = null;
+    public partial class MainWindow
+    {
+        //串口设置
+        SerialPort serial_port = new SerialPort();
+        //private bool serial_port_opened = false;
+        delegate void HandleInterfaceUpdateDelagate(string text);//委托       
+        HandleInterfaceUpdateDelagate interfaceUpdateHandle;
+        static Thread threadReceive = null;
 
-            private void ComSel_DropOpened(object sender, EventArgs e)
-            {
-            
+        private void ComSel_DropOpened(object sender, EventArgs e)
+        {
+
             string[] sAllPort = null;
             try
             {
@@ -29,32 +31,35 @@ namespace ThressPinShaft
             }
             catch (Exception ex)
             {
-                MessageBox.Show("错误 " +ex.ToString());
+                MessageBox.Show("错误 " + ex.ToString());
             }
             lstCOM.Clear();
             foreach (var name in sAllPort)
             {
-                    lstCOM.Add(name);
+                lstCOM.Add(name);
             }
             pComSel.ItemsSource = lstCOM;
-            }
+        }
 
-            public void ComSel_DropDownClosedClick(object sender, EventArgs e)
+        public void ComSel_DropDownClosedClick(object sender, EventArgs e)
+        {
+
+            try
             {
-
-             try
-                {
                 string selected_value = pComSel.SelectedValue.ToString();
                 INI.com_sel = selected_value;
-             } catch (Exception except) {
-                MessageBox.Show("没有选择任何串口 "+ except.ToString());
-                }
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show("没有选择任何串口 " + except.ToString());
+            }
 
-           
+
 
         }
 
-        public void BaundSel_DropDownClosedClick(object sender, EventArgs e) {
+        public void BaundSel_DropDownClosedClick(object sender, EventArgs e)
+        {
 
         }
 
@@ -73,7 +78,7 @@ namespace ThressPinShaft
 
         }
 
- 
+
 
         private void Button_Click_OpenSP(object sender, RoutedEventArgs e)
         {
@@ -89,30 +94,15 @@ namespace ThressPinShaft
 
         void OpenSerialPort()
         {
+            Thread.Sleep(500);
             try
             {
-               // int i = 0;
-                /*
-                if (null != threadReceive)
-                {
-                    threadReceive.Abort();
-
-                    while (threadReceive.ThreadState != ThreadState.Aborted)
-                    {
-                        //当调用Abort方法后，如果thread线程的状态不为Aborted，主线程就一直在这里做循环，直到thread线程的状态变为Aborted为止
-                        Thread.Sleep(500);
-                        i++;
-                        Console.WriteLine("times to abort " + i.ToString() + "state "+ threadReceive.ThreadState.ToString());
-                    }
-                    threadReceive = null;
-                }
-                */
                 serial_port.Close();
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("failed to close serial port "+e.ToString());
+                Console.WriteLine("failed to close serial port " + e.ToString());
             }
 
             try
@@ -150,17 +140,7 @@ namespace ThressPinShaft
                     serial_port.StopBits = StopBits.One;
                 }
                 serial_port.Open();
-                
-                if (null == threadReceive)
-                {
-                    threadReceive = new Thread(new ParameterizedThreadStart(AsyReceiveData));
-                    threadReceive.Start(serial_port);
-                }
-               // else
-               // {
-               //     MessageBox.Show("已经打开了一个串口");
-               // }
-              
+                serial_port.DataReceived += new SerialDataReceivedEventHandler(serialport_DataReceived);
             }
             catch (Exception e)
             {
@@ -172,65 +152,89 @@ namespace ThressPinShaft
 
         }
 
-        void ReceiveData(SerialPort _sp)
+        public void serialport_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            Thread threadReceive = new Thread(new ParameterizedThreadStart(AsyReceiveData));
-            threadReceive.Start(_sp);
+            SerialPort Port = (SerialPort)sender;
+            int SeriaDataLength = Port.BytesToRead;              //得到缓冲区数据长度
+            byte[] SeriaData = new byte[SeriaDataLength];         //设置数组
+            Port.Read(SeriaData, 0, SeriaDataLength);           //读取缓冲区
+            interfaceUpdateHandle = new HandleInterfaceUpdateDelagate(UpdateTextBox);//实例化委托对象
+            Dispatcher.Invoke(interfaceUpdateHandle, new string[] { Encoding.ASCII.GetString(SeriaData) });
         }
 
-        //异步读取
-        private void AsyReceiveData(object serialPortobj)
-        {
-            SerialPort serialPort = (SerialPort)serialPortobj;
-            System.Threading.Thread.Sleep(500);
-            try
-            {
-                Console.WriteLine("start read");
-                int n = serialPort.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致  
-                Console.WriteLine("end read");
-                byte[] buf = new byte[n];//声明一个临时数组存储当前来的串口数据  
-                //received_count += n;//增加接收计数  
-                serialPort.Read(buf, 0, n);//读取缓冲数据  
-                //因为要访问ui资源，所以需要使用invoke方式同步ui。
-                interfaceUpdateHandle = new HandleInterfaceUpdateDelagate(UpdateTextBox);//实例化委托对象
-                Dispatcher.Invoke(interfaceUpdateHandle, new string[] { Encoding.ASCII.GetString(buf) });
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-                //处理错误
-            }
-            //serialPort.Close();
-            
-        }
 
-        /*
-        void SynReceiveData(object _spObj)
-        {
-            SerialPort _sp = (SerialPort)_spObj;
-            System.Threading.Thread.Sleep(0);
-            _sp.ReadTimeout = 1000;
-            try
-            {
-                int n = _sp.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致  
-                byte[] buf = new byte[n];//声明一个临时数组存储当前来的串口数据  
-                                         //received_count += n;//增加接收计数  
-                _sp.Read(buf, 0, n);//读取缓冲数据  
-                                    //因为要访问ui资源，所以需要使用invoke方式同步ui
-                interfaceUpdateHandle = new HandleInterfaceUpdateDelagate(UpdateTextBox);//实例化委托对象
-                Dispatcher.Invoke(interfaceUpdateHandle, new string[] { Encoding.ASCII.GetString(buf) });
-            }
-            catch (Exception e)
-            {
-           
-                    Console.WriteLine("接收数据失败 " + e.Message);
-                //处理超时错误
-            }
-        }
-        */
         void UpdateTextBox(string text)
         {
-            RecivedData.Text = text;
+            RecivedData.Text += text;
+            Regex r = new Regex("[\r\n|\r|\n]");
+            MatchCollection mc = r.Matches(RecivedData.Text);
+            if (mc.ToString().Length > 0)
+            {
+                string Text_  = System.Text.RegularExpressions.Regex.Replace(RecivedData.Text, "[\r\n|\r|\n]", "");
+                string[] sArray = Text_.Split(',');
+                foreach (var s in sArray)
+                {
+                    history.HistoryNotify += s+"\r\n";
+                }
+                RecivedData.Text = "";
+
+                if (sArray.Contains("T1"))
+                {
+                    try
+                    {
+                       CameraA.Grab(out Obj_A); CameraADisp.RunHalcon(this.Cam1_Disp.HalconID, Obj_A);
+                    }
+                    catch (HalconException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机一抓图失败...\r\n";
+                    }
+                }
+
+                if (sArray.Contains("T2"))
+                {
+
+                    try
+                    {
+                       CameraB.Grab(out Obj_B); CameraBDisp.RunHalcon(this.Cam2_Disp.HalconID, Obj_B);
+                    }
+                    catch (HalconException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机二抓图失败...\r\n";
+                    }
+                }
+                
+                if (sArray.Contains("T3"))
+                {
+                    try
+                    {
+                        CameraC.Grab(out Obj_C); CameraCDisp.RunHalcon(this.Cam3_Disp.HalconID, Obj_C);
+                    }
+                    catch (HalconException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机三抓图失败...\r\n";
+                    }
+                }
+
+                if (sArray.Contains("T4"))
+                {
+                    try
+                    {
+                        CameraD.Grab(out Obj_D); CameraDDisp.RunHalcon(this.Cam4_Disp.HalconID, Obj_D);
+                    }
+                    catch (HalconException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四抓图失败...\r\n";
+                    }
+                    
+                }
+                
+
+
+            }
         }
     }
 

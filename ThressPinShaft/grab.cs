@@ -9,11 +9,15 @@ using HalconDotNet;
 
 public partial class HDevelopExportGrab
 {
- // public HTuple hv_ExpDefaultWinHandle;
+    public HDevelopExportGrab(String UID)
+    {
+        UserID = UID;
+    }
+  // public HTuple hv_ExpDefaultWinHandle;
   private HTuple hv_AcqHandle = null;
   private String UserID = "A"; 
   // Main procedure 
-  private void action()
+  private void action(String UID)
   {
    // HTuple hv_exception = new HTuple();
     // Initialize local and output iconic variables 
@@ -23,7 +27,7 @@ public partial class HDevelopExportGrab
       //Image Acquisition 01: Attention: The initialization may fail in case parameters need to
       //Image Acquisition 01: be set in a specific order (e.g., image resolution vs. offset).
       HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1, 
-          "default", -1, "false", "default", UserID, 0, -1, out hv_AcqHandle);
+          "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
       HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 50000);
       HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
      // HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "On");
@@ -43,15 +47,32 @@ public partial class HDevelopExportGrab
 
   public void InitHalcon(String str_UserID = "A")
   {
-        UserID = str_UserID;
-        action();
-        return;
-        // Default settings used in HDevelop 
-      //  HOperatorSet.SetSystem("width", 512);
-    //HOperatorSet.SetSystem("height", 512);
+        try
+        {
+            action(str_UserID);
+        }
+        catch (HalconException ex)
+        {
+            throw ex;
+        }
   }
 
-  public void Grab(out HObject ho_Image, out HTuple hv_exception) {
+    public void Grab(out HObject ho_Image)
+    {
+        try
+        {
+            ho_Image = null;
+            HOperatorSet.GenEmptyObj(out ho_Image);
+            ho_Image.Dispose();
+            HOperatorSet.GrabImageAsync(out ho_Image, hv_AcqHandle, 1000);
+        }
+        catch (HalconException HDevExpDefaultException)
+        {
+            throw HDevExpDefaultException;
+        }
+    }
+
+    public void Grab(out HObject ho_Image, out HTuple hv_exception) {
         hv_exception = null;
         ho_Image = null;
         try
@@ -71,7 +92,7 @@ public partial class HDevelopExportGrab
   public void RunHalcon()
   {
      
-        action();
+        //action();
         //HOperatorSet.CloseFramegrabber(hv_AcqHandle);
     }
 
