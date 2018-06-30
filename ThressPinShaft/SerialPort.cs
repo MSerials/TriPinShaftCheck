@@ -75,11 +75,6 @@ namespace ThressPinShaft
 
  
 
-        private void Button_Click_Send_SerialData(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void Button_Click_OpenSP(object sender, RoutedEventArgs e)
         {
             try
@@ -125,6 +120,10 @@ namespace ThressPinShaft
                 serial_port.PortName = INI.com_sel;
                 serial_port.BaudRate = Convert.ToInt32(INI.BaudRate);
                 serial_port.DataBits = Convert.ToInt32(INI.DataBits);
+                serial_port.NewLine = "\r\n";
+
+                Console.Write("COM " + INI.com_sel + " BD " + INI.BaudRate + " DataBIt " + INI.DataBits + " Pa " + INI.Parity + " Stopbit " + INI.StopBits);
+
                 if (INI.Parity == "Odd")
                 {
                     serial_port.Parity = Parity.Odd;
@@ -165,7 +164,7 @@ namespace ThressPinShaft
             }
             catch (Exception e)
             {
-                //serial_port_opened = false;
+                Console.WriteLine("串口打开失败");
 
                 throw e;
             }
@@ -201,7 +200,7 @@ namespace ThressPinShaft
                 MessageBox.Show(e.Message);
                 //处理错误
             }
-            serialPort.Close();
+            //serialPort.Close();
             
         }
 

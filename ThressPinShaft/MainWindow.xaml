@@ -15,21 +15,22 @@
             <TabItem Header="检测显示">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-     
+
                     </Grid.ColumnDefinitions>
                     <halcon:HWindowControlWPF x:Name="Cam1_Disp" HorizontalAlignment="Left" Height="450" Margin="0,0,0,0" VerticalAlignment="Top" Width="630" Grid.ColumnSpan="2"/>
                     <halcon:HWindowControlWPF x:Name="Cam2_Disp" HorizontalAlignment="Left" Height="450" Margin="630,0,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
                     <halcon:HWindowControlWPF x:Name="Cam3_Disp" HorizontalAlignment="Left" Height="450" Margin="0,450,0,0" VerticalAlignment="Top" Width="630" Grid.ColumnSpan="2"/>
                     <halcon:HWindowControlWPF x:Name="Cam4_Disp" HorizontalAlignment="Left" Height="450" Margin="630,450,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
-                    <Button Content="Button" HorizontalAlignment="Left" Margin="1494.5,329,-52.5,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Grid.Column="1" Height="19"/>
+
                     <Grid Margin="1280,0,0,0" Height="900" Grid.Column="1" >
                         <TextBox Margin="0,0,0,0" Height="900" Width="300" HorizontalAlignment="Left" Name="pTextBoxHistory" Cursor="" IsReadOnly="True">
-                            
-                        </TextBox>
 
-                        
+                        </TextBox>
+                        <Button Content="Button" HorizontalAlignment="Left" Margin="444,160.5,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="19"/>
+
+
                     </Grid>
-           
+
                 </Grid>
             </TabItem>
             <TabItem Header="相机参数">
@@ -45,7 +46,7 @@
                                         <MenuItem Header="ReadMe.txt"/>
                                         <MenuItem Header="Schedule.xls"/>
                                     </MenuItem>
-                                </ContextMenu> 
+                                </ContextMenu>
                             </StackPanel.ContextMenu>
                         </StackPanel>
                     </GroupBox>
@@ -81,8 +82,8 @@
                     <Label     Canvas.Top="192" Canvas.Left="20" Content="校验位" />
                     <ComboBox  x:Name="pParitySel" Height="25" Width="200" Margin="0,0,0,0" Canvas.Top="190" Canvas.Left="100" DropDownClosed="ParitySel_DropDownClosedClick"/>
                     <TextBox Name="RecivedData" Height="470" Canvas.Left="336" TextWrapping="Wrap" Text="TextBox" Canvas.Top="32" Width="1574"/>
-                    <TextBox Name="SendData" Height="190" Canvas.Left="336"  TextWrapping="Wrap" Text="TextBox" Canvas.Top="537" Width="1574"/>
-                    <Button Content="发送" Canvas.Left="336" Canvas.Top="768" Width="183" RenderTransformOrigin="-13.513,-1.842" Height="44.5" Click="Button_Click_Send_SerialData"/>
+                    <TextBox Name="SendData" Height="190" Canvas.Left="336"  TextWrapping="Wrap" Text="TextBox" Canvas.Top="537" Width="1574" IsReadOnly="False"/>
+                    <Button Content="发送" Canvas.Left="336" Canvas.Top="768" Width="183" RenderTransformOrigin="-13.513,-1.842" Height="44.5" Click="Button_Click_Send_Data"/>
                     <Button Content="打开串口" Canvas.Left="100" Canvas.Top="230" Width="200" RenderTransformOrigin="-13.513,-1.842" Height="25" Click="Button_Click_OpenSP"/>
                 </Canvas>
             </TabItem>

@@ -98,6 +98,11 @@ namespace ThressPinShaft
 
                 if (PARA_IMAGE == (sel & PARA_IMAGE)) {
                 WriteIni("IMAGE", "COMSEL", com_sel);
+                WriteIni("IMAGE", "BAUDRATE", BaudRate);
+                WriteIni("IMAGE", "DATABIT", DataBits);
+                WriteIni("IMAGE", "PARITY", Parity);
+                WriteIni("IMAGE", "STOPBIT", StopBits);
+
                 for (int i = 0; i < 3; i++)
                 {
                     WriteIni("IMAGE", "ADJ_C1_" + i.ToString(), axis_roi[i].adjust_c1.ToString());
@@ -110,7 +115,7 @@ namespace ThressPinShaft
                 }
             }
 
-            public static void reading(int sel) {
+            public static void reading(int sel = PARA_ALL) {
                 if (PARA_PRJ == (sel & PARA_PRJ))
                 {
 
@@ -118,8 +123,13 @@ namespace ThressPinShaft
 
                 if (PARA_IMAGE == (sel & PARA_IMAGE))
                 {
-        
                     com_sel = ReadIni("IMAGE", "COMSEL");
+                    BaudRate = ReadIni("IMAGE", "BAUDRATE");
+                    DataBits = ReadIni("IMAGE", "DATABIT");
+                
+                    Parity = ReadIni("IMAGE", "PARITY");
+                    StopBits = ReadIni("IMAGE", "STOPBIT");
+
                     for (int i = 0; i < 3; i++) {
                     axis_roi[i].adjust_c1 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_C1_"+i.ToString()));
                     }
@@ -141,16 +151,19 @@ namespace ThressPinShaft
             public double adjust_c1;
             public double adjust_r2;
             public double adjust_c2;
+            public double adjust_phi;
             //轴1的roi
             public double axis_d1_r1;
             public double axis_d1_c1;
             public double axis_d1_r2;
             public double axis_d1_c2;
+            public double axis_d1_phi;
             //轴2的roi
             public double axis_d2_r1;
             public double axis_d2_c1;
             public double axis_d2_r2;
             public double axis_d2_c2;
+            public double axis_d2_phi;
         }
 
         public struct roi_chi {

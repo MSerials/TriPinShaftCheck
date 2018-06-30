@@ -238,7 +238,7 @@ namespace ThressPinShaft
 
         HObject Obj_A, Obj_B, Obj_C, Obj_D, ho_Rectange_Again;
         //做为校准的线
-        HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
+       // HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
 
         HDevelopExportGrab CameraA = new HDevelopExportGrab();
         HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
@@ -299,25 +299,30 @@ namespace ThressPinShaft
 
         //}
 
-        private void Button_Click_D_Measure(object sender, RoutedEventArgs e)
-        {
-            INI.writting();
-        }
+
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...";
+            
             try
             {
                 CameraA.Grab(out Obj_A, out hv_Exception);
                 CameraADisp.RunHalcon(this.Cam1_Disp.HalconID, Obj_A);
-
                 hd.RunHalcon(this.Cam2_Disp.HalconID);
                 hd.RunHalcon(this.Cam3_Disp.HalconID);
                 hd.RunHalcon(this.Cam4_Disp.HalconID);
             }
             catch (HalconException HDevExpDefaultException)
             {
+
+                HOperatorSet.ReadImage(out Obj_A, @"D:\img\1.bmp");
+                CameraADisp.RunHalcon(this.Cam1_Disp.HalconID, Obj_A);
+                HOperatorSet.ReadImage(out Obj_B, @"D:\img\2.bmp");
+                CameraADisp.RunHalcon(this.Cam2_Disp.HalconID, Obj_B);
+                HOperatorSet.ReadImage(out Obj_C, @"D:\img\3.bmp");
+                CameraADisp.RunHalcon(this.Cam3_Disp.HalconID, Obj_C);
+                HOperatorSet.ReadImage(out Obj_D, @"D:\img\4.bmp");
+                CameraADisp.RunHalcon(this.Cam4_Disp.HalconID, Obj_D);
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
             }
@@ -327,19 +332,96 @@ namespace ThressPinShaft
         {
             HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
             HOperatorSet.SetColor(this.CamSetting.HalconID, "blue");
+            HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
             HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
-            HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w,hv_r2h);
-            HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+            try
+            {
+                switch (global.GetIns().CamSel)
+                {
+                    case 0: CameraADisp.Disp_Adjust_Line(Obj_A, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 1: CameraBDisp.Disp_Adjust_Line(Obj_B, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 2: CameraCDisp.Disp_Adjust_Line(Obj_C, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 3: CameraDDisp.Disp_Adjust_Line(Obj_D, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    default: break;
+                }
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_c1 = hv_r2c;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_r1 = hv_r2r;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_c2 = hv_r2h;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_r2 = hv_r2w;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_phi = hv_r2phi;
+
+
+
+            INI.writting();
+
 #if DEBUG
             //Console.Write("abcdefg\n");
             System.Console.WriteLine("w {0:G3}, h {1:G3}", hv_r2w, hv_r2h);
 #endif
         }
 
+
+        private void Button_Click_D_Measure(object sender, RoutedEventArgs e)
+        {
+            HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
+            HOperatorSet.SetColor(this.CamSetting.HalconID, "yellow");
+            HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
+            HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
+            HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
+
+            try
+            {
+                switch (global.GetIns().CamSel)
+                {
+                    case 0: CameraADisp.Measure_Diameter(Obj_A, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID,20,200); break;
+                    case 1: CameraBDisp.Measure_Diameter(Obj_B, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 2: CameraCDisp.Measure_Diameter(Obj_C, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                   // case 3: CameraDDisp.Measure_Diameter(Obj_D, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    default: break;
+                }
+            }
+            catch (HalconException ex)
+            {
+                history.HistoryNotify += ex.ToString() + "\r\n";
+                return;
+            }
+
+
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r1 = hv_r2r;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c1 = hv_r2c;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r2 = hv_r2w;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c2 = hv_r2h;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_phi = hv_r2phi;
+
+
+
+
+            HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+            INI.writting();
+        }
+
+        private void Button_Click_Send_Data(object sender, RoutedEventArgs e)
+        {
+                try
+                {
+                    byte[] bytesSend = System.Text.Encoding.Default.GetBytes(SendData.Text);
+                    serial_port.Write(bytesSend, 0, bytesSend.Length);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    history.HistoryNotify += "串口被关闭" + "\r\n";
+                }
+        }
+
         HDevelopExport hd = new HDevelopExport();
-
-
-
         public void UpdateUI() {
             Console.WriteLine("UpdateUI");
             return;
@@ -362,6 +444,7 @@ namespace ThressPinShaft
         public MainWindow()
         {
                 InitializeComponent();
+                INI.reading();
 
 #if DEBUG
             ConsoleManager.Show();
@@ -499,13 +582,17 @@ namespace ThressPinShaft
                 throw new Exception("获取计算机COM口列表失败!\r\n错误信息:" + ex.Message);
             }
 
-            
-  
             foreach (var name in sAllPort)
             {
                 lstCOM.Add(name);
             }
             this.pComSel.ItemsSource = lstCOM;
+            if (lstCOM.Contains(INI.com_sel))
+            {
+                pComSel.SelectedItem = INI.com_sel;
+            }
+
+
             try
             {
                 OpenSerialPort();
@@ -527,10 +614,10 @@ namespace ThressPinShaft
                 }
             }
 
+
             bd.Source = history;
             bd.Path = new PropertyPath("HistoryNotify");
             BindingOperations.SetBinding(this.pTextBoxHistory, TextBox.TextProperty, bd);
-         
             string c_ = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...\r\n";
             history.HistoryNotify += c_;
         }
