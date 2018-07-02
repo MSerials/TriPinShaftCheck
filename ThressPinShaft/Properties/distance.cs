@@ -397,10 +397,6 @@ public partial class HDevelopExport
 
 
       HOperatorSet.CountObj(ho_ROI_0, out hv_ROI_Num);
-
-
-
-
       //设置ROI
       //
       //注意row和column是矩形的中心
@@ -433,9 +429,6 @@ public partial class HDevelopExport
           out hv_IntraDistance, out hv_InterDistance);
 
       disp_continue_message(hv_ExpDefaultWinHandle, "black", "true");
-
-
-
       //
       //可视化结果
       //

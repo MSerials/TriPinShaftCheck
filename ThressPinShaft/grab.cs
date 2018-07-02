@@ -15,24 +15,25 @@ public partial class HDevelopExportGrab
     }
   // public HTuple hv_ExpDefaultWinHandle;
   private HTuple hv_AcqHandle = null;
-  private String UserID = "A"; 
+  private String UserID = "C"; 
   // Main procedure 
-  private void action(String UID)
+  private void action(HTuple UID)
   {
-   // HTuple hv_exception = new HTuple();
-    // Initialize local and output iconic variables 
-    //HOperatorSet.GenEmptyObj(out ho_Image);
-    try
+        // HTuple hv_exception = new HTuple();
+        // Initialize local and output iconic variables 
+        //HOperatorSet.GenEmptyObj(out ho_Image);
+#if DEBUG
+        Console.WriteLine("正在初始化" + UID.ToString());
+#endif
+     try
     {
-      //Image Acquisition 01: Attention: The initialization may fail in case parameters need to
-      //Image Acquisition 01: be set in a specific order (e.g., image resolution vs. offset).
       HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1, 
           "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
       HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 50000);
       HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
      // HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "On");
-            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "Off");
-            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSource", "Line0");
+      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "Off");
+      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSource", "Line0");
       HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerActivation", "RisingEdge");
       HOperatorSet.GrabImageStart(hv_AcqHandle, -1);
       return;
@@ -45,7 +46,7 @@ public partial class HDevelopExportGrab
 
   }
 
-  public void InitHalcon(String str_UserID = "A")
+  public void InitHalcon(HTuple str_UserID)
   {
         try
         {
@@ -64,7 +65,8 @@ public partial class HDevelopExportGrab
             ho_Image = null;
             HOperatorSet.GenEmptyObj(out ho_Image);
             ho_Image.Dispose();
-            HOperatorSet.GrabImageAsync(out ho_Image, hv_AcqHandle, 1000);
+            HOperatorSet.GrabImage(out ho_Image, hv_AcqHandle);
+            //HOperatorSet.GrabImageAsync(out ho_Image, hv_AcqHandle, 1000);
         }
         catch (HalconException HDevExpDefaultException)
         {

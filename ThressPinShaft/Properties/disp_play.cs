@@ -946,7 +946,7 @@ public partial class HDevelopExportDisp
             return "NG";
     }
 
-    public void Disp_Adjust_Line(HObject ho_Image1,HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window) {
+    public double Disp_Adjust_Line(HObject ho_Image1,HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window, bool isDisp = true) {
         try
         {
             hv_ExpDefaultWinHandle = Window;
@@ -1003,22 +1003,26 @@ public partial class HDevelopExportDisp
             hv_a = 270 - (((hv_Angle.TupleSelect(0)) * 360) / (2 * 3.141592654));
             ho_ImageRotated.Dispose();
             HOperatorSet.RotateImage(ho_Image1, out ho_ImageRotated, hv_a, "constant");
-            
-            action(ho_Image1);
-            HOperatorSet.DispObj(ho_ImageRotated, hv_ExpDefaultWinHandle);
-            HOperatorSet.DispObj(ho_RegionLines, hv_ExpDefaultWinHandle);
-            HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
-            //ho_Image1.Dispose();
-            ho_Rectangle.Dispose();
-            ho_red.Dispose();
-            ho_green.Dispose();
-            ho_blue.Dispose();
-            ho_ImageGray.Dispose();
-            ho_ImageReduced.Dispose();
-            ho_Border.Dispose();
-            ho_UnionContours.Dispose();
-            ho_RegionLines.Dispose();
-            ho_ImageRotated.Dispose();
+
+            if (isDisp)
+            {
+                action(ho_Image1);
+                HOperatorSet.DispObj(ho_ImageRotated, hv_ExpDefaultWinHandle);
+                HOperatorSet.DispObj(ho_RegionLines, hv_ExpDefaultWinHandle);
+                HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+                //ho_Image1.Dispose();
+                ho_Rectangle.Dispose();
+                ho_red.Dispose();
+                ho_green.Dispose();
+                ho_blue.Dispose();
+                ho_ImageGray.Dispose();
+                ho_ImageReduced.Dispose();
+                ho_Border.Dispose();
+                ho_UnionContours.Dispose();
+                ho_RegionLines.Dispose();
+                ho_ImageRotated.Dispose();
+            }
+            return (double)hv_a;
         }
         catch (HalconException ex)
         {
@@ -1027,6 +1031,34 @@ public partial class HDevelopExportDisp
     }
 
 
+    public string check_axis(HObject ho_Image,HTuple Window) {
+        try
+        {
+            hv_ExpDefaultWinHandle = Window;
+            action(ho_Image);
+
+            return "OK";
+        }
+        catch (HalconException ex)
+        {
+            throw ex;
+        }
+    }
+
+    public string check_gear(HObject ho_Image, HTuple Window)
+    {
+        try
+        {
+            hv_ExpDefaultWinHandle = Window;
+            action(ho_Image);
+
+            return "OK";
+        }
+        catch (HalconException ex)
+        {
+            throw ex;
+        }
+    }
 
     public void InitHalcon(int width = 512, int height = 512)
     {

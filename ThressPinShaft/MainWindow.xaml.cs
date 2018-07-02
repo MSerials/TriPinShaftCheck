@@ -237,6 +237,7 @@ namespace ThressPinShaft
         List<string> lstCOM = new List<string>();
 
         HObject Obj_A, Obj_B, Obj_C, Obj_D, ho_Rectange_Again;
+        HObject[] Obj = new HObject[4];
 
         HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
         HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
@@ -419,6 +420,13 @@ namespace ThressPinShaft
                 }
         }
 
+        delegate string TestImage(HObject ho_Image, HTuple WindowHandle);
+
+        private void Button_Click_Test_Image(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         HDevelopExport hd = new HDevelopExport();
         public void UpdateUI() {
             Console.WriteLine("UpdateUI");
@@ -481,6 +489,7 @@ namespace ThressPinShaft
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
+                Console.WriteLine("初始化相机一失败");
 #else
                 MessageBox.Show("初始化相机一失败");
 #endif
@@ -495,6 +504,7 @@ namespace ThressPinShaft
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
+                Console.WriteLine("初始化相机二失败");
 #else
                 MessageBox.Show("初始化相机二失败");
 #endif
@@ -508,6 +518,7 @@ namespace ThressPinShaft
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
+                Console.WriteLine("初始化相机三失败");
 #else
                 MessageBox.Show("初始化相机三失败");
 #endif
@@ -521,6 +532,7 @@ namespace ThressPinShaft
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
+                Console.WriteLine("初始化相机四失败");
 #else
                 MessageBox.Show("初始化相机四失败");
 #endif

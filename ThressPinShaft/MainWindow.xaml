@@ -59,6 +59,9 @@
 
                         <Button Content="检测轴高"    HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
 
+
+                        <Button Content="测试结果"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Test_Image" Canvas.Left="30" Canvas.Top="685"/>
+
                         <Button Content="读取图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Image" Canvas.Left="30" Canvas.Top="725"/>
 
                         <Button Content="获取相机图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Cam_Image" Canvas.Left="30" Canvas.Top="765"/>

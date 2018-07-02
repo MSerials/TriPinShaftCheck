@@ -19,7 +19,7 @@ namespace ThressPinShaft
         //private bool serial_port_opened = false;
         delegate void HandleInterfaceUpdateDelagate(string text);//委托       
         HandleInterfaceUpdateDelagate interfaceUpdateHandle;
-        static Thread threadReceive = null;
+      //  static Thread threadReceive = null;
 
         private void ComSel_DropOpened(object sender, EventArgs e)
         {
@@ -172,17 +172,15 @@ namespace ThressPinShaft
             {
                 string Text_  = System.Text.RegularExpressions.Regex.Replace(RecivedData.Text, "[\r\n|\r|\n]", "");
                 string[] sArray = Text_.Split(',');
-                foreach (var s in sArray)
-                {
-                    history.HistoryNotify += s+"\r\n";
-                }
                 RecivedData.Text = "";
-
                 if (sArray.Contains("T1"))
                 {
                     try
                     {
                        CameraA.Grab(out Obj_A); CameraADisp.RunHalcon(this.Cam1_Disp.HalconID, Obj_A);
+                       CameraADisp.check_axis(Obj_A, this.Cam1_Disp.HalconID);
+
+
                     }
                     catch (HalconException ex)
                     {
@@ -197,6 +195,7 @@ namespace ThressPinShaft
                     try
                     {
                        CameraB.Grab(out Obj_B); CameraBDisp.RunHalcon(this.Cam2_Disp.HalconID, Obj_B);
+                       CameraBDisp.check_axis(Obj_B, this.Cam2_Disp.HalconID);
                     }
                     catch (HalconException ex)
                     {
@@ -210,6 +209,7 @@ namespace ThressPinShaft
                     try
                     {
                         CameraC.Grab(out Obj_C); CameraCDisp.RunHalcon(this.Cam3_Disp.HalconID, Obj_C);
+                        CameraCDisp.check_axis(Obj_C, this.Cam3_Disp.HalconID);
                     }
                     catch (HalconException ex)
                     {
@@ -222,7 +222,8 @@ namespace ThressPinShaft
                 {
                     try
                     {
-                        CameraD.Grab(out Obj_D); CameraDDisp.RunHalcon(this.Cam4_Disp.HalconID, Obj_D);
+                        CameraD.Grab(out Obj_D);
+                        CameraDDisp.check_axis(Obj_D, this.Cam4_Disp.HalconID);
                     }
                     catch (HalconException ex)
                     {
