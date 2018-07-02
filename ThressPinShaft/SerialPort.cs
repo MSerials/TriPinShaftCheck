@@ -177,7 +177,7 @@ namespace ThressPinShaft
                 {
                     try
                     {
-                       CameraA.Grab(out Obj_A); CameraADisp.RunHalcon(this.Cam1_Disp.HalconID, Obj_A);
+                       CameraA.Grab(out Obj_A); 
                        CameraADisp.check_axis(Obj_A, this.Cam1_Disp.HalconID);
 
 
@@ -194,7 +194,7 @@ namespace ThressPinShaft
 
                     try
                     {
-                       CameraB.Grab(out Obj_B); CameraBDisp.RunHalcon(this.Cam2_Disp.HalconID, Obj_B);
+                       CameraB.Grab(out Obj_B); 
                        CameraBDisp.check_axis(Obj_B, this.Cam2_Disp.HalconID);
                     }
                     catch (HalconException ex)
@@ -208,7 +208,7 @@ namespace ThressPinShaft
                 {
                     try
                     {
-                        CameraC.Grab(out Obj_C); CameraCDisp.RunHalcon(this.Cam3_Disp.HalconID, Obj_C);
+                        CameraC.Grab(out Obj_C); 
                         CameraCDisp.check_axis(Obj_C, this.Cam3_Disp.HalconID);
                     }
                     catch (HalconException ex)
