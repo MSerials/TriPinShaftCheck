@@ -97,17 +97,52 @@ namespace ThressPinShaft
                 }
 
                 if (PARA_IMAGE == (sel & PARA_IMAGE)) {
-                WriteIni("IMAGE", "COMSEL", com_sel);
-                WriteIni("IMAGE", "BAUDRATE", BaudRate);
-                WriteIni("IMAGE", "DATABIT", DataBits);
-                WriteIni("IMAGE", "PARITY", Parity);
-                WriteIni("IMAGE", "STOPBIT", StopBits);
+                try {
+                    WriteIni("IMAGE", "COMSEL", com_sel);
+                    WriteIni("IMAGE", "BAUDRATE", BaudRate);
+                    WriteIni("IMAGE", "DATABIT", DataBits);
+                    WriteIni("IMAGE", "PARITY", Parity);
+                    WriteIni("IMAGE", "STOPBIT", StopBits);
 
-                for (int i = 0; i < 3; i++)
-                {
-                    WriteIni("IMAGE", "ADJ_C1_" + i.ToString(), axis_roi[i].adjust_c1.ToString());
-                    System.Console.WriteLine(axis_roi[i].adjust_c1.ToString());
+                    WriteIni("IMAGE", "C_X", gear_roi.center_x.ToString());
+                    WriteIni("IMAGE", "C_Y", gear_roi.center_y.ToString());
+                    WriteIni("IMAGE", "RADIUS", gear_roi.radius.ToString());
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        WriteIni("IMAGE", "ADJ_R1_" + i.ToString(), axis_roi[i].adjust_r1.ToString());
+                        WriteIni("IMAGE", "ADJ_C1_" + i.ToString(), axis_roi[i].adjust_c1.ToString());
+                        WriteIni("IMAGE", "ADJ_R2_" + i.ToString(), axis_roi[i].adjust_r2.ToString());
+                        WriteIni("IMAGE", "ADJ_C2_" + i.ToString(), axis_roi[i].adjust_c2.ToString());
+                        WriteIni("IMAGE", "ADJ_PHI_" + i.ToString(), axis_roi[i].adjust_phi.ToString());
+
+                        WriteIni("IMAGE", "D1_R1_" + i.ToString(), axis_roi[i].axis_d1_r1.ToString());
+                        WriteIni("IMAGE", "D1_C1_" + i.ToString(), axis_roi[i].axis_d1_c1.ToString());
+                        WriteIni("IMAGE", "D1_R2_" + i.ToString(), axis_roi[i].axis_d1_r2.ToString());
+                        WriteIni("IMAGE", "D1_C2_" + i.ToString(), axis_roi[i].axis_d1_c2.ToString());
+                        WriteIni("IMAGE", "D1_PHI_" + i.ToString(), axis_roi[i].axis_d1_phi.ToString());
+
+                        WriteIni("IMAGE", "D2_R1_" + i.ToString(), axis_roi[i].axis_d2_r1.ToString());
+                        WriteIni("IMAGE", "D2_C1_" + i.ToString(), axis_roi[i].axis_d2_c1.ToString());
+                        WriteIni("IMAGE", "D2_R2_" + i.ToString(), axis_roi[i].axis_d2_r2.ToString());
+                        WriteIni("IMAGE", "D2_C2_" + i.ToString(), axis_roi[i].axis_d2_c2.ToString());
+                        WriteIni("IMAGE", "D2_PHI_" + i.ToString(), axis_roi[i].axis_d2_phi.ToString());
+
+                        WriteIni("IMAGE", "D3_R1_" + i.ToString(), axis_roi[i].axis_d3_r1.ToString());
+                        WriteIni("IMAGE", "D3_C1_" + i.ToString(), axis_roi[i].axis_d3_c1.ToString());
+                        WriteIni("IMAGE", "D3_R2_" + i.ToString(), axis_roi[i].axis_d3_r2.ToString());
+                        WriteIni("IMAGE", "D3_C2_" + i.ToString(), axis_roi[i].axis_d3_c2.ToString());
+                        WriteIni("IMAGE", "D3_PHI_" + i.ToString(), axis_roi[i].axis_d3_phi.ToString());
+                    }
+
                 }
+                catch (Exception ex)
+                {
+
+                }
+                   
+
+               
             }
 
                 if (PARA_IO == (sel & PARA_IO)) {
@@ -123,16 +158,52 @@ namespace ThressPinShaft
 
                 if (PARA_IMAGE == (sel & PARA_IMAGE))
                 {
+                try
+                {
                     com_sel = ReadIni("IMAGE", "COMSEL");
                     BaudRate = ReadIni("IMAGE", "BAUDRATE");
                     DataBits = ReadIni("IMAGE", "DATABIT");
-                
                     Parity = ReadIni("IMAGE", "PARITY");
                     StopBits = ReadIni("IMAGE", "STOPBIT");
 
-                    for (int i = 0; i < 3; i++) {
-                    axis_roi[i].adjust_c1 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_C1_"+i.ToString()));
+
+
+                    gear_roi.center_x = Convert.ToDouble(ReadIni("IMAGE", "C_X"));
+                    gear_roi.center_y = Convert.ToDouble(ReadIni("IMAGE", "C_Y"));
+                    gear_roi.radius = Convert.ToDouble(ReadIni("IMAGE", "RADIUS"));
+
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        axis_roi[i].adjust_r1 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_R1_" + i.ToString()));
+                        axis_roi[i].adjust_c1 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_C1_" + i.ToString()));
+                        axis_roi[i].adjust_r2 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_R2_" + i.ToString()));
+                        axis_roi[i].adjust_c2 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_C2_" + i.ToString()));
+                        axis_roi[i].adjust_phi = Convert.ToDouble(ReadIni("IMAGE", "ADJ_PHI_" + i.ToString()));
+
+                        axis_roi[i].axis_d1_r1 = Convert.ToDouble(ReadIni("IMAGE", "D1_R1_" + i.ToString()));
+                        axis_roi[i].axis_d1_c1 = Convert.ToDouble(ReadIni("IMAGE", "D1_C1_" + i.ToString()));
+                        axis_roi[i].axis_d1_r2 = Convert.ToDouble(ReadIni("IMAGE", "D1_R2_" + i.ToString()));
+                        axis_roi[i].axis_d1_c2 = Convert.ToDouble(ReadIni("IMAGE", "D1_C2_" + i.ToString()));
+                        axis_roi[i].axis_d1_phi = Convert.ToDouble(ReadIni("IMAGE", "D1_PHI_" + i.ToString()));
+
+                        axis_roi[i].axis_d2_r1 = Convert.ToDouble(ReadIni("IMAGE", "D2_R1_" + i.ToString()));
+                        axis_roi[i].axis_d2_c1 = Convert.ToDouble(ReadIni("IMAGE", "D2_C1_" + i.ToString()));
+                        axis_roi[i].axis_d2_r2 = Convert.ToDouble(ReadIni("IMAGE", "D2_R2_" + i.ToString()));
+                        axis_roi[i].axis_d2_c2 = Convert.ToDouble(ReadIni("IMAGE", "D2_C2_" + i.ToString()));
+                        axis_roi[i].axis_d2_phi = Convert.ToDouble(ReadIni("IMAGE", "D2_PHI_" + i.ToString()));
+
+                        axis_roi[i].axis_d3_r1 = Convert.ToDouble(ReadIni("IMAGE", "D3_R1_" + i.ToString()));
+                        axis_roi[i].axis_d3_c1 = Convert.ToDouble(ReadIni("IMAGE", "D3_C1_" + i.ToString()));
+                        axis_roi[i].axis_d3_r2 = Convert.ToDouble(ReadIni("IMAGE", "D3_R2_" + i.ToString()));
+                        axis_roi[i].axis_d3_c2 = Convert.ToDouble(ReadIni("IMAGE", "D3_C2_" + i.ToString()));
+                        axis_roi[i].axis_d3_phi = Convert.ToDouble(ReadIni("IMAGE", "D3_PHI_" + i.ToString()));
                     }
+                }
+                catch (Exception ex)
+                {
+
+                }
                 }
 
                 if (PARA_IO == (sel & PARA_IO))
@@ -164,16 +235,23 @@ namespace ThressPinShaft
             public double axis_d2_r2;
             public double axis_d2_c2;
             public double axis_d2_phi;
+
+            //轴高度的
+            public double axis_d3_r1;
+            public double axis_d3_c1;
+            public double axis_d3_r2;
+            public double axis_d3_c2;
+            public double axis_d3_phi;
         }
 
         public struct roi_chi {
-            double center_x;
-            double center_y;
-            double radius;
+            public double center_x;
+            public double center_y;
+            public double radius;
         }
 
         public static roi[] axis_roi= { new roi(),new roi(), new roi()};
-        public static roi_chi gear_roi;
+        public static roi_chi gear_roi = new roi_chi();
         //串口选择
         public static string com_sel = "COM1";
         public static string BaudRate = "9600";

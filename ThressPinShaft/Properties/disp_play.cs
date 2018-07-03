@@ -7,6 +7,7 @@
 using System;
 using System.Windows;
 using HalconDotNet;
+using ThressPinShaft;
 
 public partial class HDevelopExportDisp
 {
@@ -660,7 +661,7 @@ public partial class HDevelopExportDisp
     }
 
     public void p_disp_edge_marker(HTuple hv_Row, HTuple hv_Col, HTuple hv_Phi, HTuple hv_Length,
-     HTuple hv_Color, HTuple hv_LineWidth, HTuple hv_WindowHandle)
+     HTuple hv_Color, HTuple hv_LineWidth, HTuple hv_WindowHandle, string Color)
     {
 
 
@@ -709,7 +710,7 @@ public partial class HDevelopExportDisp
 
     public void p_disp_dimensions(HTuple hv_RowEdgeFirst, HTuple hv_ColumnEdgeFirst,
     HTuple hv_RowEdgeSecond, HTuple hv_ColumnEdgeSecond, HTuple hv_IntraDistance,
-    HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle)
+    HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle,string Color )
     {
 
 
@@ -729,15 +730,15 @@ public partial class HDevelopExportDisp
             //
             //Display markers for the edges.
             p_disp_edge_marker(hv_RowEdgeFirst.TupleSelect(hv_i), hv_ColumnEdgeFirst.TupleSelect(
-                hv_i), hv_Phi, hv_Length, "#FF00FF", 2, hv_WindowHandle);
+                hv_i), hv_Phi, hv_Length,Color , 2, hv_WindowHandle,Color);
             p_disp_edge_marker(hv_RowEdgeSecond.TupleSelect(hv_i), hv_ColumnEdgeSecond.TupleSelect(
-                hv_i), hv_Phi, hv_Length, "#00FFFF", 2, hv_WindowHandle);
+                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle,Color);
             //
             //Display the IntraDistance between the edges.
             hv_Text = hv_IntraDistance.TupleSelect(hv_i);
             p_disp_text_right_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeFirst.TupleSelect(
                 hv_i), hv_ColumnEdgeFirst.TupleSelect(hv_i), hv_RowEdgeSecond.TupleSelect(
-                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length);
+                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length,Color);
         }
         //
         //Loop to display the distance between the edge pairs.
@@ -758,7 +759,7 @@ public partial class HDevelopExportDisp
 
     public void p_disp_text_right_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
      HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
-     HTuple hv_Phi, HTuple hv_Distance)
+     HTuple hv_Phi, HTuple hv_Distance,string Color)
     {
 
         HTuple hv_Row1Part = null, hv_Column1Part = null;
@@ -799,7 +800,7 @@ public partial class HDevelopExportDisp
         //
         //Set the text position and color and display the text.
         HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_RowText, hv_ColText);
-        HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
+        HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
         HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_Text);
 
         return;
@@ -855,7 +856,7 @@ public partial class HDevelopExportDisp
         return;
     }
 
-    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, HTuple Window,double dmin = 20,double dmax=200)
+    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, HTuple Window,bool isDisp = true,string Color = "#FF00FF")
     {
         bool isOK = false;
         HObject ho_Rectangle;
@@ -872,10 +873,10 @@ public partial class HDevelopExportDisp
         try
         {
             hv_ExpDefaultWinHandle = Window;
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
+            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
             HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
             set_display_font(hv_ExpDefaultWinHandle, 16, "mono", "true", "false");
-            HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+           // HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
             HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
                 hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
             hv_Sigma = 0.9;
@@ -887,18 +888,20 @@ public partial class HDevelopExportDisp
                 out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
                 out hv_IntraDistance, out hv_InterDistance);
 
-            HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+            if(isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
             HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
+            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
             ho_Rectangle.Dispose();
             HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
                 hv_Length2);
             p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
-                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle);
-            if ((hv_IntraDistance > dmin) && (hv_IntraDistance < dmax))
-                isOK = true;
-            else
-                isOK = false;
+                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle,Color);
+
+            HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+            ho_Rectangle.Dispose();
+            HOperatorSet.CloseMeasure(hv_MeasureHandle);
+            return hv_IntraDistance.ToString();
+
             /*
             HOperatorSet.CreateFunct1dPairs(((new HTuple(7)).TupleConcat(9)).TupleConcat(
                 11), ((new HTuple(0.0)).TupleConcat(1.0)).TupleConcat(0.0), out hv_SizeFunction);
@@ -930,7 +933,7 @@ public partial class HDevelopExportDisp
             disp_message(hv_ExpDefaultWinHandle, "Fuzzy measure results", "window", 12,
                 12, "blue", "true");
                 */
-            HOperatorSet.CloseMeasure(hv_MeasureHandle);
+            
         }
         catch (HalconException HDevExpDefaultException)
         {
@@ -1031,16 +1034,31 @@ public partial class HDevelopExportDisp
     }
 
 
-    public string check_axis(HObject ho_Image,HTuple Window) {
+    
+
+    public string check_axis(HObject ho_Image,int Cam_idx,HTuple Window) {
         try
         {
+            //»ñÈ¡½Ç¶È
+            //½ÃÕýÍ¼Æ¬
+            //Éú³ÉÖ±¾¶¼ì²â¿ò
             hv_ExpDefaultWinHandle = Window;
-            action(ho_Image);
-
+            HObject Ho_Image = null;
+            HOperatorSet.GenEmptyObj(out Ho_Image);
+            double Angle = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
+                INI.axis_roi[Cam_idx].adjust_c2,Window,false);
+            HOperatorSet.RotateImage(ho_Image, out Ho_Image, Angle, "constant");
+            action(Ho_Image);
+            //²âÖáÖ±¾¶
+            Measure_Diameter(Ho_Image,INI.axis_roi[Cam_idx].axis_d1_r1,INI.axis_roi[Cam_idx].axis_d1_c1,0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, Window,false);
+            //²â¹µ²ÛÖ±¾¶
+            Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, Window, false,"#00FFFF");
+            ho_Image.Dispose();
             return "OK";
         }
         catch (HalconException ex)
         {
+            ho_Image.Dispose();
             throw ex;
         }
     }

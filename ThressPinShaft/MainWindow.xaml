@@ -15,14 +15,15 @@
             <TabItem Header="检测显示">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-
+                        <ColumnDefinition Width="73*"/>
+                        <ColumnDefinition Width="884*"/>
                     </Grid.ColumnDefinitions>
                     <halcon:HWindowControlWPF x:Name="Cam1_Disp" HorizontalAlignment="Left" Height="450" Margin="0,0,0,0" VerticalAlignment="Top" Width="630" Grid.ColumnSpan="2"/>
-                    <halcon:HWindowControlWPF x:Name="Cam2_Disp" HorizontalAlignment="Left" Height="450" Margin="630,0,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
+                    <halcon:HWindowControlWPF x:Name="Cam2_Disp" HorizontalAlignment="Left" Height="450" Margin="484,0,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
                     <halcon:HWindowControlWPF x:Name="Cam3_Disp" HorizontalAlignment="Left" Height="450" Margin="0,450,0,0" VerticalAlignment="Top" Width="630" Grid.ColumnSpan="2"/>
-                    <halcon:HWindowControlWPF x:Name="Cam4_Disp" HorizontalAlignment="Left" Height="450" Margin="630,450,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
+                    <halcon:HWindowControlWPF x:Name="Cam4_Disp" HorizontalAlignment="Left" Height="450" Margin="484,450,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
 
-                    <Grid Margin="1280,0,0,0" Height="900" Grid.Column="1" >
+                    <Grid Margin="1134,1.5,0,1.5" Height="900" Grid.Column="1" >
                         <TextBox Margin="0,0,0,0" Height="900" Width="300" HorizontalAlignment="Left" Name="pTextBoxHistory" Cursor="" IsReadOnly="True">
 
                         </TextBox>
@@ -52,13 +53,15 @@
                     </GroupBox>
                     <halcon:HWindowControlWPF x:Name="CamSetting" HorizontalAlignment="Left" Height="900" Margin="300,0,0,0" VerticalAlignment="Top" Width="1200"/>
                     <Canvas HorizontalAlignment="Left" Height="862" Margin="1500,0,0,0" VerticalAlignment="Top" Width="414">
-                        <Button Content="查找矫正边缘"  HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Boder"/>
+                        <Button Content="查找矫正边缘"  Name ="Bt_Adjust" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Boder"/>
 
-                        <Button Content="检测直径"  HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
+                        <Button Content="检测轴外径"   Name="Bt_D" HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
 
+                        <Button Content="检测沟槽直径"  Name="Bt_Slot"  HorizontalAlignment="Left" Margin="30,140,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Slot_Measure"/>
 
-                        <Button Content="检测轴高"    HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
+                        <Button Content="检测轴高度"   Name="Bt_Height" HorizontalAlignment="Left" Margin="30,180,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure"/>
 
+                        <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" Margin="30,220,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure"/>
 
                         <Button Content="测试结果"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Test_Image" Canvas.Left="30" Canvas.Top="685"/>
 
@@ -84,7 +87,7 @@
                     <ComboBox  x:Name="pStopBitsSel" Height="25" Width="200" Margin="0,0,0,0" Canvas.Top="150" Canvas.Left="100" DropDownClosed="StopBitSel_DropDownClosedClick"/>
                     <Label     Canvas.Top="192" Canvas.Left="20" Content="校验位" />
                     <ComboBox  x:Name="pParitySel" Height="25" Width="200" Margin="0,0,0,0" Canvas.Top="190" Canvas.Left="100" DropDownClosed="ParitySel_DropDownClosedClick"/>
-                    <TextBox Name="RecivedData" Height="470" Canvas.Left="336" TextWrapping="Wrap" Text="TextBox" Canvas.Top="32" Width="1574"/>
+                    <TextBox x:Name="RecivedData" Height="470" Canvas.Left="336" TextWrapping="Wrap" Text="TextBox" Canvas.Top="32" Width="1574"/>
                     <TextBox Name="SendData" Height="190" Canvas.Left="336"  TextWrapping="Wrap" Text="TextBox" Canvas.Top="537" Width="1574" IsReadOnly="False"/>
                     <Button Content="发送" Canvas.Left="336" Canvas.Top="768" Width="183" RenderTransformOrigin="-13.513,-1.842" Height="44.5" Click="Button_Click_Send_Data"/>
                     <Button Content="打开串口" Canvas.Left="100" Canvas.Top="230" Width="200" RenderTransformOrigin="-13.513,-1.842" Height="25" Click="Button_Click_OpenSP"/>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -130,8 +131,11 @@ namespace ThressPinShaft
     public class global
     {
         public int CamSel = 0;
-
-
+        public int[] GotImage = { 0, 0, 0, 0 };
+        public string[] res = { "NOIMAGE","NOIMAGE","NOIMAGE","NOIMAGE"};
+        public HTuple[] Window = { null, null, null, null };
+        public string FromPLC = "";
+        public string[] sArray;
 
         private static global uniqueInstance;
         private global() { }
@@ -233,26 +237,31 @@ namespace ThressPinShaft
     {
         History history = new History();
         Binding bd = new Binding();
+        string[] camera_name = { "CameraA","CameraB","CameraC","CameraD"};
   
         List<string> lstCOM = new List<string>();
+        delegate string TestImage(HObject ho_Image, HTuple WindowHandle);
 
-        HObject Obj_A, Obj_B, Obj_C, Obj_D, ho_Rectange_Again;
-        HObject[] Obj = new HObject[4];
+        static HObject Obj_A, Obj_B, Obj_C, Obj_D, ho_Rectange_Again;
+        static HObject[] Obj = new HObject[4];
 
-        HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
-        HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
+        static HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
+        static HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraB = new HDevelopExportGrab("B");
-        HDevelopExportDisp CameraBDisp = new HDevelopExportDisp();
+        static HDevelopExportGrab CameraB = new HDevelopExportGrab("B");
+        static HDevelopExportDisp CameraBDisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraC = new HDevelopExportGrab("C");
-        HDevelopExportDisp CameraCDisp = new HDevelopExportDisp();
+        static HDevelopExportGrab CameraC = new HDevelopExportGrab("C");
+        static HDevelopExportDisp CameraCDisp = new HDevelopExportDisp();
 
-        HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
-        HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
+        static HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
+        static HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
 
         HDevelopExportDisp CameraSettingDisp = new HDevelopExportDisp();
         HTuple hv_Exception;
+
+        HDevelopExport hd = new HDevelopExport();
+        private Mutex mutex;
 
         private void Button_Click_Get_Image(object sender, RoutedEventArgs e)
         {
@@ -294,15 +303,9 @@ namespace ThressPinShaft
 
 
 
-        //private void camera_setting_sel() {
-
-        //}
-
-
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            
+    
             try
             {
                 CameraA.Grab(out Obj_A, out hv_Exception);
@@ -324,6 +327,19 @@ namespace ThressPinShaft
                 CameraADisp.RunHalcon(this.Cam4_Disp.HalconID, Obj_D);
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
+            }
+
+            try
+            {
+                CameraADisp.check_axis(Obj_A, 0, Cam1_Disp.HalconID);
+                CameraBDisp.check_axis(Obj_B, 0, Cam2_Disp.HalconID);
+                CameraCDisp.check_axis(Obj_C, 0, Cam3_Disp.HalconID);
+                CameraDDisp.check_axis(Obj_D, 0, Cam4_Disp.HalconID);
+
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                Console.WriteLine(HDevExpDefaultException.ToString());
             }
         }
 
@@ -370,7 +386,7 @@ namespace ThressPinShaft
         private void Button_Click_D_Measure(object sender, RoutedEventArgs e)
         {
             HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
-            HOperatorSet.SetColor(this.CamSetting.HalconID, "yellow");
+            HOperatorSet.SetColor(this.CamSetting.HalconID, "#FF00FF");
             HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
             HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
             HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
@@ -379,7 +395,7 @@ namespace ThressPinShaft
             {
                 switch (global.GetIns().CamSel)
                 {
-                    case 0: CameraADisp.Measure_Diameter(Obj_A, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID,20,200); break;
+                    case 0: CameraADisp.Measure_Diameter(Obj_A, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                     case 1: CameraBDisp.Measure_Diameter(Obj_B, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                     case 2: CameraCDisp.Measure_Diameter(Obj_C, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                    // case 3: CameraDDisp.Measure_Diameter(Obj_D, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
@@ -392,23 +408,18 @@ namespace ThressPinShaft
                 return;
             }
 
-
             INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r1 = hv_r2r;
             INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c1 = hv_r2c;
             INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r2 = hv_r2w;
             INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c2 = hv_r2h;
             INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_phi = hv_r2phi;
-
-
-
-
             HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
             INI.writting();
         }
 
         private void Button_Click_Send_Data(object sender, RoutedEventArgs e)
         {
-                try
+            try
                 {
                     byte[] bytesSend = System.Text.Encoding.Default.GetBytes(SendData.Text);
                     serial_port.Write(bytesSend, 0, bytesSend.Length);
@@ -420,29 +431,126 @@ namespace ThressPinShaft
                 }
         }
 
-        delegate string TestImage(HObject ho_Image, HTuple WindowHandle);
+
 
         private void Button_Click_Test_Image(object sender, RoutedEventArgs e)
         {
 
         }
 
-        HDevelopExport hd = new HDevelopExport();
-        public void UpdateUI() {
+
+
+        private void Button_Click_Slot_Measure(object sender, RoutedEventArgs e)
+        {
+            HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
+            HOperatorSet.SetColor(this.CamSetting.HalconID, "green");
+            HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
+            HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
+            HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
+
+            try
+            {
+                switch (global.GetIns().CamSel)
+                {
+                    case 0: CameraADisp.Measure_Diameter(Obj_A, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 1: CameraBDisp.Measure_Diameter(Obj_B, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 2: CameraCDisp.Measure_Diameter(Obj_C, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    // case 3: CameraDDisp.Measure_Diameter(Obj_D, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    default: break;
+                }
+            }
+            catch (HalconException ex)
+            {
+                history.HistoryNotify += ex.ToString() + "\r\n";
+                return;
+            }
+
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r1 = hv_r2r;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c1 = hv_r2c;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r2 = hv_r2w;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c2 = hv_r2h;
+            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_phi = hv_r2phi;
+            HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+            INI.writting();
+        }
+
+        private void Button_Click_Gear_Measure(object sender, RoutedEventArgs e)
+        {
+            HObject Ho_Circle = null;
+            HOperatorSet.GenEmptyObj(out Ho_Circle);
+            try
+            {
+                HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
+                HOperatorSet.SetColor(this.CamSetting.HalconID, "yellow");
+                HTuple hv_x = null, hv_y = null, hv_r = null;
+                HOperatorSet.DrawCircle(this.CamSetting.HalconID, out hv_y, out hv_x, out hv_r);
+                HOperatorSet.GenCircle(out Ho_Circle, hv_y,hv_x,hv_r);
+                HOperatorSet.DispObj(Ho_Circle, this.CamSetting.HalconID);
+                INI.gear_roi.center_x = hv_x;
+                INI.gear_roi.center_x = hv_y;
+                INI.gear_roi.center_x = hv_r;
+                INI.writting();
+                Ho_Circle.Dispose();
+            }
+            catch (HalconException ex)
+            {
+                Ho_Circle.Dispose();
+            }
+      
+        }
+
+        private void Button_Click_Height_Measure(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        public void UpdateUI(int sel = 0) {
             Console.WriteLine("UpdateUI");
-            return;
+
+            if (sel > 2)
+            {
+                this.Bt_Adjust.Visibility = Visibility.Hidden;
+                this.Bt_Gear.Visibility = Visibility.Hidden;
+                this.Bt_Height.Visibility = Visibility.Hidden;
+                this.Bt_Slot.Visibility = Visibility.Hidden;
+                this.Bt_D.Visibility = Visibility.Hidden;
+                this.Bt_Gear.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.Bt_Adjust.Visibility = Visibility.Visible;
+                this.Bt_Gear.Visibility = Visibility.Visible;
+                this.Bt_Height.Visibility = Visibility.Visible;
+                this.Bt_Slot.Visibility = Visibility.Visible;
+                this.Bt_D.Visibility = Visibility.Visible;
+                this.Bt_Gear.Visibility = Visibility.Hidden;
+            }
+
         }
 
         public void CamSel_DropDownClosedClick(object sender, EventArgs e)
         {
             ComboBox l_CmbBox = sender as ComboBox;
-            global.GetIns().CamSel = Convert.ToInt32(l_CmbBox.SelectedValue.ToString());
-            UpdateUI();
+            int sel = Convert.ToInt32(l_CmbBox.SelectedValue.ToString());
+            UpdateUI(sel);
         }
 
 
+        [STAThread]
+        void App_Startup()
+        {
+            bool ret;
+            mutex = new System.Threading.Mutex(true, "ThreePinShaft", out ret);
 
-        
+            if (!ret)
+            {
+                MessageBox.Show("程序已经打开");
+                Environment.Exit(0);
+            }
+
+        }
+
+
 
 
         //异步抓取图片
@@ -450,6 +558,7 @@ namespace ThressPinShaft
         public MainWindow()
         {
                 InitializeComponent();
+                App_Startup();
                 INI.reading();
 
 #if DEBUG
@@ -483,7 +592,7 @@ namespace ThressPinShaft
 
             try
             {
-                CameraA.InitHalcon("A");
+                CameraA.InitHalcon(camera_name[0]);
             } catch (HalconException HDevExpDefaultException)
              {
                 HTuple hv_exception = null;
@@ -497,7 +606,7 @@ namespace ThressPinShaft
 
             try
             {
-                CameraB.InitHalcon("B");
+                CameraB.InitHalcon(camera_name[1]);
             }
             catch (HalconException HDevExpDefaultException)
             {
@@ -511,7 +620,7 @@ namespace ThressPinShaft
             }
             try
             {
-                CameraC.InitHalcon("C");
+                CameraC.InitHalcon(camera_name[2]);
             }
             catch (HalconException HDevExpDefaultException)
             {
@@ -525,7 +634,7 @@ namespace ThressPinShaft
             }
             try
             {
-                CameraD.InitHalcon("D");
+                CameraD.InitHalcon(camera_name[3]);
             }
             catch (HalconException HDevExpDefaultException)
             {
@@ -539,7 +648,6 @@ namespace ThressPinShaft
             }
 
             hd.InitHalcon(width, height);
-
             //相机的combox选择
             List<ComboxBind> lstCmbBind = new List<ComboxBind>();
             lstCmbBind.Add(new ComboxBind("三销轴检测相机1", 0));
@@ -595,14 +703,14 @@ namespace ThressPinShaft
                     pStopBitsSel.SelectedItem = INI.StopBits;
                 }
 
-                List<string> Parity = new List<string>();
-                Parity.Add("None");
-                Parity.Add("Odd");
-                Parity.Add("Even");
-                pParitySel.ItemsSource = Parity;
-                if (!Parity.Contains(INI.Parity))
+                List<string> _Parity = new List<string>();
+                _Parity.Add("None");
+               _Parity.Add("Odd");
+               _Parity.Add("Even");
+                pParitySel.ItemsSource = _Parity;
+                if (!_Parity.Contains(INI.Parity))
                 {
-                    pParitySel.ItemsSource = "None";
+                    pParitySel.SelectedItem = "None";
                     ToWrite = true;
                 }
                 else {
@@ -653,6 +761,8 @@ namespace ThressPinShaft
                     INI.com_sel = sAllPort.ElementAt(0);
                     INI.BaudRate = "9600";
                     INI.DataBits = "8";
+                    INI.Parity = "None";
+                    INI.StopBits = "1";
                     OpenSerialPort();
                     INI.writting();
                 }
@@ -668,6 +778,20 @@ namespace ThressPinShaft
             BindingOperations.SetBinding(this.pTextBoxHistory, TextBox.TextProperty, bd);
             string c_ = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...\r\n";
             history.HistoryNotify += c_;
+
+
+            global.GetIns().Window[0] = this.Cam1_Disp.HalconID;
+            global.GetIns().Window[1] = this.Cam2_Disp.HalconID;
+            global.GetIns().Window[2] = this.Cam3_Disp.HalconID;
+            global.GetIns().Window[3] = this.Cam4_Disp.HalconID;
+
+            new Thread(new ThreadStart(CameraADeal)).Start();
+            new Thread(new ThreadStart(CameraBDeal)).Start();
+            new Thread(new ThreadStart(CameraCDeal)).Start();
+            new Thread(new ThreadStart(CameraDDeal)).Start();
+            new Thread(new ThreadStart(CameraControl)).Start();
+
+            UpdateUI();
         }
        
 
