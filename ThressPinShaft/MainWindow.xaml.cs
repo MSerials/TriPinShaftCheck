@@ -29,9 +29,11 @@ namespace ThressPinShaft
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
     /// 
+#if DEBUG
     [SuppressUnmanagedCodeSecurity]
     public static class ConsoleManager
     {
+
         private const string Kernel32_DllName = "kernel32.dll";
 
         [DllImport(Kernel32_DllName)]
@@ -125,6 +127,8 @@ namespace ThressPinShaft
 
         }
     }
+
+#endif
 
 
 
@@ -262,6 +266,30 @@ namespace ThressPinShaft
 
         HDevelopExport hd = new HDevelopExport();
         private Mutex mutex;
+
+
+        private  void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("是否关闭程序?", "", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
+            try
+            {
+                serial_port.Close();
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        // 主界面完成关闭
+        private void Window_Closed(object sender, System.EventArgs e)
+        {
+            //Application.Current.Shutdown(); // 正常结束
+            Environment.Exit(0);              // 强制结束
+        }
 
         private void Button_Click_Get_Image(object sender, RoutedEventArgs e)
         {
@@ -401,14 +429,14 @@ namespace ThressPinShaft
             HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
             HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
             HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
-
+            HTuple hv_c = null, hv_r = null;
             try
             {
                 switch (global.GetIns().CamSel)
                 {
-                    case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
-                    case 1: CameraBDisp.Measure_Diameter(Obj[1], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
-                    case 2: CameraCDisp.Measure_Diameter(Obj[2], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
+                    case 1: CameraBDisp.Measure_Diameter(Obj[1], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
+                    case 2: CameraCDisp.Measure_Diameter(Obj[2], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
                    // case 3: CameraDDisp.Measure_Diameter(Obj[3], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                     default: break;
                 }
@@ -481,14 +509,14 @@ namespace ThressPinShaft
             HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
             HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
             HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
-
+            HTuple hv_r = null, hv_c = null;
             try
             {
                 switch (global.GetIns().CamSel)
                 {
-                    case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
-                    case 1: CameraBDisp.Measure_Diameter(Obj[1], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
-                    case 2: CameraCDisp.Measure_Diameter(Obj[2], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
+                    case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
+                    case 1: CameraBDisp.Measure_Diameter(Obj[1], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
+                    case 2: CameraCDisp.Measure_Diameter(Obj[2], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
                     // case 3: CameraDDisp.Measure_Diameter(Obj[3], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                     default: break;
                 }
@@ -624,32 +652,82 @@ namespace ThressPinShaft
 
         private void Button_Click_Height_Measure(object sender, RoutedEventArgs e)
         {
+            //eerror
+            int Cam_idx = global.GetIns().CamSel;
 
+
+            try
+            {
+                HObject ho_Rectange_Again = null;
+                HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
+                HOperatorSet.SetColor(this.CamSetting.HalconID, "green");
+                HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
+                HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
+                HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r1 = hv_r2r;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c1 = hv_r2c;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r2 = hv_r2w;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c2 = hv_r2h;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_phi = hv_r2phi;
+                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+                INI.writting();
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            HObject Ho_Image;
+            HTuple hv_c=null, hv_r = null;
+            HOperatorSet.GenEmptyObj(out Ho_Image);
+            try
+            {
+                double Angle = CameraADisp.Disp_Adjust_Line(Obj[Cam_idx], INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
+                INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID, false);
+                HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
+                HOperatorSet.DispObj(Ho_Image, this.CamSetting.HalconID);
+                CameraADisp.Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
+                CameraADisp.check_height(Ho_Image, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2,hv_c,hv_r, this.CamSetting.HalconID, false);
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            Ho_Image.Dispose();
         }
 
         private void Button_Click_Save_INI(object sender, RoutedEventArgs e)
         {
-            int idx = global.GetIns().CamSel;
-            if (idx > 2)
+            try
             {
-                INI.gear_roi.threshold = Convert.ToDouble(this.Gear_Threshold.Text);
+                int idx = global.GetIns().CamSel;
+                if (idx > 2)
+                {
+                    INI.gear_roi.threshold = Convert.ToDouble(this.Gear_Threshold.Text);
+                    INI.gear_roi.imgthreshold = Convert.ToDouble(this.Image_Threshold.Text);
+                }
+                else
+                {
+                    INI.axis_roi[idx].d1_min = Convert.ToDouble(this.D1_Min.Text);
+                    INI.axis_roi[idx].d1_max = Convert.ToDouble(this.D1_Max.Text);
+                    INI.axis_roi[idx].d1_mmppix = Convert.ToDouble(this.Ratio.Text);
 
+
+                    INI.axis_roi[idx].d2_min = Convert.ToDouble(this.D2_Min.Text);
+                    INI.axis_roi[idx].d2_max = Convert.ToDouble(this.D2_Max.Text);
+
+
+                    INI.axis_roi[idx].d3_min = Convert.ToDouble(this.D3_Min.Text);
+                    INI.axis_roi[idx].d3_max = Convert.ToDouble(this.D3_Max.Text);
+                }
+                INI.writting();
             }
-            else
+            catch (Exception ex)
             {
-                INI.axis_roi[idx].d1_min = Convert.ToDouble(this.D1_Min.Text);
-                INI.axis_roi[idx].d1_max = Convert.ToDouble(this.D1_Max.Text);
-
-
-                INI.axis_roi[idx].d2_min = Convert.ToDouble(this.D2_Min.Text);
-                INI.axis_roi[idx].d2_max = Convert.ToDouble(this.D2_Max.Text);
-
-
-                INI.axis_roi[idx].d3_min = Convert.ToDouble(this.D3_Min.Text);
-                INI.axis_roi[idx].d3_max = Convert.ToDouble(this.D3_Max.Text);
-
+                Console.WriteLine(ex.ToString());
+                MessageBox.Show("保存失败，可能参数不对,或者删除原有的prj文件重新调整参数");
             }
-            INI.writting();
         }
 
         private void Button_Click_Save_Cam_Image(object sender, RoutedEventArgs e)
@@ -670,12 +748,10 @@ namespace ThressPinShaft
         }
 
         public void UpdateUI(int sel = 0) {
-            Console.WriteLine("UpdateUI");
-
             if (sel > 2)
             {
                 this.Bt_Adjust.Visibility = Visibility.Hidden;
-                this.Bt_Gear.Visibility = Visibility.Hidden;
+                
                 this.Bt_Height.Visibility = Visibility.Hidden;
                 this.Bt_Slot.Visibility = Visibility.Hidden;
                 this.Bt_D.Visibility = Visibility.Hidden;
@@ -694,7 +770,11 @@ namespace ThressPinShaft
                 this.L_D3_Min.Visibility = Visibility.Hidden;
                 this.L_D3_Max.Visibility = Visibility.Hidden;
 
-                this.Bt_Gear.Visibility = Visibility.Visible;
+                this.Ratio.Visibility = Visibility.Hidden;
+                this.L_Ratio.Visibility = Visibility.Hidden;
+                this.L_Ratio_.Visibility = Visibility.Hidden;
+
+                this.Bt_Gear.Visibility = Visibility.Hidden;
                 this.Gear_Threshold.Visibility = Visibility.Visible;
                 this.L_Gear_Threshold.Visibility = Visibility.Visible;
 
@@ -705,11 +785,13 @@ namespace ThressPinShaft
                 this.Image_Threshold.Text = Convert.ToInt32(INI.gear_roi.imgthreshold.ToString()).ToString();
                 this.Gear_Threshold.Text = INI.gear_roi.threshold.ToString();
 
+
+               
             }
             else
             {
                 this.Bt_Adjust.Visibility = Visibility.Visible;
-                this.Bt_Gear.Visibility = Visibility.Visible;
+                
                 this.Bt_Height.Visibility = Visibility.Visible;
                 this.Bt_Slot.Visibility = Visibility.Visible;
                 this.Bt_D.Visibility = Visibility.Visible;
@@ -728,7 +810,14 @@ namespace ThressPinShaft
                 this.L_D3_Min.Visibility = Visibility.Visible;
                 this.L_D3_Max.Visibility = Visibility.Visible;
 
+                this.Ratio.Visibility = Visibility.Visible;
+                this.L_Ratio.Visibility = Visibility.Visible;
+                this.L_Ratio_.Visibility = Visibility.Visible;
+
+
+
                 this.Bt_Gear.Visibility = Visibility.Hidden;
+          
                 this.Gear_Threshold.Visibility = Visibility.Hidden;
                 this.L_Gear_Threshold.Visibility = Visibility.Hidden;
 
@@ -736,6 +825,7 @@ namespace ThressPinShaft
                 this.Image_Threshold.Visibility = Visibility.Hidden;
                 this.L_Image_Threshold.Visibility = Visibility.Hidden;
 
+  
                 this.D1_Min.Text = INI.axis_roi[sel].d1_min.ToString();
                 this.D1_Max.Text = INI.axis_roi[sel].d1_max.ToString();
 
@@ -744,6 +834,7 @@ namespace ThressPinShaft
 
                 this.D3_Min.Text = INI.axis_roi[sel].d3_min.ToString();
                 this.D3_Max.Text = INI.axis_roi[sel].d3_max.ToString();
+                this.Ratio.Text = INI.axis_roi[sel].d1_mmppix.ToString();
             }
 
 
@@ -833,9 +924,9 @@ namespace ThressPinShaft
                 Console.WriteLine(ex.ToString());
                 MessageBox.Show("模板文件载入失败，无法检测内齿");
             }
-     
 
 
+            string error_init = "";
             try
             {
                 CameraA.InitHalcon(camera_name[0]);
@@ -846,7 +937,8 @@ namespace ThressPinShaft
 #if DEBUG
                 Console.WriteLine("初始化相机一失败");
 #else
-                MessageBox.Show("初始化相机一失败");
+                error_init += " 初始化相机一失败";
+               
 #endif
             }
 
@@ -861,7 +953,7 @@ namespace ThressPinShaft
 #if DEBUG
                 Console.WriteLine("初始化相机二失败");
 #else
-                MessageBox.Show("初始化相机二失败");
+                error_init += " 初始化相机二失败";
 #endif
             }
             try
@@ -875,7 +967,7 @@ namespace ThressPinShaft
 #if DEBUG
                 Console.WriteLine("初始化相机三失败");
 #else
-                MessageBox.Show("初始化相机三失败");
+                error_init += " 初始化相机三失败";
 #endif
             }
             try
@@ -889,8 +981,13 @@ namespace ThressPinShaft
 #if DEBUG
                 Console.WriteLine("初始化相机四失败");
 #else
-                MessageBox.Show("初始化相机四失败");
+                error_init += " 初始化相机四失败";
 #endif
+            }
+
+            if (error_init.Length > 0)
+            {
+                MessageBox.Show(error_init);
             }
 
             hd.InitHalcon(width, height);
@@ -1038,6 +1135,8 @@ namespace ThressPinShaft
             new Thread(new ThreadStart(CameraControl)).Start();
 
             UpdateUI();
+
+            this.TextBt.Visibility = Visibility.Hidden;
         }
 
 
