@@ -5,6 +5,7 @@
 //  HDevelopTemplateWPF projects located under %HALCONEXAMPLES%\c#
 
 using System;
+using System.Threading;
 using HalconDotNet;
 
 public partial class HDevelopExportGrab
@@ -27,16 +28,13 @@ public partial class HDevelopExportGrab
 #endif
      try
     {
-      HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1, 
-          "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
-      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 50000);
-      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
-     // HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "On");
-      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "Off");
-      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSource", "Line0");
-      HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerActivation", "RisingEdge");
-      HOperatorSet.GrabImageStart(hv_AcqHandle, -1);
-      return;
+            HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1,
+                "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 50000);
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "On");
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSource", "Software");
+            HOperatorSet.GrabImageStart(hv_AcqHandle, -1);
     }
     catch (HalconException HDevExpDefaultException)
     {
@@ -62,17 +60,27 @@ public partial class HDevelopExportGrab
     {
         try
         {
-            ho_Image = null;
+            HOperatorSet.GrabImageStart(hv_AcqHandle, -1);
+        }
+        catch (HalconException ex)
+        {
+
+            Console.WriteLine("alread opened" + ex.ToString());
+        }
+        try
+        {
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSoftware", -1);
+            Console.WriteLine("triiger");
             HOperatorSet.GenEmptyObj(out ho_Image);
             ho_Image.Dispose();
-            HOperatorSet.GrabImage(out ho_Image, hv_AcqHandle);
-            //HOperatorSet.GrabImageAsync(out ho_Image, hv_AcqHandle, 1000);
+            HOperatorSet.GrabImageAsync(out ho_Image, hv_AcqHandle, 500);
         }
         catch (HalconException HDevExpDefaultException)
         {
             throw HDevExpDefaultException;
         }
     }
+    /*
 
     public void Grab(out HObject ho_Image, out HTuple hv_exception) {
         hv_exception = null;
@@ -90,7 +98,7 @@ public partial class HDevelopExportGrab
             throw HDevExpDefaultException1;
         }
     }
-
+    */
   public void RunHalcon()
   {
      

@@ -35,24 +35,10 @@
                 </Grid>
             </TabItem>
             <TabItem Header="相机参数">
-                <Grid Background="#FFE5E5E5">
-                    <GroupBox Header="流程浏览" HorizontalAlignment="Left" Height="900" Margin="0,0,0,0" VerticalAlignment="Top" Width="300">
-                        <StackPanel x:Name="ListFun" HorizontalAlignment="Left"  Width =" 300" Height ="890">
-                            <StackPanel.ContextMenu>
-                                <ContextMenu Name="cm" StaysOpen="true">
-                                    <MenuItem Header="File"/>
-                                    <MenuItem Header="Save"/>
-                                    <MenuItem Header="SaveAs"/>
-                                    <MenuItem Header="Recent Files">
-                                        <MenuItem Header="ReadMe.txt"/>
-                                        <MenuItem Header="Schedule.xls"/>
-                                    </MenuItem>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
-                        </StackPanel>
-                    </GroupBox>
-                    <halcon:HWindowControlWPF x:Name="CamSetting" HorizontalAlignment="Left" Height="900" Margin="300,0,0,0" VerticalAlignment="Top" Width="1200"/>
-                    <Canvas HorizontalAlignment="Left" Height="862" Margin="1500,0,0,0" VerticalAlignment="Top" Width="414">
+                <Grid Background="#FFE5E5E5" Margin="0,0,0,0">
+
+                    <halcon:HWindowControlWPF x:Name="CamSetting" HorizontalAlignment="Left" Height="900" Margin="0,0,0,0" VerticalAlignment="Top" Width="1200"/>
+                    <Canvas HorizontalAlignment="Left" Height="862" Margin="1200,0,0,0" VerticalAlignment="Top" Width="720">
                         <Button Content="查找矫正边缘"  Name ="Bt_Adjust" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Boder"/>
 
                         <Button Content="检测轴外径"   Name="Bt_D" HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
@@ -63,13 +49,43 @@
 
                         <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" Margin="30,220,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure"/>
 
-                        <Button Content="测试结果"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Test_Image" Canvas.Left="30" Canvas.Top="685"/>
+                        <Button Content="内齿形状取样"  Name="Bt_ImgThreshold"  HorizontalAlignment="Left" Margin="30,260,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Get"/>
 
-                        <Button Content="读取图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Image" Canvas.Left="30" Canvas.Top="725"/>
+                        <Button Content="保存参数"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Save_INI" Canvas.Left="30" Canvas.Top="391.333"/>
 
-                        <Button Content="获取相机图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Cam_Image" Canvas.Left="30" Canvas.Top="765"/>
+                        <Button Content="测试结果"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Test_Image" Canvas.Left="185" Canvas.Top="391"/>
+
+                        <Button Content="读取图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Image" Canvas.Left="184" Canvas.Top="438.333"/>
+
+                        <Button Content="获取相机图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Get_Cam_Image" Canvas.Left="340" Canvas.Top="438.333"/>
+
+                        <Button Content="保存图片"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Save_Cam_Image" Canvas.Left="29" Canvas.Top="438"/>
 
                         <ComboBox Canvas.Left="30" Canvas.Top="10" Width="150" Height="20" x:Name ="pCamSel"   DropDownClosed="CamSel_DropDownClosedClick" />
+
+                        <TextBox Name="D1_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="100" Width="120"/>
+                        <Label Name ="L_D1_Min" Content="外径下限" Canvas.Left="180" Canvas.Top="100"/>
+
+                        <TextBox Name="D1_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="100" Width="120"/>
+                        <Label Name ="L_D1_Max"  Content="外径上限" Canvas.Left="454.666" Canvas.Top="100"/>
+
+                        <TextBox Name="D2_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="140" Width="120"/>
+                        <Label Name ="L_D2_Min"  Content="沟槽下限" Canvas.Left="180" Canvas.Top="140"/>
+
+                        <TextBox Name="D2_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="140" Width="120"/>
+                        <Label Name ="L_D2_Max"  Content="沟槽上限" Canvas.Left="454.666" Canvas.Top="140"/>
+
+                        <TextBox Name="D3_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="180" Width="120"/>
+                        <Label Name ="L_D3_Min"  Content="高度下限" Canvas.Left="180" Canvas.Top="180"/>
+
+                        <TextBox Name="D3_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="180" Width="120"/>
+                        <Label Name ="L_D3_Max"  Content="高度上限" Canvas.Left="454.666" Canvas.Top="180"/>
+
+                        <TextBox Name="Gear_Threshold" Height="30" Canvas.Left="324.667" TextWrapping="Wrap"  Canvas.Top="220" Width="120"/>
+                        <Label Name ="L_Gear_Threshold"  Content="齿轮相似阈值" Canvas.Left="203.666" Canvas.Top="220"/>
+
+                        <TextBox Name="Image_Threshold" Height="30" Canvas.Left="324.667" TextWrapping="Wrap"  Canvas.Top="260" Width="120"/>
+                        <Label Name ="L_Image_Threshold"  Content="齿轮相似阈值" Canvas.Left="203.666" Canvas.Top="260"/>
 
 
                     </Canvas>
@@ -87,8 +103,8 @@
                     <ComboBox  x:Name="pStopBitsSel" Height="25" Width="200" Margin="0,0,0,0" Canvas.Top="150" Canvas.Left="100" DropDownClosed="StopBitSel_DropDownClosedClick"/>
                     <Label     Canvas.Top="192" Canvas.Left="20" Content="校验位" />
                     <ComboBox  x:Name="pParitySel" Height="25" Width="200" Margin="0,0,0,0" Canvas.Top="190" Canvas.Left="100" DropDownClosed="ParitySel_DropDownClosedClick"/>
-                    <TextBox x:Name="RecivedData" Height="470" Canvas.Left="336" TextWrapping="Wrap" Text="TextBox" Canvas.Top="32" Width="1574"/>
-                    <TextBox Name="SendData" Height="190" Canvas.Left="336"  TextWrapping="Wrap" Text="TextBox" Canvas.Top="537" Width="1574" IsReadOnly="False"/>
+                    <TextBox x:Name="RecivedData" Height="470" Canvas.Left="336" TextWrapping="Wrap" Text="T1,T2,T3,T4\r\n" Canvas.Top="32" Width="1574"/>
+                    <TextBox Name="SendData" Height="190" Canvas.Left="336"  TextWrapping="Wrap" Text="T1,T2,T3,T4\r\n" Canvas.Top="537" Width="1574" IsReadOnly="False"/>
                     <Button Content="发送" Canvas.Left="336" Canvas.Top="768" Width="183" RenderTransformOrigin="-13.513,-1.842" Height="44.5" Click="Button_Click_Send_Data"/>
                     <Button Content="打开串口" Canvas.Left="100" Canvas.Top="230" Width="200" RenderTransformOrigin="-13.513,-1.842" Height="25" Click="Button_Click_OpenSP"/>
                 </Canvas>

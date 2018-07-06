@@ -107,6 +107,8 @@ namespace ThressPinShaft
                     WriteIni("IMAGE", "C_X", gear_roi.center_x.ToString());
                     WriteIni("IMAGE", "C_Y", gear_roi.center_y.ToString());
                     WriteIni("IMAGE", "RADIUS", gear_roi.radius.ToString());
+                    WriteIni("IMAGE", "GEAR_THRESHOLD", gear_roi.threshold.ToString());
+                    WriteIni("IMAGE", "GEAR_IMGTHRESHOLD", gear_roi.imgthreshold.ToString());
 
                     for (int i = 0; i < 3; i++)
                     {
@@ -122,23 +124,33 @@ namespace ThressPinShaft
                         WriteIni("IMAGE", "D1_C2_" + i.ToString(), axis_roi[i].axis_d1_c2.ToString());
                         WriteIni("IMAGE", "D1_PHI_" + i.ToString(), axis_roi[i].axis_d1_phi.ToString());
 
+                        WriteIni("IMAGE", "D1_MIN_" + i.ToString(), axis_roi[i].d1_min.ToString());
+                        WriteIni("IMAGE", "D1_MAX_" + i.ToString(), axis_roi[i].d1_max.ToString());
+
+
                         WriteIni("IMAGE", "D2_R1_" + i.ToString(), axis_roi[i].axis_d2_r1.ToString());
                         WriteIni("IMAGE", "D2_C1_" + i.ToString(), axis_roi[i].axis_d2_c1.ToString());
                         WriteIni("IMAGE", "D2_R2_" + i.ToString(), axis_roi[i].axis_d2_r2.ToString());
                         WriteIni("IMAGE", "D2_C2_" + i.ToString(), axis_roi[i].axis_d2_c2.ToString());
                         WriteIni("IMAGE", "D2_PHI_" + i.ToString(), axis_roi[i].axis_d2_phi.ToString());
 
+                        WriteIni("IMAGE", "D2_MIN_" + i.ToString(), axis_roi[i].d2_min.ToString());
+                        WriteIni("IMAGE", "D2_MAX_" + i.ToString(), axis_roi[i].d2_max.ToString());
+
                         WriteIni("IMAGE", "D3_R1_" + i.ToString(), axis_roi[i].axis_d3_r1.ToString());
                         WriteIni("IMAGE", "D3_C1_" + i.ToString(), axis_roi[i].axis_d3_c1.ToString());
                         WriteIni("IMAGE", "D3_R2_" + i.ToString(), axis_roi[i].axis_d3_r2.ToString());
                         WriteIni("IMAGE", "D3_C2_" + i.ToString(), axis_roi[i].axis_d3_c2.ToString());
                         WriteIni("IMAGE", "D3_PHI_" + i.ToString(), axis_roi[i].axis_d3_phi.ToString());
+
+                        WriteIni("IMAGE", "D3_MIN_" + i.ToString(), axis_roi[i].d3_min.ToString());
+                        WriteIni("IMAGE", "D3_MAX_" + i.ToString(), axis_roi[i].d3_max.ToString());
                     }
 
                 }
                 catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex.ToString());
                 }
                    
 
@@ -171,7 +183,8 @@ namespace ThressPinShaft
                     gear_roi.center_x = Convert.ToDouble(ReadIni("IMAGE", "C_X"));
                     gear_roi.center_y = Convert.ToDouble(ReadIni("IMAGE", "C_Y"));
                     gear_roi.radius = Convert.ToDouble(ReadIni("IMAGE", "RADIUS"));
-
+                    gear_roi.threshold = Convert.ToDouble(ReadIni("IMAGE", "GEAR_THRESHOLD"));
+                    gear_roi.imgthreshold = Convert.ToDouble(ReadIni("IMAGE", "GEAR_IMGTHRESHOLD"));   //WriteIni("IMAGE", "GEAR_IMGTHRESHOLD", .ToString());
 
                     for (int i = 0; i < 3; i++)
                     {
@@ -180,29 +193,37 @@ namespace ThressPinShaft
                         axis_roi[i].adjust_r2 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_R2_" + i.ToString()));
                         axis_roi[i].adjust_c2 = Convert.ToDouble(ReadIni("IMAGE", "ADJ_C2_" + i.ToString()));
                         axis_roi[i].adjust_phi = Convert.ToDouble(ReadIni("IMAGE", "ADJ_PHI_" + i.ToString()));
+                    
 
                         axis_roi[i].axis_d1_r1 = Convert.ToDouble(ReadIni("IMAGE", "D1_R1_" + i.ToString()));
                         axis_roi[i].axis_d1_c1 = Convert.ToDouble(ReadIni("IMAGE", "D1_C1_" + i.ToString()));
                         axis_roi[i].axis_d1_r2 = Convert.ToDouble(ReadIni("IMAGE", "D1_R2_" + i.ToString()));
                         axis_roi[i].axis_d1_c2 = Convert.ToDouble(ReadIni("IMAGE", "D1_C2_" + i.ToString()));
                         axis_roi[i].axis_d1_phi = Convert.ToDouble(ReadIni("IMAGE", "D1_PHI_" + i.ToString()));
+                        axis_roi[i].d1_min = Convert.ToDouble(ReadIni("IMAGE", "D1_MIN_" + i.ToString()));
+                        axis_roi[i].d1_max = Convert.ToDouble(ReadIni("IMAGE", "D1_MAX_" + i.ToString()));
 
                         axis_roi[i].axis_d2_r1 = Convert.ToDouble(ReadIni("IMAGE", "D2_R1_" + i.ToString()));
                         axis_roi[i].axis_d2_c1 = Convert.ToDouble(ReadIni("IMAGE", "D2_C1_" + i.ToString()));
                         axis_roi[i].axis_d2_r2 = Convert.ToDouble(ReadIni("IMAGE", "D2_R2_" + i.ToString()));
                         axis_roi[i].axis_d2_c2 = Convert.ToDouble(ReadIni("IMAGE", "D2_C2_" + i.ToString()));
                         axis_roi[i].axis_d2_phi = Convert.ToDouble(ReadIni("IMAGE", "D2_PHI_" + i.ToString()));
+                        axis_roi[i].d2_min = Convert.ToDouble(ReadIni("IMAGE", "D2_MIN_" + i.ToString()));
+                        axis_roi[i].d2_max = Convert.ToDouble(ReadIni("IMAGE", "D2_MAX_" + i.ToString()));
 
                         axis_roi[i].axis_d3_r1 = Convert.ToDouble(ReadIni("IMAGE", "D3_R1_" + i.ToString()));
                         axis_roi[i].axis_d3_c1 = Convert.ToDouble(ReadIni("IMAGE", "D3_C1_" + i.ToString()));
                         axis_roi[i].axis_d3_r2 = Convert.ToDouble(ReadIni("IMAGE", "D3_R2_" + i.ToString()));
                         axis_roi[i].axis_d3_c2 = Convert.ToDouble(ReadIni("IMAGE", "D3_C2_" + i.ToString()));
                         axis_roi[i].axis_d3_phi = Convert.ToDouble(ReadIni("IMAGE", "D3_PHI_" + i.ToString()));
+
+                        axis_roi[i].d3_min = Convert.ToDouble(ReadIni("IMAGE", "D3_MIN_" + i.ToString()));
+                        axis_roi[i].d3_max = Convert.ToDouble(ReadIni("IMAGE", "D3_MAX_" + i.ToString()));
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex.ToString());
                 }
                 }
 
@@ -218,36 +239,48 @@ namespace ThressPinShaft
         public class roi{
             public roi() {
             }
-            public double adjust_r1;
-            public double adjust_c1;
-            public double adjust_r2;
-            public double adjust_c2;
-            public double adjust_phi;
+            public double adjust_r1 = 0;
+            public double adjust_c1 = 0;
+            public double adjust_r2 = 0;
+            public double adjust_c2 = 0;
+            public double adjust_phi= 0;
+         
             //轴1的roi
-            public double axis_d1_r1;
-            public double axis_d1_c1;
-            public double axis_d1_r2;
-            public double axis_d1_c2;
-            public double axis_d1_phi;
+            public double axis_d1_r1 = 0;
+            public double axis_d1_c1 = 0;
+            public double axis_d1_r2 = 0;
+            public double axis_d1_c2 = 0;
+            public double axis_d1_phi = 0;
+            public double d1_min = 20;
+            public double d1_max = 3000;
             //轴2的roi
-            public double axis_d2_r1;
-            public double axis_d2_c1;
-            public double axis_d2_r2;
-            public double axis_d2_c2;
-            public double axis_d2_phi;
+            public double axis_d2_r1 = 0;
+            public double axis_d2_c1 = 0;
+            public double axis_d2_r2 = 0;
+            public double axis_d2_c2 = 0;
+            public double axis_d2_phi = 0;
+            public double d2_min = 20;
+            public double d2_max = 3000;
 
             //轴高度的
-            public double axis_d3_r1;
-            public double axis_d3_c1;
-            public double axis_d3_r2;
-            public double axis_d3_c2;
-            public double axis_d3_phi;
+            public double axis_d3_r1 = 0;
+            public double axis_d3_c1 = 0;
+            public double axis_d3_r2 = 0;
+            public double axis_d3_c2 = 0;
+            public double axis_d3_phi =0;
+            public double d3_min = 20;
+            public double d3_max = 3000;
         }
 
-        public struct roi_chi {
-            public double center_x;
-            public double center_y;
-            public double radius;
+        public class roi_chi {
+            public roi_chi() {
+            }
+            public double center_x = 0;
+            public double center_y = 0;
+            public double radius = 0;
+            //相似度边界
+            public double threshold = 0.78;
+            public double imgthreshold = 50;
         }
 
         public static roi[] axis_roi= { new roi(),new roi(), new roi()};

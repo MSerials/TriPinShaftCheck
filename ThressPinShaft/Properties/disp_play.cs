@@ -5,6 +5,7 @@
 //  HDevelopTemplateWPF projects located under %HALCONEXAMPLES%\c#
 
 using System;
+using System.Threading;
 using System.Windows;
 using HalconDotNet;
 using ThressPinShaft;
@@ -12,7 +13,9 @@ using ThressPinShaft;
 public partial class HDevelopExportDisp
 {
     public HTuple hv_ExpDefaultWinHandle;
-    HTuple w = 0, h = 0,pointer_, type_;
+    HTuple w = 0, h = 0, pointer_, type_;
+    public HTuple Gear_Model = null;
+    public string Model_File_Name = "GearModel.shm";
     // Main procedure 
     private void action(HObject ho_Image)
     {
@@ -21,9 +24,9 @@ public partial class HDevelopExportDisp
         {
             //HOperatorSet.SetDraw(hv_ExpDefaultWinHandle,"margin");
             HOperatorSet.GetImagePointer1(ho_Image, out pointer_, out type_, out w, out h);
-            HOperatorSet.SetPart(hv_ExpDefaultWinHandle,0,0,h,w);
+            HOperatorSet.SetPart(hv_ExpDefaultWinHandle, 0, 0, h, w);
             HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
-        }catch(HalconException HDevExpDefaultException)
+        } catch (HalconException HDevExpDefaultException)
         {
             ho_Image.Dispose();
             throw HDevExpDefaultException;
@@ -710,7 +713,7 @@ public partial class HDevelopExportDisp
 
     public void p_disp_dimensions(HTuple hv_RowEdgeFirst, HTuple hv_ColumnEdgeFirst,
     HTuple hv_RowEdgeSecond, HTuple hv_ColumnEdgeSecond, HTuple hv_IntraDistance,
-    HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle,string Color )
+    HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle, string Color)
     {
 
 
@@ -730,15 +733,15 @@ public partial class HDevelopExportDisp
             //
             //Display markers for the edges.
             p_disp_edge_marker(hv_RowEdgeFirst.TupleSelect(hv_i), hv_ColumnEdgeFirst.TupleSelect(
-                hv_i), hv_Phi, hv_Length,Color , 2, hv_WindowHandle,Color);
+                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color);
             p_disp_edge_marker(hv_RowEdgeSecond.TupleSelect(hv_i), hv_ColumnEdgeSecond.TupleSelect(
-                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle,Color);
+                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color);
             //
             //Display the IntraDistance between the edges.
             hv_Text = hv_IntraDistance.TupleSelect(hv_i);
             p_disp_text_right_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeFirst.TupleSelect(
                 hv_i), hv_ColumnEdgeFirst.TupleSelect(hv_i), hv_RowEdgeSecond.TupleSelect(
-                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length,Color);
+                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length, Color);
         }
         //
         //Loop to display the distance between the edge pairs.
@@ -759,7 +762,7 @@ public partial class HDevelopExportDisp
 
     public void p_disp_text_right_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
      HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
-     HTuple hv_Phi, HTuple hv_Distance,string Color)
+     HTuple hv_Phi, HTuple hv_Distance, string Color)
     {
 
         HTuple hv_Row1Part = null, hv_Column1Part = null;
@@ -856,9 +859,8 @@ public partial class HDevelopExportDisp
         return;
     }
 
-    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, HTuple Window,bool isDisp = true,string Color = "#FF00FF")
+    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, HTuple Window, bool isDisp = true, string Color = "#FF00FF")
     {
-        bool isOK = false;
         HObject ho_Rectangle;
         HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
         HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
@@ -868,7 +870,7 @@ public partial class HDevelopExportDisp
         HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
         HTuple hv_InterDistance = null;
         // Initialize local and output iconic variables 
-      
+
         HOperatorSet.GenEmptyObj(out ho_Rectangle);
         try
         {
@@ -876,7 +878,7 @@ public partial class HDevelopExportDisp
             HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
             HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
             set_display_font(hv_ExpDefaultWinHandle, 16, "mono", "true", "false");
-           // HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+            // HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
             HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
                 hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
             hv_Sigma = 0.9;
@@ -888,52 +890,22 @@ public partial class HDevelopExportDisp
                 out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
                 out hv_IntraDistance, out hv_InterDistance);
 
-            if(isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+            if (isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
             HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
             HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
             ho_Rectangle.Dispose();
             HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
                 hv_Length2);
             p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
-                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle,Color);
+                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle, Color);
 
             HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
             ho_Rectangle.Dispose();
             HOperatorSet.CloseMeasure(hv_MeasureHandle);
+            ho_Rectangle.Dispose();
             return hv_IntraDistance.ToString();
 
-            /*
-            HOperatorSet.CreateFunct1dPairs(((new HTuple(7)).TupleConcat(9)).TupleConcat(
-                11), ((new HTuple(0.0)).TupleConcat(1.0)).TupleConcat(0.0), out hv_SizeFunction);
-            //
-            //Then, expand the measure to a fuzzy measure that will return only pairs of approximately the given size.
-            hv_SetType = "size";
-            HOperatorSet.SetFuzzyMeasure(hv_MeasureHandle, hv_SetType, hv_SizeFunction);
-            //
-            //Finally, determine all edge pairs that have a negative transition and approximately the given size.
-            hv_Sigma = 0.9;
-            hv_AmpThresh = 12;
-            hv_FuzzyThresh = 0.5;
-            hv_Transition = "negative";
-            HOperatorSet.FuzzyMeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_AmpThresh,
-                hv_FuzzyThresh, hv_Transition, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
-                out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
-                out hv_RowEdgeCenter, out hv_ColumnEdgeCenter, out hv_FuzzyScore, out hv_IntraDistance,
-                out hv_InterDistance);
-            //
-            //And again, visualize the results
-            HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
-            HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
-            ho_Rectangle.Dispose();
-            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
-                hv_Length2);
-            p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
-                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle);
-            disp_message(hv_ExpDefaultWinHandle, "Fuzzy measure results", "window", 12,
-                12, "blue", "true");
-                */
-            
+
         }
         catch (HalconException HDevExpDefaultException)
         {
@@ -941,15 +913,12 @@ public partial class HDevelopExportDisp
             ho_Rectangle.Dispose();
             throw HDevExpDefaultException;
         }
-       // ho_Image.Dispose();
-        ho_Rectangle.Dispose();
-        if (isOK)
-            return "OK";
-        else
-            return "NG";
+        // ho_Image.Dispose();
+        
+
     }
 
-    public double Disp_Adjust_Line(HObject ho_Image1,HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window, bool isDisp = true) {
+    public double Disp_Adjust_Line(HObject ho_Image1, HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window, bool isDisp = true) {
         try
         {
             hv_ExpDefaultWinHandle = Window;
@@ -977,31 +946,26 @@ public partial class HDevelopExportDisp
             HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
             HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
             ho_Rectangle.Dispose();
-            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_row, hv_column, hv_angle, hv_length1,hv_length2);
+            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_row, hv_column, hv_angle, hv_length1, hv_length2);
             HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
             ho_red.Dispose(); ho_green.Dispose(); ho_blue.Dispose();
-            //HOperatorSet.Decompose3(ho_Image1, out ho_red, out ho_green, out ho_blue);
             ho_ImageGray.Dispose();
-            //HOperatorSet.Rgb3ToGray(ho_red, ho_green, ho_blue, out ho_ImageGray);
             ho_ImageReduced.Dispose();
             HOperatorSet.ReduceDomain(ho_Image1, ho_Rectangle, out ho_ImageReduced);
             ho_Border.Dispose();
             HOperatorSet.ThresholdSubPix(ho_ImageReduced, out ho_Border, 200);
 
             HOperatorSet.DispObj(ho_Border, hv_ExpDefaultWinHandle);
-
-            Console.WriteLine("ooop");
-
             ho_UnionContours.Dispose();
             HOperatorSet.UnionCollinearContoursXld(ho_Border, out ho_UnionContours, 5, 1,
                 2, 0.1, "attr_keep");
             HOperatorSet.FitLineContourXld(ho_UnionContours, "tukey", -1, 0, 5, 2, out hv_RowBegin,
                 out hv_ColBegin, out hv_RowEnd, out hv_ColEnd, out hv_Nr, out hv_Nc, out hv_Dist);
             ho_RegionLines.Dispose();
-            
+
             HOperatorSet.GenRegionLine(out ho_RegionLines, hv_RowBegin, hv_ColBegin, hv_RowEnd,
                 hv_ColEnd);
-           
+
             HOperatorSet.AngleLx(hv_RowEnd, hv_ColEnd, hv_RowBegin, hv_ColBegin, out hv_Angle);
             hv_a = 270 - (((hv_Angle.TupleSelect(0)) * 360) / (2 * 3.141592654));
             ho_ImageRotated.Dispose();
@@ -1029,54 +993,298 @@ public partial class HDevelopExportDisp
         }
         catch (HalconException ex)
         {
-           throw ex;
+            throw ex;
         }
+    }
+
+
+   
+    public bool create_gear_model(HObject ho_ModelImage, HTuple hv_r,HTuple hv_c, HTuple hv_radius, HTuple hv_threshold_value, HTuple hv_Window, string GearModelFile = "GearModel.shm")
+    {
+        HObject ho_ROI, ho_Trhes, ho_ImageROI,to_Bin;
+        HObject ho_ShapeModelImage, ho_ShapeModelRegion, ho_FilledModelRegion;
+        HObject ho_ShapeModel;
+
+        // Local control variables 
+
+        HTuple hv_Pointer = null, hv_Type = null;
+        HTuple hv_Width = null, hv_Height = null;
+        HTuple hv_ModelRegionRow1 = null, hv_ModelRegionColumn1 = null;
+        HTuple hv_ModelRegionRow2 = null, hv_ModelRegionColumn2 = null;
+        HTuple hv_ModelID = null;
+        // Initialize local and output iconic variables 
+
+        HOperatorSet.GenEmptyObj(out to_Bin);
+        HOperatorSet.GenEmptyObj(out ho_ROI);
+        HOperatorSet.GenEmptyObj(out ho_Trhes);
+        HOperatorSet.GenEmptyObj(out ho_ImageROI);
+        HOperatorSet.GenEmptyObj(out ho_ShapeModelImage);
+        HOperatorSet.GenEmptyObj(out ho_ShapeModelRegion);
+        HOperatorSet.GenEmptyObj(out ho_FilledModelRegion);
+        HOperatorSet.GenEmptyObj(out ho_ShapeModel);
+        try
+        {
+            //------------------------------------------------------------------------------------------------
+            //This example program creates a model ROI from the result of inspect_shape_model.
+            //------------------------------------------------------------------------------------------------
+            //general configuration of HDevelop
+            // dev_update_window(...); only in hdevelop
+            //image acquisition and window size
+            //Image Acquisition 01: Code generated by Image Acquisition 01
+ 
+            HOperatorSet.GetImagePointer1(ho_ModelImage, out hv_Pointer, out hv_Type, out hv_Width,
+                out hv_Height);
+
+            ho_ROI.Dispose();
+            HOperatorSet.GenCircle(out ho_ROI, hv_r, hv_c, hv_radius);
+
+
+            ho_Trhes.Dispose();
+            HOperatorSet.Threshold(ho_ModelImage, out ho_Trhes, 0, hv_threshold_value);
+            
+            HOperatorSet.RegionToBin(ho_Trhes, out to_Bin, 0, 255, hv_Width, hv_Height);
+
+            
+            HOperatorSet.SetColor(hv_Window, "blue");
+            HOperatorSet.SetDraw(hv_Window, "margin");
+            HOperatorSet.DispObj(to_Bin, hv_Window);
+            HOperatorSet.SetColor(hv_Window, "yellow");
+            HOperatorSet.DispObj(ho_ROI, hv_Window);
+
+            ho_ImageROI.Dispose();
+            HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
+            ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
+            HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
+                1, 30);
+            HOperatorSet.SmallestRectangle1(ho_ShapeModelRegion, out hv_ModelRegionRow1,
+                out hv_ModelRegionColumn1, out hv_ModelRegionRow2, out hv_ModelRegionColumn2);
+            ho_FilledModelRegion.Dispose();
+            HOperatorSet.FillUp(ho_ShapeModelRegion, out ho_FilledModelRegion);
+            ho_ROI.Dispose();
+            HOperatorSet.OpeningCircle(ho_FilledModelRegion, out ho_ROI, 3.5);
+            ho_ImageROI.Dispose();
+            HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
+            HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
+                , "auto", "none", "use_polarity", 30, 15, out hv_ModelID);
+            ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
+            HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
+                1, 30);
+            ho_ShapeModel.Dispose();
+
+            if (hv_ModelID.Length > 0)
+            {
+               HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
+               // HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
+                Gear_Model = hv_ModelID;
+                HOperatorSet.SetColor(hv_Window, "#FF00FF");
+                HOperatorSet.DispObj(ho_ShapeModelRegion, hv_Window);
+                HOperatorSet.WriteShapeModel(hv_ModelID, AppDomain.CurrentDomain.BaseDirectory + "/" + GearModelFile);
+          
+                HOperatorSet.ClearShapeModel(hv_ModelID);
+            }
+            else
+            {
+               
+                MessageBox.Show("没有发现轮廓");
+            }
+            
+
+        }
+        catch (HalconException HDevExpDefaultException)
+        {
+          //  ho_ModelImage.Dispose();
+            ho_ROI.Dispose();
+            ho_Trhes.Dispose();
+            ho_ImageROI.Dispose();
+            ho_ShapeModelImage.Dispose();
+            ho_ShapeModelRegion.Dispose();
+            ho_FilledModelRegion.Dispose();
+            ho_ShapeModel.Dispose();
+
+            throw HDevExpDefaultException;
+        }
+       // ho_ModelImage.Dispose();
+        ho_ROI.Dispose();
+        ho_Trhes.Dispose();
+        ho_ImageROI.Dispose();
+        ho_ShapeModelImage.Dispose();
+        ho_ShapeModelRegion.Dispose();
+        ho_FilledModelRegion.Dispose();
+        ho_ShapeModel.Dispose();
+        return true;
     }
 
 
     
 
-    public string check_axis(HObject ho_Image,int Cam_idx,HTuple Window) {
+    public string Check_gear(HObject pho_SearchImage, HTuple Window, double phv_OK_Threshold = 0.78)
+    {
+#if false
+
+#else
+
+
+
+        bool isOK = false;
+        HObject ho_ShapeModel;
+        HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
+        HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
+        HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
+        HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
+        HTuple isEqual = null;
+        HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
+        // Initialize local and output iconic variables 
+       
+        HOperatorSet.GenEmptyObj(out ho_ShapeModel);
+        HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+        HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
+      
         try
         {
+            HOperatorSet.TestEqualObj(pho_SearchImage, ho_ShapeModel, out isEqual);
+#if DEBUG
+            int a = (int)(new HTuple(hv_Max_Score.TupleGreater(0)));
+            HTuple b = (int)(new HTuple(hv_Max_Score.TupleGreater(0)));
+            Console.WriteLine(isEqual.ToString() + " " + b.ToString());
+#endif
+            if (isEqual)
+            {
+                return "NOIMG";
+            }
+            else if (null == Gear_Model)
+            {
+                Console.WriteLine("NO MODEL");
+                return "NOMDL";
+            }
+       
+                HOperatorSet.GetShapeModelContours(out ho_ShapeModel, Gear_Model, 1);
+                HOperatorSet.DispObj(pho_SearchImage, Window);
+                hv_Max_Score = -1;
+                hv_Disp_Row = 0;
+                hv_Disp_Col = 0;
+                ho_ModelAtMaxPosition.Dispose();
+                HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+                HOperatorSet.FindShapeModel(pho_SearchImage, Gear_Model, 0, (new HTuple(360)).TupleRad()
+                    , 0.75, 3, 0, "least_squares", 0, 0.7, out hv_RowCheck, out hv_ColumnCheck,
+                    out hv_AngleCheck, out hv_Score);
+                if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
+                {
+                    for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
+                    {
+                        HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
+                            hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
+                            out hv_MovementOfObject);
+                        ho_ModelAtNewPosition.Dispose();
+                        HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
+                            hv_MovementOfObject);
+                        if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
+                        {
+                            hv_Max_Score = hv_Score.TupleSelect(hv_j);
+                            ho_ModelAtMaxPosition.Dispose();
+                            ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
+                        }
+                    }
+                }
+                if ((int)(new HTuple(hv_Max_Score.TupleGreater(0))) != 0)
+                {
+                    if ((int)(new HTuple(hv_Max_Score.TupleGreater(phv_OK_Threshold))) != 0)
+                    {
+                        HOperatorSet.SetColor(Window, "green");
+                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                        disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
+                            "window", hv_Disp_Row, hv_Disp_Col, "green", "false");
+                        isOK = true;
+                    }
+                    else
+                    {
+                        HOperatorSet.SetColor(Window, "red");
+                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                        disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
+                            "window", hv_Disp_Row, hv_Disp_Col, "green", "false");
+                    }
+                }
+                else
+                {
+                    disp_message(Window, "没有找到内齿", "window", 20, 20, "black",
+                        "false");
+                }
+            
+        }
+        catch (HalconException HDevExpDefaultException)
+        {
+            ho_ShapeModel.Dispose();   
+            ho_ModelAtMaxPosition.Dispose();
+            ho_ModelAtNewPosition.Dispose();
+
+            throw HDevExpDefaultException;
+        }
+        ho_ShapeModel.Dispose();     
+        ho_ModelAtMaxPosition.Dispose();
+        ho_ModelAtNewPosition.Dispose();
+
+
+#endif
+        if (isOK)
+            return "OK";
+        else
+            return "NG";
+    }
+
+    public string check_axis(HObject ho_Image, int Cam_idx, HTuple Window) {
+        HObject Ho_Image = null;
+        HOperatorSet.GenEmptyObj(out Ho_Image);
+        try
+        {
+            bool isOK = true;
             //获取角度
             //矫正图片
             //生成直径检测框
             hv_ExpDefaultWinHandle = Window;
-            HObject Ho_Image = null;
-            HOperatorSet.GenEmptyObj(out Ho_Image);
+            action(ho_Image);
             double Angle = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
-                INI.axis_roi[Cam_idx].adjust_c2,Window,false);
+                INI.axis_roi[Cam_idx].adjust_c2, Window, false);
             HOperatorSet.RotateImage(ho_Image, out Ho_Image, Angle, "constant");
             action(Ho_Image);
             //测轴直径
-            Measure_Diameter(Ho_Image,INI.axis_roi[Cam_idx].axis_d1_r1,INI.axis_roi[Cam_idx].axis_d1_c1,0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, Window,false);
+            string out_D = Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, Window, false);
+            double out_D_data = Convert.ToDouble(out_D);
+            if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
+            {
+                isOK = false;
+            }
+
             //测沟槽直径
-            Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, Window, false,"#00FFFF");
-            ho_Image.Dispose();
-            return "OK";
+            out_D = Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, Window, false, "#00FFFF");
+            out_D_data = Convert.ToDouble(out_D);
+            if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
+            {
+                isOK = false;
+            }
+
+           // ho_Image.Dispose();
+            Ho_Image.Dispose();
+            if (isOK)
+                return "OBJOK";
+            else
+                return "OBJNG";
+
         }
         catch (HalconException ex)
         {
-            ho_Image.Dispose();
+          //  ho_Image.Dispose();
+            Ho_Image.Dispose();
             throw ex;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("参数设置错误！" + ex.ToString());
+         //   ho_Image.Dispose();
+            Ho_Image.Dispose();
+            return "ERROR";
         }
     }
 
-    public string check_gear(HObject ho_Image, HTuple Window)
-    {
-        try
-        {
-            hv_ExpDefaultWinHandle = Window;
-            action(ho_Image);
 
-            return "OK";
-        }
-        catch (HalconException ex)
-        {
-            throw ex;
-        }
-    }
 
     public void InitHalcon(int width = 512, int height = 512)
     {
