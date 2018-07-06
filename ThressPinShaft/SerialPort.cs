@@ -304,8 +304,8 @@ namespace ThressPinShaft
                 {
                     Obj[3].Dispose();
                     CameraD.Grab(out Obj[3]);
-                   global.GetIns().res[idx] = "T4," + CameraADisp.check_axis(Obj[3], idx, this.Cam4_Disp.HalconID) + ",";
-                   global.GetIns().GotImage[idx] = 1;
+                    global.GetIns().res[idx] = "T4," + CameraDDisp.Check_gear(Obj[idx], this.Cam4_Disp.HalconID, INI.gear_roi.imgthreshold, INI.gear_roi.threshold) + ",";
+                    global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
                 {

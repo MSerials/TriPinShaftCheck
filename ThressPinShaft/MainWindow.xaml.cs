@@ -479,7 +479,7 @@ namespace ThressPinShaft
             {
                 if (idx > 2)
                 {
-                    CameraDDisp.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.threshold);
+                    CameraDDisp.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.imgthreshold,INI.gear_roi.threshold);
                 }
                 else
                 {

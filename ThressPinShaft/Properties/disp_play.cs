@@ -33,6 +33,23 @@ public partial class HDevelopExportDisp
         }
     }
 
+    private void action(HObject ho_Image,HTuple Window)
+    {
+        //HOperatorSet.GenEmptyObj(out ho_Image);
+        try
+        {
+            HTuple _w = 0, _h = 0, _pointer = null, _type = null ;
+            HOperatorSet.GetImagePointer1(ho_Image, out _pointer, out _type, out _w, out _h);
+            HOperatorSet.SetPart(Window, 0, 0, _h, _w);
+            HOperatorSet.DispObj(ho_Image, Window);
+        }
+        catch (HalconException HDevExpDefaultException)
+        {
+            //ho_Image.Dispose();
+            throw HDevExpDefaultException;
+        }
+    }
+
     public void disp_continue_message(HTuple hv_WindowHandle, HTuple hv_Color, HTuple hv_Box)
     {
 
@@ -1093,6 +1110,14 @@ public partial class HDevelopExportDisp
             HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
             HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
                 , "auto", "none", "use_polarity", 30, 15, out hv_ModelID);
+
+            if (Gear_Model != null)
+            {
+                HOperatorSet.ClearShapeModel(Gear_Model);
+            }
+
+            HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
+    , "auto", "none", "use_polarity", 30, 15, out Gear_Model);
             ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
             HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
                 1, 30);
@@ -1101,8 +1126,6 @@ public partial class HDevelopExportDisp
             if (hv_ModelID.Length > 0)
             {
                HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
-               // HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
-                Gear_Model = hv_ModelID;
                 HOperatorSet.SetColor(hv_Window, "#FF00FF");
                 HOperatorSet.DispObj(ho_ShapeModelRegion, hv_Window);
                 HOperatorSet.WriteShapeModel(hv_ModelID, AppDomain.CurrentDomain.BaseDirectory + "/" + GearModelFile);
@@ -1247,7 +1270,7 @@ public partial class HDevelopExportDisp
 
     
 
-    public string Check_gear(HObject pho_SearchImage, HTuple Window, double phv_OK_Threshold = 0.78)
+    public string Check_gear(HObject pho_SearchImage, HTuple Window, double Image_Threshold ,double phv_OK_Threshold,bool isDisp = true)
     {
 #if false
 
@@ -1256,15 +1279,16 @@ public partial class HDevelopExportDisp
 
 
         bool isOK = false;
-        HObject ho_ShapeModel;
+        HObject ho_ShapeModel,bin_Thres,bin_Redion;
         HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
         HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
         HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
         HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
         HTuple isEqual = null;
         HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
+        HTuple hv_Pointer=null,  hv_Type = null,  hv_Width = null, hv_Height=null;
         // Initialize local and output iconic variables 
-       
+
         HOperatorSet.GenEmptyObj(out ho_ShapeModel);
         HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
         HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
@@ -1286,7 +1310,8 @@ public partial class HDevelopExportDisp
                 Console.WriteLine("NO MODEL");
                 return "NOMDL";
             }
-       
+
+                
                 HOperatorSet.GetShapeModelContours(out ho_ShapeModel, Gear_Model, 1);
                 HOperatorSet.DispObj(pho_SearchImage, Window);
                 hv_Max_Score = -1;
@@ -1294,7 +1319,20 @@ public partial class HDevelopExportDisp
                 hv_Disp_Col = 0;
                 ho_ModelAtMaxPosition.Dispose();
                 HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
-                HOperatorSet.FindShapeModel(pho_SearchImage, Gear_Model, 0, (new HTuple(360)).TupleRad()
+
+            HOperatorSet.Threshold(pho_SearchImage, out bin_Thres, 0, Image_Threshold);
+
+            HOperatorSet.GetImagePointer1(pho_SearchImage, out hv_Pointer, out hv_Type, out hv_Width,out hv_Height);
+
+            HOperatorSet.RegionToBin(bin_Thres, out bin_Redion, 0, 255, hv_Width, hv_Height);
+
+            if (isDisp)
+            {
+                action(bin_Redion, Window);
+               // HOperatorSet.DispObj(bin_Redion,Window);
+            }
+
+            HOperatorSet.FindShapeModel(bin_Redion, Gear_Model, 0, (new HTuple(360)).TupleRad()
                     , 0.75, 3, 0, "least_squares", 0, 0.7, out hv_RowCheck, out hv_ColumnCheck,
                     out hv_AngleCheck, out hv_Score);
                 if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
@@ -1322,7 +1360,7 @@ public partial class HDevelopExportDisp
                         HOperatorSet.SetColor(Window, "green");
                         HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
                         disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
-                            "window", hv_Disp_Row, hv_Disp_Col, "green", "false");
+                            "window", hv_Disp_Row, hv_Disp_Col, "green", "true");
                         isOK = true;
                     }
                     else
@@ -1330,13 +1368,13 @@ public partial class HDevelopExportDisp
                         HOperatorSet.SetColor(Window, "red");
                         HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
                         disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
-                            "window", hv_Disp_Row, hv_Disp_Col, "green", "false");
+                            "window", hv_Disp_Row, hv_Disp_Col, "red", "true");
                     }
                 }
                 else
                 {
                     disp_message(Window, "没有找到内齿", "window", 20, 20, "black",
-                        "false");
+                        "true");
                 }
             
         }
@@ -1373,7 +1411,7 @@ public partial class HDevelopExportDisp
             hv_ExpDefaultWinHandle = Window;
             action(ho_Image);
             //不赋值 0  可有bug
-            HTuple hv_r = 0, hv_c = 0,string_disp_row = 80,string_gap = 50;
+            HTuple hv_r = 0, hv_c = 0,string_disp_row = 80,string_gap = 240;
             double Angle = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
                 INI.axis_roi[Cam_idx].adjust_c2, Window, false);
             HOperatorSet.RotateImage(ho_Image, out Ho_Image, Angle, "constant");
