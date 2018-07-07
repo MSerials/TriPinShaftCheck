@@ -30,7 +30,7 @@ public partial class HDevelopExportGrab
     {
             HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1,
                 "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
-            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 50000);
+            HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 5000);
             HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
             HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerMode", "On");
             HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "TriggerSource", "Software");

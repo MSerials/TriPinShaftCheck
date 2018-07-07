@@ -16,6 +16,18 @@ public partial class HDevelopExportDisp
     HTuple w = 0, h = 0, pointer_, type_;
     public HTuple Gear_Model = null;
     public string Model_File_Name = "GearModel.shm";
+
+    enum NG_INFO {
+        //没错误
+        OK_ALL = 0,
+        //轴ng
+        AXIS_NG = 1,
+        //轴高度ng
+        AXIS_H_NG = 2,
+        //沟槽ng
+        AXIS_G_NG = 4
+
+    }
     // Main procedure 
     private void action(HObject ho_Image)
     {
@@ -1426,7 +1438,8 @@ public partial class HDevelopExportDisp
 
         try
         {
-            bool isOK = true;
+            int ng_info = 0;
+            //bool isOK = true;
             //获取角度
             //矫正图片
             //生成直径检测框
@@ -1445,7 +1458,8 @@ public partial class HDevelopExportDisp
             double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix*Convert.ToDouble(out_D);
             if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
             {
-                isOK = false;
+                
+                ng_info |= 4;
                 HOperatorSet.SetColor(Window, "red");
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                 HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString() + " mm");
@@ -1463,7 +1477,7 @@ public partial class HDevelopExportDisp
             out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
             if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
             {
-                isOK = false;
+                ng_info |= 1;
                 HOperatorSet.SetColor(Window, "red");
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                 HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString() + " mm");
@@ -1479,7 +1493,7 @@ public partial class HDevelopExportDisp
             out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
             if (out_D_data < INI.axis_roi[Cam_idx].d3_min || out_D_data > INI.axis_roi[Cam_idx].d3_max)
             {
-                isOK = false;
+                ng_info |= 2;
                 HOperatorSet.SetColor(Window, "red");
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                 HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString() + " mm");
@@ -1491,10 +1505,8 @@ public partial class HDevelopExportDisp
                 HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString() + " mm");
             }
             Ho_Image.Dispose();
-            if (isOK)
-                return "OK";
-            else
-                return "NG";
+
+            return "N" + ng_info.ToString();
 
         }
         catch (HalconException ex)
