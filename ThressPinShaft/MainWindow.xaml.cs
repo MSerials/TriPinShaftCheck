@@ -136,7 +136,7 @@ namespace ThressPinShaft
     {
         public int CamSel = 0;
         public int[] GotImage = { 0, 0, 0, 0 };
-        public string[] res = { "NOIMG","NOIMG","NOIMG","NOIMG"};
+        public string[] res = { "NM","NM","NM","NM"};
         public HTuple[] Window = { null, null, null, null };
         public string FromPLC = "";
         public string[] sArray;
@@ -484,7 +484,7 @@ namespace ThressPinShaft
                 else
                 {
                     string res = CameraADisp.check_axis(Obj[idx], idx, this.CamSetting.HalconID);
-                    if ("OBJOK" == res)
+                    if ("OK" == res)
                     {
                         CameraADisp.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "green", "true");
                     }

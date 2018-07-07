@@ -1238,7 +1238,7 @@ public partial class HDevelopExportDisp
             ho_ROI.Dispose();
             ho_LineLength.Dispose();
             Console.WriteLine(ex.ToString());
-            return "ERROR";
+            return "ER";
         }
         catch (Exception ex)
         {
@@ -1251,7 +1251,7 @@ public partial class HDevelopExportDisp
             ho_ROI.Dispose();
             ho_LineLength.Dispose();
             Console.WriteLine(ex.ToString());
-            return "ERROR";
+            return "ER";
         }
 
      
@@ -1292,7 +1292,7 @@ public partial class HDevelopExportDisp
         HOperatorSet.GenEmptyObj(out ho_ShapeModel);
         HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
         HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
-      
+
         try
         {
             HOperatorSet.TestEqualObj(pho_SearchImage, ho_ShapeModel, out isEqual);
@@ -1303,89 +1303,103 @@ public partial class HDevelopExportDisp
 #endif
             if (isEqual)
             {
-                return "NOIMG";
+                return "NM";
             }
             else if (null == Gear_Model)
             {
                 Console.WriteLine("NO MODEL");
-                return "NOMDL";
+                return "ND";
             }
 
-                
-                HOperatorSet.GetShapeModelContours(out ho_ShapeModel, Gear_Model, 1);
-                HOperatorSet.DispObj(pho_SearchImage, Window);
-                hv_Max_Score = -1;
-                hv_Disp_Row = 0;
-                hv_Disp_Col = 0;
-                ho_ModelAtMaxPosition.Dispose();
-                HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+
+            HOperatorSet.GetShapeModelContours(out ho_ShapeModel, Gear_Model, 1);
+            HOperatorSet.DispObj(pho_SearchImage, Window);
+            hv_Max_Score = -1;
+            hv_Disp_Row = 0;
+            hv_Disp_Col = 0;
+            ho_ModelAtMaxPosition.Dispose();
+            HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
 
             HOperatorSet.Threshold(pho_SearchImage, out bin_Thres, 0, Image_Threshold);
 
-            HOperatorSet.GetImagePointer1(pho_SearchImage, out hv_Pointer, out hv_Type, out hv_Width,out hv_Height);
+            HOperatorSet.GetImagePointer1(pho_SearchImage, out hv_Pointer, out hv_Type, out hv_Width, out hv_Height);
 
             HOperatorSet.RegionToBin(bin_Thres, out bin_Redion, 0, 255, hv_Width, hv_Height);
 
             if (isDisp)
             {
                 action(bin_Redion, Window);
-               // HOperatorSet.DispObj(bin_Redion,Window);
+                // HOperatorSet.DispObj(bin_Redion,Window);
             }
 
             HOperatorSet.FindShapeModel(bin_Redion, Gear_Model, 0, (new HTuple(360)).TupleRad()
                     , 0.75, 3, 0, "least_squares", 0, 0.7, out hv_RowCheck, out hv_ColumnCheck,
                     out hv_AngleCheck, out hv_Score);
-                if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
+            if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
+            {
+                for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
                 {
-                    for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
+                    HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
+                        hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
+                        out hv_MovementOfObject);
+                    ho_ModelAtNewPosition.Dispose();
+                    HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
+                        hv_MovementOfObject);
+                    if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
                     {
-                        HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
-                            hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
-                            out hv_MovementOfObject);
-                        ho_ModelAtNewPosition.Dispose();
-                        HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
-                            hv_MovementOfObject);
-                        if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
-                        {
-                            hv_Max_Score = hv_Score.TupleSelect(hv_j);
-                            ho_ModelAtMaxPosition.Dispose();
-                            ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
-                        }
+                        hv_Max_Score = hv_Score.TupleSelect(hv_j);
+                        ho_ModelAtMaxPosition.Dispose();
+                        ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
+                        hv_Disp_Row = hv_RowCheck.TupleSelect(hv_j);
+                        hv_Disp_Col = hv_ColumnCheck.TupleSelect(hv_j);
                     }
                 }
-                if ((int)(new HTuple(hv_Max_Score.TupleGreater(0))) != 0)
+            }
+            if ((int)(new HTuple(hv_Max_Score.TupleGreater(0))) != 0)
+            {
+                if ((int)(new HTuple(hv_Max_Score.TupleGreater(phv_OK_Threshold))) != 0)
                 {
-                    if ((int)(new HTuple(hv_Max_Score.TupleGreater(phv_OK_Threshold))) != 0)
-                    {
-                        HOperatorSet.SetColor(Window, "green");
-                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
-                        disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
-                            "window", hv_Disp_Row, hv_Disp_Col, "green", "true");
-                        isOK = true;
-                    }
-                    else
-                    {
-                        HOperatorSet.SetColor(Window, "red");
-                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
-                        disp_message(Window, "相似度:" + (hv_Max_Score.TupleString(".3")),
-                            "window", hv_Disp_Row, hv_Disp_Col, "red", "true");
-                    }
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                    string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
+                    HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
+                    HOperatorSet.WriteString(Window, str);
+                    isOK = true;
                 }
                 else
                 {
-                    disp_message(Window, "没有找到内齿", "window", 20, 20, "black",
-                        "true");
+                    HOperatorSet.SetColor(Window, "red");
+                    HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                    string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
+                    HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
+                    HOperatorSet.WriteString(Window, str);
                 }
-            
+            }
+            else
+            {
+                HOperatorSet.SetColor(Window, "red");
+                HOperatorSet.SetTposition(Window, 20, 20);
+                HOperatorSet.WriteString(Window, "没有找到内齿");
+            }
+
         }
         catch (HalconException HDevExpDefaultException)
         {
             Console.WriteLine(HDevExpDefaultException.ToString());
-            ho_ShapeModel.Dispose();   
+            ho_ShapeModel.Dispose();
             ho_ModelAtMaxPosition.Dispose();
             ho_ModelAtNewPosition.Dispose();
-            return "ERROR";
+            return "ER";
             //throw HDevExpDefaultException;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            ho_ShapeModel.Dispose();
+            ho_ModelAtMaxPosition.Dispose();
+            ho_ModelAtNewPosition.Dispose();
+            return "ER";
+
         }
         ho_ShapeModel.Dispose();     
         ho_ModelAtMaxPosition.Dispose();
@@ -1402,6 +1416,14 @@ public partial class HDevelopExportDisp
     public string check_axis(HObject ho_Image, int Cam_idx, HTuple Window) {
         HObject Ho_Image = null;
         HOperatorSet.GenEmptyObj(out Ho_Image);
+        HTuple isEqual = null;
+        HOperatorSet.TestEqualObj(Ho_Image, ho_Image, out isEqual);
+        if (isEqual)
+        {
+            return "NM";
+        }
+
+
         try
         {
             bool isOK = true;
@@ -1470,9 +1492,9 @@ public partial class HDevelopExportDisp
             }
             Ho_Image.Dispose();
             if (isOK)
-                return "OBJOK";
+                return "OK";
             else
-                return "OBJNG";
+                return "NG";
 
         }
         catch (HalconException ex)
@@ -1486,7 +1508,7 @@ public partial class HDevelopExportDisp
             Console.WriteLine("参数设置错误！" + ex.ToString());
          //   ho_Image.Dispose();
             Ho_Image.Dispose();
-            return "ERROR";
+            return "ER";
         }
     }
 

@@ -233,7 +233,7 @@ namespace ThressPinShaft
                 catch (HalconException ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    global.GetIns().res[idx] = "T1," + "NOIMG,";
+                    global.GetIns().res[idx] = "T1," + "NM,";
                     global.GetIns().GotImage[idx] = 0;
                 }
             }
@@ -258,7 +258,7 @@ namespace ThressPinShaft
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T2," + "NOIMG,";
+                    global.GetIns().res[idx] = "T2," + "NM,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -285,7 +285,7 @@ namespace ThressPinShaft
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T3," + "NOIMG,";
+                    global.GetIns().res[idx] = "T3," + "NM,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -310,7 +310,7 @@ namespace ThressPinShaft
                 catch (HalconException ex)
                 {
                     
-                    global.GetIns().res[idx] = "T4," + "NOIMG,";
+                    global.GetIns().res[idx] = "T4," + "NM,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -330,9 +330,18 @@ namespace ThressPinShaft
         void CameraControl()
         {
             //halcon支持多线程更新？所以这个地方将就不卡界面？？？
+            bool self_lock = false;
             while (true)
             {
                 mEvt_CamCtrl.WaitOne();
+
+                while(self_lock)
+                {
+                    Thread.Sleep(5);
+                }
+
+                self_lock = true;
+
                 string[] sArray = global.GetIns().FromPLC.Split(',');// CamSel.Split(',');
                 global.GetIns().FromPLC = "";
                 bool isFound = false;
@@ -387,7 +396,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机一抓图失败...\r\n";
-                        toPLCdata += "T1," + "NOIMG,";
+                        toPLCdata += "T1," + "NM,";
                     }
                     else
                     {
@@ -395,6 +404,9 @@ namespace ThressPinShaft
                         //toPLCdata += "T1," + CameraBDisp.check_axis(Obj[0], this.Cam1_Disp.HalconID) + ",";
                     }
 
+                }
+                else {
+                    toPLCdata += "T1," + "NL,";
                 }
 
                 if (sArray.Contains("T2"))
@@ -415,14 +427,17 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机二抓图失败...\r\n";
-                        toPLCdata += "T2," + "NOIMG,";
+                        toPLCdata += "T2," + "NM,";
                     }
                     else
                     {
                         toPLCdata += global.GetIns().res[idx];
-                       // toPLCdata += "T2," + CameraBDisp.check_axis(Obj[1], this.Cam2_Disp.HalconID) + ",";
+                        // toPLCdata += "T2," + CameraBDisp.check_axis(Obj[1], this.Cam2_Disp.HalconID) + ",";
                     }
 
+                }
+                else {
+                    toPLCdata += "T2," + "NL,";
                 }
 
                 if (sArray.Contains("T3"))
@@ -442,13 +457,17 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机三抓图失败...\r\n";
-                        toPLCdata += "T3," + "NOIMG,";
+                        toPLCdata += "T3," + "NM,";
                     }
                     else
                     {
                         toPLCdata += global.GetIns().res[idx];
                         //toPLCdata += "T3," + CameraCDisp.check_axis(Obj[2], this.Cam3_Disp.HalconID) + ",";
                     }
+                }
+                else {
+                    //占位符号
+                    toPLCdata += "T3," + "NL,";
                 }
 
                 if (sArray.Contains("T4"))
@@ -469,7 +488,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四抓图失败...\r\n";
-                        toPLCdata += "T4," + "NOIMG,";
+                        toPLCdata += "T4," + "NM,";
                     }
                     else
                     {
@@ -478,12 +497,19 @@ namespace ThressPinShaft
                     }
 
                 }
+                else {
+                    toPLCdata += "T4," + "NL,";
+                }
+
+
+
                 toPLCdata += "\r\n";
                 if (isFound)
                     Sender_data_to_plc(toPLCdata);
+                self_lock = false;
             }
-        
 
+          
             /*
 
             this.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
@@ -496,7 +522,7 @@ namespace ThressPinShaft
             //instance.
             // Dispatcher.Invoke(new HandleInterfaceUpdateDelagate(ParserStringCheck), text);
             //  Dispatcher.Invoke(new HandleInterfaceUpdateDelagate(Dispatcher.Invoke(new HandleInterfaceUpdateDelagate(ParserStringCheck), text);), " ");
-        
+
         }
 
 
