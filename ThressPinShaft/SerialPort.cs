@@ -233,7 +233,7 @@ namespace ThressPinShaft
                 catch (HalconException ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    global.GetIns().res[idx] = "T1," + "NM,";
+                    global.GetIns().res[idx] = "T1," + "22,";
                     global.GetIns().GotImage[idx] = 0;
                 }
             }
@@ -258,7 +258,7 @@ namespace ThressPinShaft
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T2," + "NM,";
+                    global.GetIns().res[idx] = "T2," + "22,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -285,7 +285,7 @@ namespace ThressPinShaft
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T3," + "NM,";
+                    global.GetIns().res[idx] = "T3," + "22,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -310,7 +310,7 @@ namespace ThressPinShaft
                 catch (HalconException ex)
                 {
                     
-                    global.GetIns().res[idx] = "T4," + "NM,";
+                    global.GetIns().res[idx] = "T4," + "22,";
                     global.GetIns().GotImage[idx] = 0;
                     Console.WriteLine(ex.ToString());
                 }
@@ -396,7 +396,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机一抓图失败...\r\n";
-                        toPLCdata += "T1," + "NM,";
+                        toPLCdata += "T1," + "22,";
                     }
                     else
                     {
@@ -406,7 +406,7 @@ namespace ThressPinShaft
 
                 }
                 else {
-                    toPLCdata += "T1," + "NL,";
+                    toPLCdata += "T1," + "99,";
                 }
 
                 if (sArray.Contains("T2"))
@@ -427,7 +427,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机二抓图失败...\r\n";
-                        toPLCdata += "T2," + "NM,";
+                        toPLCdata += "T2," + "22,";
                     }
                     else
                     {
@@ -437,7 +437,7 @@ namespace ThressPinShaft
 
                 }
                 else {
-                    toPLCdata += "T2," + "NL,";
+                    toPLCdata += "T2," + "99,";
                 }
 
                 if (sArray.Contains("T3"))
@@ -457,7 +457,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机三抓图失败...\r\n";
-                        toPLCdata += "T3," + "NM,";
+                        toPLCdata += "T3," + "22,";
                     }
                     else
                     {
@@ -467,7 +467,7 @@ namespace ThressPinShaft
                 }
                 else {
                     //占位符号
-                    toPLCdata += "T3," + "NL,";
+                    toPLCdata += "T3," + "99,";
                 }
 
                 if (sArray.Contains("T4"))
@@ -488,7 +488,7 @@ namespace ThressPinShaft
                     if (0 == global.GetIns().GotImage[idx])
                     {
                         history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四抓图失败...\r\n";
-                        toPLCdata += "T4," + "NM,";
+                        toPLCdata += "T4," + "22,";
                     }
                     else
                     {
@@ -498,7 +498,7 @@ namespace ThressPinShaft
 
                 }
                 else {
-                    toPLCdata += "T4," + "NL,";
+                    toPLCdata += "T4," + "99,";
                 }
 
 

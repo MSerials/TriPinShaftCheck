@@ -84,6 +84,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="csv.cs" />
     <Compile Include="grab.cs" />
     <Compile Include="SerialPort.cs" />
     <Compile Include="ini.cs" />

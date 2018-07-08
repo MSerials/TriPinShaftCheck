@@ -123,6 +123,8 @@ namespace ThressPinShaft
                         WriteIni("IMAGE", "D1_R2_" + i.ToString(), axis_roi[i].axis_d1_r2.ToString());
                         WriteIni("IMAGE", "D1_C2_" + i.ToString(), axis_roi[i].axis_d1_c2.ToString());
                         WriteIni("IMAGE", "D1_PHI_" + i.ToString(), axis_roi[i].axis_d1_phi.ToString());
+                        WriteIni("IMAGE", "D1_RELATIVE_PHI_" + i.ToString(), axis_roi[i].axis_d1_relative_phi.ToString());
+                        //axis_roi[i].axis_d1_relative_phi = Convert.ToDouble(ReadIni("IMAGE", "D1_RELATIVE_PHI_" + i.ToString()));
 
                         WriteIni("IMAGE", "D1_MIN_" + i.ToString(), axis_roi[i].d1_min.ToString());
                         WriteIni("IMAGE", "D1_MAX_" + i.ToString(), axis_roi[i].d1_max.ToString());
@@ -133,6 +135,8 @@ namespace ThressPinShaft
                         WriteIni("IMAGE", "D2_R2_" + i.ToString(), axis_roi[i].axis_d2_r2.ToString());
                         WriteIni("IMAGE", "D2_C2_" + i.ToString(), axis_roi[i].axis_d2_c2.ToString());
                         WriteIni("IMAGE", "D2_PHI_" + i.ToString(), axis_roi[i].axis_d2_phi.ToString());
+                        WriteIni("IMAGE", "D2_RELATIVE_PHI_" + i.ToString(), axis_roi[i].axis_d2_relative_phi.ToString());
+
 
                         WriteIni("IMAGE", "D2_MIN_" + i.ToString(), axis_roi[i].d2_min.ToString());
                         WriteIni("IMAGE", "D2_MAX_" + i.ToString(), axis_roi[i].d2_max.ToString());
@@ -143,6 +147,8 @@ namespace ThressPinShaft
                         WriteIni("IMAGE", "D3_R2_" + i.ToString(), axis_roi[i].axis_d3_r2.ToString());
                         WriteIni("IMAGE", "D3_C2_" + i.ToString(), axis_roi[i].axis_d3_c2.ToString());
                         WriteIni("IMAGE", "D3_PHI_" + i.ToString(), axis_roi[i].axis_d3_phi.ToString());
+                        WriteIni("IMAGE", "D3_RELATIVE_PHI_" + i.ToString(), axis_roi[i].axis_d3_relative_phi.ToString());
+
 
                         WriteIni("IMAGE", "D3_MIN_" + i.ToString(), axis_roi[i].d3_min.ToString());
                         WriteIni("IMAGE", "D3_MAX_" + i.ToString(), axis_roi[i].d3_max.ToString());
@@ -204,6 +210,8 @@ namespace ThressPinShaft
                         axis_roi[i].axis_d1_r2 = Convert.ToDouble(ReadIni("IMAGE", "D1_R2_" + i.ToString()));
                         axis_roi[i].axis_d1_c2 = Convert.ToDouble(ReadIni("IMAGE", "D1_C2_" + i.ToString()));
                         axis_roi[i].axis_d1_phi = Convert.ToDouble(ReadIni("IMAGE", "D1_PHI_" + i.ToString()));
+                        axis_roi[i].axis_d1_relative_phi = Convert.ToDouble(ReadIni("IMAGE", "D1_RELATIVE_PHI_" + i.ToString()));
+
                         axis_roi[i].d1_min = Convert.ToDouble(ReadIni("IMAGE", "D1_MIN_" + i.ToString()));
                         axis_roi[i].d1_max = Convert.ToDouble(ReadIni("IMAGE", "D1_MAX_" + i.ToString()));
                         axis_roi[i].d1_mmppix = Convert.ToDouble(ReadIni("IMAGE", "D1_RATIO_" + i.ToString()));
@@ -213,6 +221,7 @@ namespace ThressPinShaft
                         axis_roi[i].axis_d2_r2 = Convert.ToDouble(ReadIni("IMAGE", "D2_R2_" + i.ToString()));
                         axis_roi[i].axis_d2_c2 = Convert.ToDouble(ReadIni("IMAGE", "D2_C2_" + i.ToString()));
                         axis_roi[i].axis_d2_phi = Convert.ToDouble(ReadIni("IMAGE", "D2_PHI_" + i.ToString()));
+                        axis_roi[i].axis_d2_relative_phi = Convert.ToDouble(ReadIni("IMAGE", "D2_RELATIVE_PHI_" + i.ToString()));
                         axis_roi[i].d2_min = Convert.ToDouble(ReadIni("IMAGE", "D2_MIN_" + i.ToString()));
                         axis_roi[i].d2_max = Convert.ToDouble(ReadIni("IMAGE", "D2_MAX_" + i.ToString()));
                   //      axis_roi[i].d2_mmppix = Convert.ToDouble(ReadIni("IMAGE", "D2_RATIO_" + i.ToString()));
@@ -222,7 +231,7 @@ namespace ThressPinShaft
                         axis_roi[i].axis_d3_r2 = Convert.ToDouble(ReadIni("IMAGE", "D3_R2_" + i.ToString()));
                         axis_roi[i].axis_d3_c2 = Convert.ToDouble(ReadIni("IMAGE", "D3_C2_" + i.ToString()));
                         axis_roi[i].axis_d3_phi = Convert.ToDouble(ReadIni("IMAGE", "D3_PHI_" + i.ToString()));
-
+                        axis_roi[i].axis_d3_relative_phi = Convert.ToDouble(ReadIni("IMAGE", "D3_RELATIVE_PHI_" + i.ToString()));
                         axis_roi[i].d3_min = Convert.ToDouble(ReadIni("IMAGE", "D3_MIN_" + i.ToString()));
                         axis_roi[i].d3_max = Convert.ToDouble(ReadIni("IMAGE", "D3_MAX_" + i.ToString()));
 
@@ -260,6 +269,8 @@ namespace ThressPinShaft
             public double axis_d1_r2 = 0;
             public double axis_d1_c2 = 0;
             public double axis_d1_phi = 0;
+            //相对与追踪模板的角度
+            public double axis_d1_relative_phi = 0;
             public double d1_min = 20;
             public double d1_max = 3000;
             public double d1_mmppix = 0.00812;
@@ -269,6 +280,7 @@ namespace ThressPinShaft
             public double axis_d2_r2 = 0;
             public double axis_d2_c2 = 0;
             public double axis_d2_phi = 0;
+            public double axis_d2_relative_phi = 0;
             public double d2_min = 20;
             public double d2_max = 3000;
        //     public double d2_mmppix = 0.00812;
@@ -278,6 +290,7 @@ namespace ThressPinShaft
             public double axis_d3_r2 = 0;
             public double axis_d3_c2 = 0;
             public double axis_d3_phi =0;
+            public double axis_d3_relative_phi = 0;
             public double d3_min = 20;
             public double d3_max = 3000;
        //     public double d3_mmppix = 0.00812;

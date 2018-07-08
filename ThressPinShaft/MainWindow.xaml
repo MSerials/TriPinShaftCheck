@@ -24,7 +24,7 @@
                     <halcon:HWindowControlWPF x:Name="Cam4_Disp" HorizontalAlignment="Left" Height="450" Margin="630,450,0,0" VerticalAlignment="Top" Width="630" Grid.Column="1"/>
 
                     <Grid Margin="1270,1.5,0,1.5" Height="900" Grid.Column="1" >
-                        <TextBox Margin="0,0,0,0" Height="900" Width="300" HorizontalAlignment="Left" Name="pTextBoxHistory" Cursor="" IsReadOnly="True">
+                        <TextBox Margin="0,0,0,0" Height="900" Width="644" HorizontalAlignment="Left" Name="pTextBoxHistory" Cursor="" IsReadOnly="True">
 
                         </TextBox>
                         <Button Name ="TextBt" Content="Button" HorizontalAlignment="Left" Margin="444,160.5,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" Height="19"/>
@@ -39,17 +39,19 @@
 
                     <halcon:HWindowControlWPF x:Name="CamSetting" HorizontalAlignment="Left" Height="900" Margin="0,0,0,0" VerticalAlignment="Top" Width="1200"/>
                     <Canvas HorizontalAlignment="Left" Height="862" Margin="1200,0,0,0" VerticalAlignment="Top" Width="720">
-                        <Button Content="查找矫正边缘"  Name ="Bt_Adjust" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Boder"/>
+                        <Button Content="查找矫正边缘"  Name ="Bt_Adjust" HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Boder"/>
 
-                        <Button Content="检测轴外径"   Name="Bt_D" HorizontalAlignment="Left" Margin="30,100,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure"/>
+                        <Button Content="追踪模板取样"  Name ="Bt_Track" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Find_Track"/>
+                        
+                        <Button Content="检测轴外径"   Name="Bt_D" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_D_Measure" Canvas.Left="30" Canvas.Top="146.5"/>
 
-                        <Button Content="检测沟槽直径"  Name="Bt_Slot"  HorizontalAlignment="Left" Margin="30,140,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Slot_Measure"/>
+                        <Button Content="检测沟槽直径"  Name="Bt_Slot"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Slot_Measure" Canvas.Left="30" Canvas.Top="186.5"/>
 
-                        <Button Content="检测轴高度"   Name="Bt_Height" HorizontalAlignment="Left" Margin="30,180,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure"/>
+                        <Button Content="检测轴高度"   Name="Bt_Height" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure" Canvas.Left="30" Canvas.Top="226.5"/>
 
-                        <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" Margin="30,220,0,0" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure"/>
+                        <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure" Canvas.Left="30" Canvas.Top="314.5"/>
 
-                        <Button Content="内齿形状取样"  Name="Bt_ImgThreshold"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Get" Canvas.Left="30" Canvas.Top="236"/>
+                        <Button Content="内齿形状取样"  Name="Bt_ImgThreshold"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Get" Canvas.Left="30" Canvas.Top="330.5"/>
 
                         <Button Content="保存参数"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Save_INI" Canvas.Left="30" Canvas.Top="391.333"/>
 
@@ -67,29 +69,29 @@
                         <Label Name ="L_Ratio" Content="像素比例" Canvas.Left="180" Canvas.Top="60"/>
                         <Label Name ="L_Ratio_" Content="mm/pix" Canvas.Left="360" Canvas.Top="60"/>
 
-                        <TextBox Name="D1_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="100" Width="120"/>
-                        <Label Name ="L_D1_Min" Content="外径下限" Canvas.Left="180" Canvas.Top="100"/>
+                        <TextBox Name="D1_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="146.5" Width="120"/>
+                        <Label Name ="L_D1_Min" Content="外径下限" Canvas.Left="180" Canvas.Top="146.5"/>
 
-                        <TextBox Name="D1_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="100" Width="120"/>
-                        <Label Name ="L_D1_Max"  Content="外径上限" Canvas.Left="454.666" Canvas.Top="100"/>
+                        <TextBox Name="D1_Max" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="146.5" Width="120"/>
+                        <Label Name ="L_D1_Max"  Content="外径上限" Canvas.Left="455" Canvas.Top="146.5"/>
 
-                        <TextBox Name="D2_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="140" Width="120"/>
-                        <Label Name ="L_D2_Min"  Content="沟槽下限" Canvas.Left="180" Canvas.Top="140"/>
+                        <TextBox Name="D2_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="186.5" Width="120"/>
+                        <Label Name ="L_D2_Min"  Content="沟槽下限" Canvas.Left="180" Canvas.Top="186.5"/>
 
-                        <TextBox Name="D2_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="140" Width="120"/>
-                        <Label Name ="L_D2_Max"  Content="沟槽上限" Canvas.Left="454.666" Canvas.Top="140"/>
+                        <TextBox Name="D2_Max" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="186.5" Width="120"/>
+                        <Label Name ="L_D2_Max"  Content="沟槽上限" Canvas.Left="455" Canvas.Top="186.5"/>
 
-                        <TextBox Name="D3_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="180" Width="120"/>
-                        <Label Name ="L_D3_Min"  Content="高度下限" Canvas.Left="180" Canvas.Top="180"/>
+                        <TextBox Name="D3_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="226.5" Width="120"/>
+                        <Label Name ="L_D3_Min"  Content="高度下限" Canvas.Left="180" Canvas.Top="226.5"/>
 
-                        <TextBox Name="D3_Max" Height="30" Canvas.Left="514.667" TextWrapping="Wrap"  Canvas.Top="180" Width="120"/>
-                        <Label Name ="L_D3_Max"  Content="高度上限" Canvas.Left="454.666" Canvas.Top="180"/>
+                        <TextBox Name="D3_Max" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="226.5" Width="120"/>
+                        <Label Name ="L_D3_Max"  Content="高度上限" Canvas.Left="455" Canvas.Top="226.5"/>
 
-                        <TextBox Name="Gear_Threshold" Height="30" Canvas.Left="324.667" TextWrapping="Wrap"  Canvas.Top="220" Width="120"/>
-                        <Label Name ="L_Gear_Threshold"  Content="齿轮相似阈值" Canvas.Left="203.666" Canvas.Top="220"/>
+                        <TextBox Name="Gear_Threshold" Height="30" Canvas.Left="325" TextWrapping="Wrap"  Canvas.Top="314.5" Width="120"/>
+                        <Label Name ="L_Gear_Threshold"  Content="齿轮相似阈值" Canvas.Left="204" Canvas.Top="314.5"/>
 
-                        <TextBox Name="Image_Threshold" Height="30" Canvas.Left="324.667" TextWrapping="Wrap"  Canvas.Top="260" Width="120"/>
-                        <Label Name ="L_Image_Threshold"  Content="二值化阈值" Canvas.Left="203.666" Canvas.Top="260"/>
+                        <TextBox Name="Image_Threshold" Height="30" Canvas.Left="325" TextWrapping="Wrap"  Canvas.Top="354.5" Width="120" RenderTransformOrigin="0.496,2.533"/>
+                        <Label Name ="L_Image_Threshold"  Content="二值化阈值" Canvas.Left="204" Canvas.Top="354.5"/>
 
 
                     </Canvas>

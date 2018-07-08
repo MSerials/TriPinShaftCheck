@@ -20,8 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HalconDotNet;
-
-
+using static HDevelopExportDisp;
 
 namespace ThressPinShaft
 {
@@ -136,7 +135,7 @@ namespace ThressPinShaft
     {
         public int CamSel = 0;
         public int[] GotImage = { 0, 0, 0, 0 };
-        public string[] res = { "NM","NM","NM","NM"};
+        public string[] res = { "22","22","22","22"};
         public HTuple[] Window = { null, null, null, null };
         public string FromPLC = "";
         public string[] sArray;
@@ -259,7 +258,9 @@ namespace ThressPinShaft
         static HDevelopExportDisp CameraCDisp = new HDevelopExportDisp();
 
         static HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
-        static HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
+         static HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
+
+        HDevelopExportDisp ImageOperate = new HDevelopExportDisp();
 
         HDevelopExportDisp CameraSettingDisp = new HDevelopExportDisp();
        // HTuple hv_Exception;
@@ -432,6 +433,7 @@ namespace ThressPinShaft
             HTuple hv_c = null, hv_r = null;
             try
             {
+                /*
                 switch (global.GetIns().CamSel)
                 {
                     case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
@@ -440,20 +442,37 @@ namespace ThressPinShaft
                    // case 3: CameraDDisp.Measure_Diameter(Obj[3], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
                     default: break;
                 }
+                */
+                Info_Ctrl Infc = new Info_Ctrl();
+                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID);
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r1 = hv_r2r - Infc.pos_y;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c1 = hv_r2c - Infc.pos_x;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r2 = hv_r2w;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c2 = hv_r2h;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_phi = hv_r2phi - Infc.pos_angle;
+                try
+                {
+                    HTuple hv_Angle = null;
+                    HOperatorSet.AngleLx(Infc.pos_y, Infc.pos_x, hv_r2r, hv_r2c, out hv_Angle);
+                    INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_relative_phi = hv_Angle;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+                
+
+                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+                INI.writting();
             }
-            catch (HalconException ex)
+            catch (Exception ex)
             {
                 history.HistoryNotify += ex.ToString() + "\r\n";
                 return;
             }
 
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r1 = hv_r2r;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c1 = hv_r2c;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r2 = hv_r2w;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c2 = hv_r2h;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_phi = hv_r2phi;
-            HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
-            INI.writting();
+
         }
 
         private void Button_Click_Send_Data(object sender, RoutedEventArgs e)
@@ -475,27 +494,29 @@ namespace ThressPinShaft
         private void Button_Click_Test_Image(object sender, RoutedEventArgs e)
         {
             int idx = global.GetIns().CamSel;
+            if (ImageOperate.isEmpty(Obj[idx]))
+                return;
             try
             {
                 if (idx > 2)
                 {
-                    CameraDDisp.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.imgthreshold,INI.gear_roi.threshold);
+                    ImageOperate.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.imgthreshold,INI.gear_roi.threshold);
                 }
                 else
                 {
-                    string res = CameraADisp.check_axis(Obj[idx], idx, this.CamSetting.HalconID);
-                    if ("OK" == res)
+                    string res = ImageOperate.check_axis(Obj[idx], idx, this.CamSetting.HalconID);
+                    if ("00" == res)
                     {
-                        CameraADisp.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "green", "true");
+                        ImageOperate.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "green", "true", this.CamSetting.HalconID);
                     }
                     else {
-                        CameraADisp.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "red", "true");
+                        ImageOperate.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "red", "true", this.CamSetting.HalconID);
                     }
                 }
             }
             catch {
                 HOperatorSet.SetColor(this.CamSetting.HalconID, "red");
-                CameraADisp.disp_message(this.CamSetting.HalconID, "检测失败", "window",20, 20, "red", "true");
+                CameraADisp.disp_message(this.CamSetting.HalconID, "检测失败", "window",20, 20, "red", "true", this.CamSetting.HalconID);
             }
         }
 
@@ -512,14 +533,30 @@ namespace ThressPinShaft
             HTuple hv_r = null, hv_c = null;
             try
             {
-                switch (global.GetIns().CamSel)
+                Info_Ctrl Infc = new Info_Ctrl();
+                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID);
+                
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r1 = hv_r2r - Infc.pos_y;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c1 = hv_r2c - Infc.pos_x;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r2 = hv_r2w;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c2 = hv_r2h;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_phi = hv_r2phi - Infc.pos_angle;
+
+                try
                 {
-                    case 0: CameraADisp.Measure_Diameter(Obj[0], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
-                    case 1: CameraBDisp.Measure_Diameter(Obj[1], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
-                    case 2: CameraCDisp.Measure_Diameter(Obj[2], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out hv_c, out hv_r, this.CamSetting.HalconID); break;
-                    // case 3: CameraDDisp.Measure_Diameter(Obj[3], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, this.CamSetting.HalconID); break;
-                    default: break;
+                    HTuple hv_Angle = null;
+                    HOperatorSet.AngleLx(Infc.pos_y, Infc.pos_x, hv_r2r, hv_r2c, out hv_Angle);
+                    INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_relative_phi = hv_Angle;
                 }
+                catch (Exception exe)
+                {
+                    MessageBox.Show(exe.ToString());
+                }
+
+
+
+                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+                INI.writting();
             }
             catch (HalconException ex)
             {
@@ -527,13 +564,7 @@ namespace ThressPinShaft
                 return;
             }
 
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r1 = hv_r2r;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c1 = hv_r2c;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r2 = hv_r2w;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c2 = hv_r2h;
-            INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_phi = hv_r2phi;
-            HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
-            INI.writting();
+
         }
 
         private void Button_Click_Gear_Measure(object sender, RoutedEventArgs e)
@@ -652,10 +683,89 @@ namespace ThressPinShaft
 
         private void Button_Click_Height_Measure(object sender, RoutedEventArgs e)
         {
+            /*
             //eerror
             int Cam_idx = global.GetIns().CamSel;
+            Info_Ctrl Infc = new Info_Ctrl();
+            try
+            {
+                HObject ho_Rectange_Again = null;
+                HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
+                HOperatorSet.SetColor(this.CamSetting.HalconID, "green");
+                HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
+                HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
+                HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
+              
+                
+                if (false == ImageOperate.FindTrackPos(Obj[global.GetIns().CamSel], this.CamSetting.HalconID, out Infc))
+                {
+                    return ;
+                }
+
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r1 = hv_r2r - Infc.pos_y;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c1 = hv_r2c - Infc.pos_x;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r2 = hv_r2w;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c2 = hv_r2h;
+                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_phi = hv_r2phi - Infc.pos_angle;
+
+                try
+                {
+                    HTuple hv_Angle = null;
+                    HOperatorSet.AngleLx(Infc.pos_y, Infc.pos_x, hv_r2r, hv_r2c, out hv_Angle);
+                    INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_relative_phi = hv_Angle;
+                }
+                catch (Exception exe)
+                {
+                    MessageBox.Show(exe.ToString());
+                }
+
+                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
+                INI.writting();
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            HObject Ho_Image;
+            HTuple hv_c=null, hv_r = null;
+            HOperatorSet.GenEmptyObj(out Ho_Image);
+            try
+            {
+                double Angle = CameraADisp.Disp_Adjust_Line(Obj[Cam_idx], INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
+                INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID, false);
+                HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
+                HOperatorSet.DispObj(Ho_Image, this.CamSetting.HalconID);
+
+                double y_bias = Infc.pos_y;
+                double x_bias = Infc.pos_x;
+                double x_center = 0;
+                double y_center = 0;
+                ImageOperate.GetRelativePos(INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, INI.axis_roi[Cam_idx].axis_d1_relative_phi + Angle, out x_center, out y_center);
+                y_center = y_bias - y_center;
+                x_center = x_bias + x_center;
+
+                ImageOperate.Measure_Diameter(Obj[Cam_idx], y_center, x_center, INI.axis_roi[Cam_idx].axis_d1_phi + Angle, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out Infc, this.CamSetting.HalconID, false);
+                
+                CameraADisp.check_height(Obj[Cam_idx], INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, Angle, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2,Infc.c_x,Infc.c_y, this.CamSetting.HalconID, false);
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            Ho_Image.Dispose();
+            */
 
 
+            int Cam_idx = global.GetIns().CamSel;
+
+            Info_Ctrl Infc = new Info_Ctrl();
+            if (false == ImageOperate.FindTrackPos(Obj[Cam_idx], this.CamSetting.HalconID, out Infc, false))
+            {
+                return;
+            }
+           
             try
             {
                 HObject ho_Rectange_Again = null;
@@ -678,7 +788,7 @@ namespace ThressPinShaft
             }
 
             HObject Ho_Image;
-            HTuple hv_c=null, hv_r = null;
+            HTuple hv_c = null, hv_r = null;
             HOperatorSet.GenEmptyObj(out Ho_Image);
             try
             {
@@ -686,8 +796,12 @@ namespace ThressPinShaft
                 INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID, false);
                 HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
                 HOperatorSet.DispObj(Ho_Image, this.CamSetting.HalconID);
-                CameraADisp.Measure_Diameter(Ho_Image, INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
-                CameraADisp.check_height(Ho_Image, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2,hv_c,hv_r, this.CamSetting.HalconID, false);
+
+                //恢复信息
+                double r1 = INI.axis_roi[Cam_idx].axis_d1_r1 + Infc.pos_y;
+                double c1 = INI.axis_roi[Cam_idx].axis_d1_c1 + Infc.pos_x;
+                CameraADisp.Measure_Diameter(Ho_Image, r1, c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
+                CameraADisp.check_height(Ho_Image, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2, hv_c, hv_r, this.CamSetting.HalconID, false);
             }
             catch (HalconException ex)
             {
@@ -770,6 +884,9 @@ namespace ThressPinShaft
                 this.L_D3_Min.Visibility = Visibility.Hidden;
                 this.L_D3_Max.Visibility = Visibility.Hidden;
 
+
+                this.Bt_Track.Visibility = Visibility.Hidden;
+
                 this.Ratio.Visibility = Visibility.Hidden;
                 this.L_Ratio.Visibility = Visibility.Hidden;
                 this.L_Ratio_.Visibility = Visibility.Hidden;
@@ -809,6 +926,8 @@ namespace ThressPinShaft
                 this.L_D2_Max.Visibility = Visibility.Visible;
                 this.L_D3_Min.Visibility = Visibility.Visible;
                 this.L_D3_Max.Visibility = Visibility.Visible;
+
+                this.Bt_Track.Visibility = Visibility.Visible;
 
                 this.Ratio.Visibility = Visibility.Visible;
                 this.L_Ratio.Visibility = Visibility.Visible;
@@ -916,7 +1035,7 @@ namespace ThressPinShaft
             //halcon 参数载入初始化
             try
             {
-                HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "/" +CameraDDisp.Model_File_Name, out CameraDDisp.Gear_Model);
+                HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "/" + ImageOperate.Model_File_Name, out ImageOperate.Gear_Model);
             }
             catch (HalconException ex)
             {
@@ -925,20 +1044,191 @@ namespace ThressPinShaft
                 MessageBox.Show("模板文件载入失败，无法检测内齿");
             }
 
+            try
+            {
+                HOperatorSet.ReadShapeModel(AppDomain.CurrentDomain.BaseDirectory + "/" + ImageOperate.Track_Model_Name, out ImageOperate.Track_Model);
+            }
+            catch (HalconException ex)
+            {
+
+                Console.WriteLine(ex.ToString());
+                MessageBox.Show("模板文件载入失败，无法检追踪图像");
+            }
+
+  
+
+            hd.InitHalcon(width, height);
+            //相机的combox选择
+            List<ComboxBind> lstCmbBind = new List<ComboxBind>();
+            lstCmbBind.Add(new ComboxBind("三销轴检测相机1", 0));
+            lstCmbBind.Add(new ComboxBind("三销轴检测相机2", 1));
+            lstCmbBind.Add(new ComboxBind("三销轴检测相机3", 2));
+            lstCmbBind.Add(new ComboxBind("漏拉复拉检测相机", 3));
+
+            this.pCamSel.ItemsSource = lstCmbBind;
+            pCamSel.DisplayMemberPath = "CmbText";//类ComboxBind中的属性
+            pCamSel.SelectedValuePath = "CmbSel";//类ComboxBind中的属性
+            pCamSel.SelectedIndex = 0;
+
+
+
+     
+
+            bd.Source = history;
+            bd.Path = new PropertyPath("HistoryNotify");
+            BindingOperations.SetBinding(this.pTextBoxHistory, TextBox.TextProperty, bd);
+            string c_ = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...\r\n";
+            history.HistoryNotify += c_;
+
+            new Thread(new ThreadStart(HardwareInit)).Start();
+            try
+            {
+                bool ToWrite = false;
+                List<string> Baund = new List<string>();
+                Baund.Add("9600");
+                pBaundSel.ItemsSource = Baund;
+                if (!Baund.Contains(INI.BaudRate))
+                {
+                    pBaundSel.SelectedItem = "9600";
+                    ToWrite = true;
+                }
+                else
+                    pBaundSel.SelectedItem = INI.BaudRate;
+
+                List<string> DataBits = new List<string>();
+                DataBits.Add("8");
+                pDataBitsSel.ItemsSource = DataBits;
+                if (!DataBits.Contains(INI.DataBits))
+                {
+                    pDataBitsSel.SelectedItem = "8";
+                    ToWrite = true;
+                }
+                else
+                {
+                    pDataBitsSel.SelectedItem = INI.DataBits;
+                }
+
+                List<string> StopBits = new List<string>();
+                StopBits.Add("1");
+                StopBits.Add("1.5");
+                StopBits.Add("2");
+                pStopBitsSel.ItemsSource = StopBits;
+                if (!StopBits.Contains(INI.StopBits))
+                {
+                    pStopBitsSel.SelectedItem = "1";
+                    ToWrite = true;
+                }
+                else
+                {
+                    pStopBitsSel.SelectedItem = INI.StopBits;
+                }
+
+                List<string> _Parity = new List<string>();
+                _Parity.Add("None");
+                _Parity.Add("Odd");
+                _Parity.Add("Even");
+                pParitySel.ItemsSource = _Parity;
+                if (!_Parity.Contains(INI.Parity))
+                {
+                    pParitySel.SelectedItem = "None";
+                    ToWrite = true;
+                }
+                else
+                {
+                    pParitySel.SelectedItem = INI.Parity;
+                }
+
+                if (ToWrite)
+                {
+                    throw new Exception("未知的串口参数");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("串口参数选择错误，请在串口设置里重新选择!" + e.ToString());
+            }
+
+            //串口的combox选择
+            string[] sAllPort = null;
+            try
+            {
+                sAllPort = SerialPort.GetPortNames();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("获取计算机COM口列表失败!\r\n错误信息:" + ex.Message);
+            }
+
+            foreach (var name in sAllPort)
+            {
+                lstCOM.Add(name);
+            }
+            this.pComSel.ItemsSource = lstCOM;
+            if (lstCOM.Contains(INI.com_sel))
+            {
+                pComSel.SelectedItem = INI.com_sel;
+            }
+
+
+            try
+            {
+                OpenSerialPort();
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    pComSel.SelectedItem = sAllPort.ElementAt(0);
+                    INI.com_sel = sAllPort.ElementAt(0);
+                    INI.BaudRate = "9600";
+                    INI.DataBits = "8";
+                    INI.Parity = "None";
+                    INI.StopBits = "1";
+                    OpenSerialPort();
+                    INI.writting();
+                }
+                catch (Exception exception_info)
+                {
+                    history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "没有找到任何串口,会导致无法通信PLC\r\n";
+                }
+            }
+
+
+
+            global.GetIns().Window[0] = this.Cam1_Disp.HalconID;
+            global.GetIns().Window[1] = this.Cam2_Disp.HalconID;
+            global.GetIns().Window[2] = this.Cam3_Disp.HalconID;
+            global.GetIns().Window[3] = this.Cam4_Disp.HalconID;
+
+            new Thread(new ThreadStart(CameraADeal)).Start();
+            new Thread(new ThreadStart(CameraBDeal)).Start();
+            new Thread(new ThreadStart(CameraCDeal)).Start();
+            new Thread(new ThreadStart(CameraDDeal)).Start();
+            new Thread(new ThreadStart(CameraControl)).Start();
+            
+            UpdateUI();
+
+            this.TextBt.Visibility = Visibility.Hidden;
+        }
+
+
+        void HardwareInit()
+        {
 
             string error_init = "";
             try
             {
                 CameraA.InitHalcon(camera_name[0]);
-            } catch (HalconException HDevExpDefaultException)
-             {
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
                 HTuple hv_exception = null;
                 HDevExpDefaultException.ToHTuple(out hv_exception);
 #if DEBUG
                 Console.WriteLine("初始化相机一失败");
 #else
                 error_init += " 初始化相机一失败";
-               
+
 #endif
             }
 
@@ -990,156 +1280,36 @@ namespace ThressPinShaft
                 MessageBox.Show(error_init);
             }
 
-            hd.InitHalcon(width, height);
-            //相机的combox选择
-            List<ComboxBind> lstCmbBind = new List<ComboxBind>();
-            lstCmbBind.Add(new ComboxBind("三销轴检测相机1", 0));
-            lstCmbBind.Add(new ComboxBind("三销轴检测相机2", 1));
-            lstCmbBind.Add(new ComboxBind("三销轴检测相机3", 2));
-            lstCmbBind.Add(new ComboxBind("漏拉复拉检测相机", 3));
-
-            this.pCamSel.ItemsSource = lstCmbBind;
-            pCamSel.DisplayMemberPath = "CmbText";//类ComboxBind中的属性
-            pCamSel.SelectedValuePath = "CmbSel";//类ComboxBind中的属性
-            pCamSel.SelectedIndex = 0;
 
 
-
-            ;
-            try
-            {
-                bool ToWrite = false;
-                List<string> Baund = new List<string>();
-                Baund.Add("9600");
-                pBaundSel.ItemsSource = Baund;
-                if (!Baund.Contains(INI.BaudRate))
-                {
-                    pBaundSel.SelectedItem = "9600";
-                    ToWrite = true;
-                }
-                else
-                    pBaundSel.SelectedItem = INI.BaudRate;
-
-                List<string> DataBits = new List<string>();
-                DataBits.Add("8");
-                pDataBitsSel.ItemsSource = DataBits;
-                if (!DataBits.Contains(INI.DataBits))
-                {
-                    pDataBitsSel.SelectedItem = "8";
-                    ToWrite = true;
-                }
-                else {
-                    pDataBitsSel.SelectedItem = INI.DataBits;
-                }
-
-                List<string> StopBits = new List<string>();
-                StopBits.Add("1");
-                StopBits.Add("1.5");
-                StopBits.Add("2");
-                pStopBitsSel.ItemsSource = StopBits;
-                if (!StopBits.Contains(INI.StopBits))
-                {
-                    pStopBitsSel.SelectedItem = "1";
-                    ToWrite = true;
-                }
-                else {
-                    pStopBitsSel.SelectedItem = INI.StopBits;
-                }
-
-                List<string> _Parity = new List<string>();
-                _Parity.Add("None");
-               _Parity.Add("Odd");
-               _Parity.Add("Even");
-                pParitySel.ItemsSource = _Parity;
-                if (!_Parity.Contains(INI.Parity))
-                {
-                    pParitySel.SelectedItem = "None";
-                    ToWrite = true;
-                }
-                else {
-                    pParitySel.SelectedItem = INI.Parity;
-                }
-
-                if (ToWrite)
-                {
-                    throw new Exception("未知的串口参数") ;
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("串口参数选择错误，请在串口设置里重新选择!" + e.ToString());
-            }
-
-            //串口的combox选择
-            string[] sAllPort = null;
-            try
-            {
-                sAllPort = SerialPort.GetPortNames();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("获取计算机COM口列表失败!\r\n错误信息:" + ex.Message);
-            }
-
-            foreach (var name in sAllPort)
-            {
-                lstCOM.Add(name);
-            }
-            this.pComSel.ItemsSource = lstCOM;
-            if (lstCOM.Contains(INI.com_sel))
-            {
-                pComSel.SelectedItem = INI.com_sel;
-            }
-
-
-            try
-            {
-                OpenSerialPort();
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    pComSel.SelectedItem = sAllPort.ElementAt(0);
-                    INI.com_sel = sAllPort.ElementAt(0);
-                    INI.BaudRate = "9600";
-                    INI.DataBits = "8";
-                    INI.Parity = "None";
-                    INI.StopBits = "1";
-                    OpenSerialPort();
-                    INI.writting();
-                }
-                catch (Exception exception_info)
-                {
-                    MessageBox.Show("没有找到任何串口,会导致无法通信PLC " + exception_info.ToString() +" " + e.ToString());
-                }
-            }
-
-
-            bd.Source = history;
-            bd.Path = new PropertyPath("HistoryNotify");
-            BindingOperations.SetBinding(this.pTextBoxHistory, TextBox.TextProperty, bd);
-            string c_ = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...\r\n";
-            history.HistoryNotify += c_;
-
-
-            global.GetIns().Window[0] = this.Cam1_Disp.HalconID;
-            global.GetIns().Window[1] = this.Cam2_Disp.HalconID;
-            global.GetIns().Window[2] = this.Cam3_Disp.HalconID;
-            global.GetIns().Window[3] = this.Cam4_Disp.HalconID;
-
-            new Thread(new ThreadStart(CameraADeal)).Start();
-            new Thread(new ThreadStart(CameraBDeal)).Start();
-            new Thread(new ThreadStart(CameraCDeal)).Start();
-            new Thread(new ThreadStart(CameraDDeal)).Start();
-            new Thread(new ThreadStart(CameraControl)).Start();
-
-            UpdateUI();
-
-            this.TextBt.Visibility = Visibility.Hidden;
         }
 
+        private void Button_Click_Find_Track(object sender, RoutedEventArgs e)
+        {
+            int Cam_idx = global.GetIns().CamSel;
+            if (ImageOperate.isEmpty(Obj[Cam_idx]))
+                return;
 
+            HObject Ho_Image = null;
+            HOperatorSet.GenEmptyObj(out Ho_Image);
+            
+            try
+            {
+                //   double Angle = ImageOperate.Disp_Adjust_Line(Obj[Cam_idx], INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2, INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID);
+                //    HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
+
+                HOperatorSet.DispObj(Obj[Cam_idx], this.CamSetting.HalconID);
+                ImageOperate.CreateTraceModel(Obj[Cam_idx], this.CamSetting.HalconID, out ImageOperate.ctrl_info);
+            }
+            catch (HalconException ex)
+            {
+
+                Ho_Image.Dispose();
+                MessageBox.Show("设置失败 " +ex.ToString());
+                return;
+            }
+            Ho_Image.Dispose();
+        }
     }
 
 
