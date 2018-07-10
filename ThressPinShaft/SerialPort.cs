@@ -218,6 +218,9 @@ namespace ThressPinShaft
         void CameraADeal()
         {
             int idx = 0;
+          //  HObject Obj;
+           // HOperatorSet.GenEmptyObj(out Obj);
+
             while (true)
             {
                 mEvt_Cam[idx].WaitOne();
@@ -225,16 +228,24 @@ namespace ThressPinShaft
 
                 try
                 {
-                    Obj[0].Dispose();
-                    CameraA.Grab(out Obj[0]);
-                   global.GetIns().res[idx] = "T1," + CameraADisp.check_axis(Obj[0], idx,this.Cam1_Disp.HalconID) + ",";
+                    Obj[idx].Dispose();
+                    CameraA.Grab(out Obj[idx]);
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
                 {
-                    Console.WriteLine(ex.ToString());
-                    global.GetIns().res[idx] = "T1," + "22,";
-                    global.GetIns().GotImage[idx] = 0;
+                    try
+                    {
+                        HOperatorSet.ReadImage(out Obj[idx], @"D:\img\1.bmp");
+                        global.GetIns().GotImage[idx] = 1;
+
+                    }
+                    catch (HalconException exe)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        global.GetIns().res[idx] = "T1," + "22,";
+                        global.GetIns().GotImage[idx] = 0;
+                    }
                 }
             }
 
@@ -245,22 +256,34 @@ namespace ThressPinShaft
         {
 
             int idx = 1;
+           // HObject Obj;
+           // HOperatorSet.GenEmptyObj(out Obj);
+
             while (true)
             {
                 mEvt_Cam[idx].WaitOne();
 
                 try
                 {
-                    Obj[1].Dispose();
-                    CameraB.Grab(out Obj[1]);
-                    global.GetIns().res[idx] = "T2," + CameraBDisp.check_axis(Obj[1],idx, this.Cam2_Disp.HalconID) + ",";
+                    Obj[idx].Dispose();
+                    CameraB.Grab(out Obj[idx]);
+                    //Thread.Sleep(5);
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T2," + "22,";
-                    global.GetIns().GotImage[idx] = 0;
-                    Console.WriteLine(ex.ToString());
+                    try
+                    {
+                        HOperatorSet.ReadImage(out Obj[idx], @"D:\img\2.bmp");
+                        global.GetIns().GotImage[idx] = 1;
+
+                    }
+                    catch (HalconException exe)
+                    {
+                        global.GetIns().res[idx] = "T2," + "22,";
+                        global.GetIns().GotImage[idx] = 0;
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
             }
 
@@ -271,6 +294,9 @@ namespace ThressPinShaft
         {
 
             int idx = 2;
+           // HObject Obj;
+           // HOperatorSet.GenEmptyObj(out Obj);
+
             while (true)
             {
                 mEvt_Cam[idx].WaitOne();
@@ -278,16 +304,24 @@ namespace ThressPinShaft
 
                 try
                 {
-                    Obj[2].Dispose();
-                    CameraC.Grab(out Obj[2]);
-                    global.GetIns().res[idx] = "T3," + CameraCDisp.check_axis(Obj[2], idx, this.Cam3_Disp.HalconID) + ",";
+                    Obj[idx].Dispose();
+                    CameraC.Grab(out Obj[idx]);
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
                 {
-                    global.GetIns().res[idx] = "T3," + "22,";
-                    global.GetIns().GotImage[idx] = 0;
-                    Console.WriteLine(ex.ToString());
+                    try
+                    {
+                        HOperatorSet.ReadImage(out Obj[idx], @"D:\img\3.bmp");
+                        global.GetIns().GotImage[idx] = 1;
+
+                    }
+                    catch (HalconException exe)
+                    {
+                        global.GetIns().res[idx] = "T3," + "22,";
+                        global.GetIns().GotImage[idx] = 0;
+                        Console.WriteLine(exe.ToString());
+                    }
                 }
             }
 
@@ -297,22 +331,34 @@ namespace ThressPinShaft
         void CameraDDeal()
         {
             int idx = 3;
+
+          //  HObject Obj;
+          //  HOperatorSet.GenEmptyObj(out Obj);
+
             while (true)
             {
                 mEvt_Cam[idx].WaitOne();
                 try
                 {
-                    Obj[3].Dispose();
-                    CameraD.Grab(out Obj[3]);
-                    global.GetIns().res[idx] = "T4," + CameraDDisp.Check_gear(Obj[idx], this.Cam4_Disp.HalconID, INI.gear_roi.imgthreshold, INI.gear_roi.threshold) + ",";
+                    Obj[idx].Dispose();
+                    CameraD.Grab(out Obj[idx]);
+                    global.GetIns().res[idx] = "T4," + ImageOperate.Check_gear(Obj[idx], this.Cam4_Disp.HalconID, INI.gear_roi.imgthreshold, INI.gear_roi.threshold,ImageOperate.Gear_Model) + ",";
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
                 {
-                    
-                    global.GetIns().res[idx] = "T4," + "22,";
-                    global.GetIns().GotImage[idx] = 0;
-                    Console.WriteLine(ex.ToString());
+                    try
+                    {
+                        HOperatorSet.ReadImage(out Obj[idx], @"D:\img\4.bmp");
+                        global.GetIns().GotImage[idx] = 1;
+
+                    }
+                    catch (HalconException exe)
+                    {
+                        global.GetIns().res[idx] = "T4," + "22,";
+                        global.GetIns().GotImage[idx] = 0;
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
             }
         }
@@ -341,7 +387,9 @@ namespace ThressPinShaft
                 }
 
                 self_lock = true;
-
+#if DEBUG
+                global.GetIns().FromPLC = "T1,T2,T3,T4,\r\n";
+#endif
                 string[] sArray = global.GetIns().FromPLC.Split(',');// CamSel.Split(',');
                 global.GetIns().FromPLC = "";
                 bool isFound = false;
@@ -390,7 +438,7 @@ namespace ThressPinShaft
                         {
                             global.GetIns().GotImage[idx] = 0;
                         }
-                        Thread.Sleep(5);
+                       
                     }
 
                     if (0 == global.GetIns().GotImage[idx])
@@ -400,8 +448,16 @@ namespace ThressPinShaft
                     }
                     else
                     {
-                        toPLCdata += global.GetIns().res[idx];
-                        //toPLCdata += "T1," + CameraBDisp.check_axis(Obj[0], this.Cam1_Disp.HalconID) + ",";
+                        try
+                        {
+                            global.GetIns().res[idx] = "T1," + ImageOperate.check_axis(Obj[idx], idx, ImageOperate.Track_Model, this.Cam1_Disp.HalconID) + ",";
+                            toPLCdata += global.GetIns().res[idx];
+                        }
+                        catch (Exception ex)
+                        {
+                            history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机一参数错误...\r\n";
+                            toPLCdata += "T1," + "22,";
+                        }
                     }
 
                 }
@@ -431,7 +487,17 @@ namespace ThressPinShaft
                     }
                     else
                     {
-                        toPLCdata += global.GetIns().res[idx];
+                        try
+                        {
+                            global.GetIns().res[idx] = "T2," + ImageOperate.check_axis(Obj[idx], idx, ImageOperate.Track_Model, this.Cam2_Disp.HalconID) + ",";
+
+                            toPLCdata += global.GetIns().res[idx];
+                        }
+                        catch (Exception ex)
+                        {
+                            history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机二参数错误...\r\n";
+                            toPLCdata += "T2," + "22,";
+                        }
                         // toPLCdata += "T2," + CameraBDisp.check_axis(Obj[1], this.Cam2_Disp.HalconID) + ",";
                     }
 
@@ -461,8 +527,16 @@ namespace ThressPinShaft
                     }
                     else
                     {
-                        toPLCdata += global.GetIns().res[idx];
-                        //toPLCdata += "T3," + CameraCDisp.check_axis(Obj[2], this.Cam3_Disp.HalconID) + ",";
+                        try
+                        {
+                            global.GetIns().res[idx] = "T3," + ImageOperate.check_axis(Obj[idx], idx, ImageOperate.Track_Model, this.Cam3_Disp.HalconID) + ",";
+                            toPLCdata += global.GetIns().res[idx];
+                        }
+                        catch (Exception ex)
+                        {
+                            history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机三抓数错误...\r\n";
+                            toPLCdata += "T3," + "22,";
+                        }
                     }
                 }
                 else {
@@ -492,8 +566,21 @@ namespace ThressPinShaft
                     }
                     else
                     {
-                        toPLCdata += global.GetIns().res[idx];
-                        //    toPLCdata += "T4," + CameraDDisp.check_axis(Obj[3], this.Cam4_Disp.HalconID) + ",";
+
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四参数错误...\r\n";
+                        toPLCdata += "T4," + "22,";
+                        /*
+                        try
+                        {
+                           
+                            toPLCdata += global.GetIns().res[idx];
+                            
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                        */
                     }
 
                 }

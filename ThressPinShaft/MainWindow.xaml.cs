@@ -300,6 +300,8 @@ namespace ThressPinShaft
             if (dialog.ShowDialog() != true)
                 return;
             Console.WriteLine("第" + global.GetIns().CamSel.ToString() + "相机被选择");
+
+
             try
             {
                 switch (global.GetIns().CamSel)
@@ -322,6 +324,15 @@ namespace ThressPinShaft
 
         private void Button_Click_Get_Cam_Image(object sender, RoutedEventArgs e)
         {
+
+#if DEBUG
+            mEvt_CamCtrl.Set();
+            for (int i = 0; i < 4; i++)
+            {
+                mEvt_Cam[i].Set();
+            }
+            return;
+#endif
             try
             {
                 switch (global.GetIns().CamSel)
@@ -343,7 +354,14 @@ namespace ThressPinShaft
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-    
+#if DEBUG
+            mEvt_CamCtrl.Set();
+     //       for (int i = 0; i < 4; i++)
+       //     {
+         //       mEvt_Cam[i].Set();
+           // }
+            return;
+#endif
             try
             {
                 Obj[0].Dispose();
@@ -373,10 +391,10 @@ namespace ThressPinShaft
 
             try
             {
-                CameraADisp.check_axis(Obj[0], 0, Cam1_Disp.HalconID);
-                CameraBDisp.check_axis(Obj[1], 0, Cam2_Disp.HalconID);
-                CameraCDisp.check_axis(Obj[2], 0, Cam3_Disp.HalconID);
-                CameraDDisp.check_axis(Obj[3], 0, Cam4_Disp.HalconID);
+                CameraADisp.check_axis(Obj[0], 0, ImageOperate.Track_Model,Cam1_Disp.HalconID);
+                CameraBDisp.check_axis(Obj[1], 0, ImageOperate.Track_Model, Cam2_Disp.HalconID);
+                CameraCDisp.check_axis(Obj[2], 0, ImageOperate.Track_Model, Cam3_Disp.HalconID);
+                CameraDDisp.check_axis(Obj[3], 0, ImageOperate.Track_Model, Cam4_Disp.HalconID);
 
             }
             catch (HalconException HDevExpDefaultException)
@@ -444,7 +462,7 @@ namespace ThressPinShaft
                 }
                 */
                 Info_Ctrl Infc = new Info_Ctrl();
-                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID);
+                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID, ImageOperate.Track_Model);
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r1 = hv_r2r - Infc.pos_y;
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_c1 = hv_r2c - Infc.pos_x;
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d1_r2 = hv_r2w;
@@ -493,6 +511,7 @@ namespace ThressPinShaft
 
         private void Button_Click_Test_Image(object sender, RoutedEventArgs e)
         {
+
             int idx = global.GetIns().CamSel;
             if (ImageOperate.isEmpty(Obj[idx]))
                 return;
@@ -500,11 +519,13 @@ namespace ThressPinShaft
             {
                 if (idx > 2)
                 {
-                    ImageOperate.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.imgthreshold,INI.gear_roi.threshold);
+                    ImageOperate.Check_gear(Obj[idx], this.CamSetting.HalconID,INI.gear_roi.imgthreshold,INI.gear_roi.threshold, ImageOperate.Gear_Model);
                 }
                 else
                 {
-                    string res = ImageOperate.check_axis(Obj[idx], idx, this.CamSetting.HalconID);
+                   // global.GetIns().res[idx] = "T3," + ImageOperate.check_axis(Obj[idx], idx, this.Cam3_Disp.HalconID, ImageOperate.Track_Model) + ",";
+
+                    string res = ImageOperate.check_axis(Obj[idx], idx, ImageOperate.Track_Model, this.CamSetting.HalconID);
                     if ("00" == res)
                     {
                         ImageOperate.disp_message(this.CamSetting.HalconID, res, "window", 20, 20, "green", "true", this.CamSetting.HalconID);
@@ -534,8 +555,7 @@ namespace ThressPinShaft
             try
             {
                 Info_Ctrl Infc = new Info_Ctrl();
-                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID);
-                
+                ImageOperate.Measure_Diameter(Obj[global.GetIns().CamSel], hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h, out Infc, this.CamSetting.HalconID, ImageOperate.Track_Model);
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r1 = hv_r2r - Infc.pos_y;
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_c1 = hv_r2c - Infc.pos_x;
                 INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d2_r2 = hv_r2w;
@@ -634,8 +654,9 @@ namespace ThressPinShaft
 
 
             HObject Ho_Circle = null;
-            HTuple hv_y = null, hv_x = null, hv_r = null, threshold_var = null;
+            HTuple hv_y = 0, hv_x = 0, hv_r = 0, threshold_var = INI.gear_roi.imgthreshold; ;
             HOperatorSet.GenEmptyObj(out Ho_Circle);
+            /*
             try
             {
                 HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
@@ -650,7 +671,7 @@ namespace ThressPinShaft
                 MessageBox.Show("画搜索框异常");
                 return;
             }
-            
+            */
 
 
 #if DEBUG
@@ -658,9 +679,8 @@ namespace ThressPinShaft
 #endif
  
             try
-            {
-                threshold_var = INI.gear_roi.imgthreshold;
-                CameraDDisp.create_gear_model(Obj[idx],hv_y,hv_x,hv_r,threshold_var, this.CamSetting.HalconID);
+            { 
+                ImageOperate.create_gear_model(Obj[idx],threshold_var, this.CamSetting.HalconID);
                 INI.gear_roi.center_x = hv_x;
                 INI.gear_roi.center_x = hv_y;
                 INI.gear_roi.center_x = hv_r;
@@ -761,7 +781,7 @@ namespace ThressPinShaft
             int Cam_idx = global.GetIns().CamSel;
 
             Info_Ctrl Infc = new Info_Ctrl();
-            if (false == ImageOperate.FindTrackPos(Obj[Cam_idx], this.CamSetting.HalconID, out Infc, false))
+            if (false == ImageOperate.FindTrackPos(Obj[Cam_idx], this.CamSetting.HalconID, out Infc, ImageOperate.Track_Model, false))
             {
                 return;
             }
@@ -1079,8 +1099,10 @@ namespace ThressPinShaft
             BindingOperations.SetBinding(this.pTextBoxHistory, TextBox.TextProperty, bd);
             string c_ = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "启动程序...\r\n";
             history.HistoryNotify += c_;
+//            HardwareInit();
 
-            new Thread(new ThreadStart(HardwareInit)).Start();
+            //new Thread(new ThreadStart(HardwareInit)).Start();
+            HardwareInit();
             try
             {
                 bool ToWrite = false;
@@ -1205,10 +1227,13 @@ namespace ThressPinShaft
             new Thread(new ThreadStart(CameraCDeal)).Start();
             new Thread(new ThreadStart(CameraDDeal)).Start();
             new Thread(new ThreadStart(CameraControl)).Start();
-            
+           
             UpdateUI();
-
+#if DEBUG
+            this.TextBt.Visibility = Visibility.Visible;
+#else
             this.TextBt.Visibility = Visibility.Hidden;
+#endif
         }
 
 
@@ -1277,7 +1302,11 @@ namespace ThressPinShaft
 
             if (error_init.Length > 0)
             {
-                MessageBox.Show(error_init);
+            //    MessageBox.Show(error_init);
+                history.HistoryNotify += error_init + "\r\n";
+            }
+            else {
+                history.HistoryNotify += "相机初始化成功!\r\n";
             }
 
 
