@@ -2393,9 +2393,9 @@ namespace ThressPinShaft
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                 HOperatorSet.WriteString(Window, "轴心高度偏差值 ：" + (INI.axis_roi[Cam_idx].d1_mmppix * chazhi).ToString("N4") + "mm");
 
-                return "0.0";
-          //      INI.axis_roi[Cam_idx].d3_min = hv_c;
-           //     INI.axis_roi[Cam_idx].axis_d3_relative_phi = Angle;
+                return "0" + ng_info.ToString();
+                //      INI.axis_roi[Cam_idx].d3_min = hv_c;
+                //     INI.axis_roi[Cam_idx].axis_d3_relative_phi = Angle;
 
 
 
