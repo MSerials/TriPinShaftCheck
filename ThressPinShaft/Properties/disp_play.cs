@@ -2243,6 +2243,7 @@ namespace ThressPinShaft
                     return "22";
                 }
 
+
                 //不赋值 0  可有bug
                 HTuple hv_r = 0, hv_c = 0, string_disp_row = 80, string_gap = 240;
                 double Angle_ = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2, INI.axis_roi[Cam_idx].adjust_c2, Window, false);
