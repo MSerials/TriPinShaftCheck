@@ -20,7 +20,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HalconDotNet;
-using static HDevelopExportDisp;
+using static ThressPinShaft.HDevelopExportDisp;
+//using static HDevelopExportDisp;
 
 namespace ThressPinShaft
 {
@@ -703,110 +704,15 @@ namespace ThressPinShaft
 
         private void Button_Click_Height_Measure(object sender, RoutedEventArgs e)
         {
-            /*
-            //eerror
-            int Cam_idx = global.GetIns().CamSel;
-            Info_Ctrl Infc = new Info_Ctrl();
-            try
-            {
-                HObject ho_Rectange_Again = null;
-                HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
-                HOperatorSet.SetColor(this.CamSetting.HalconID, "green");
-                HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
-                HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
-                HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
-              
-                
-                if (false == ImageOperate.FindTrackPos(Obj[global.GetIns().CamSel], this.CamSetting.HalconID, out Infc))
-                {
-                    return ;
-                }
-
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r1 = hv_r2r - Infc.pos_y;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c1 = hv_r2c - Infc.pos_x;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r2 = hv_r2w;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c2 = hv_r2h;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_phi = hv_r2phi - Infc.pos_angle;
-
-                try
-                {
-                    HTuple hv_Angle = null;
-                    HOperatorSet.AngleLx(Infc.pos_y, Infc.pos_x, hv_r2r, hv_r2c, out hv_Angle);
-                    INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_relative_phi = hv_Angle;
-                }
-                catch (Exception exe)
-                {
-                    MessageBox.Show(exe.ToString());
-                }
-
-                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
-                INI.writting();
-            }
-            catch (HalconException ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            HObject Ho_Image;
-            HTuple hv_c=null, hv_r = null;
-            HOperatorSet.GenEmptyObj(out Ho_Image);
-            try
-            {
-                double Angle = CameraADisp.Disp_Adjust_Line(Obj[Cam_idx], INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
-                INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID, false);
-                HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
-                HOperatorSet.DispObj(Ho_Image, this.CamSetting.HalconID);
-
-                double y_bias = Infc.pos_y;
-                double x_bias = Infc.pos_x;
-                double x_center = 0;
-                double y_center = 0;
-                ImageOperate.GetRelativePos(INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, INI.axis_roi[Cam_idx].axis_d1_relative_phi + Angle, out x_center, out y_center);
-                y_center = y_bias - y_center;
-                x_center = x_bias + x_center;
-
-                ImageOperate.Measure_Diameter(Obj[Cam_idx], y_center, x_center, INI.axis_roi[Cam_idx].axis_d1_phi + Angle, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out Infc, this.CamSetting.HalconID, false);
-                
-                CameraADisp.check_height(Obj[Cam_idx], INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, Angle, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2,Infc.c_x,Infc.c_y, this.CamSetting.HalconID, false);
-            }
-            catch (HalconException ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            Ho_Image.Dispose();
-            */
 
 
             int Cam_idx = global.GetIns().CamSel;
-
             Info_Ctrl Infc = new Info_Ctrl();
             if (false == ImageOperate.FindTrackPos(Obj[Cam_idx], this.CamSetting.HalconID, out Infc, ImageOperate.Track_Model, false))
             {
                 return;
             }
            
-            try
-            {
-                HObject ho_Rectange_Again = null;
-                HOperatorSet.SetDraw(this.CamSetting.HalconID, "margin");
-                HOperatorSet.SetColor(this.CamSetting.HalconID, "green");
-                HTuple hv_r2r = null, hv_r2c = null, hv_r2phi = null, hv_r2w = null, hv_r2h = null;
-                HOperatorSet.DrawRectangle2(this.CamSetting.HalconID, out hv_r2r, out hv_r2c, out hv_r2phi, out hv_r2w, out hv_r2h);
-                HOperatorSet.GenRectangle2(out ho_Rectange_Again, hv_r2r, hv_r2c, hv_r2phi, hv_r2w, hv_r2h);
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r1 = hv_r2r;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c1 = hv_r2c;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_r2 = hv_r2w;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_c2 = hv_r2h;
-                INI.axis_roi.ElementAt(global.GetIns().CamSel).axis_d3_phi = hv_r2phi;
-                HOperatorSet.DispObj(ho_Rectange_Again, this.CamSetting.HalconID);
-                INI.writting();
-            }
-            catch (HalconException ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
             HObject Ho_Image;
             HTuple hv_c = null, hv_r = null;
             HOperatorSet.GenEmptyObj(out Ho_Image);
@@ -821,7 +727,18 @@ namespace ThressPinShaft
                 double r1 = INI.axis_roi[Cam_idx].axis_d1_r1 + Infc.pos_y;
                 double c1 = INI.axis_roi[Cam_idx].axis_d1_c1 + Infc.pos_x;
                 CameraADisp.Measure_Diameter(Ho_Image, r1, c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
-                CameraADisp.check_height(Ho_Image, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2, hv_c, hv_r, this.CamSetting.HalconID, false);
+
+                //找到垂直线和找到图像的高度和宽度，来找到在哪儿画横线和纵线
+                HTuple hv_Width, hv_Height, hv_HalfHeight, hv_HalfWidth;
+                HOperatorSet.GetImageSize(Ho_Image, out hv_Width, out hv_Height);
+                hv_HalfHeight = hv_Height / 2;
+                hv_HalfWidth = hv_c;
+                CameraADisp.draw_line(hv_HalfHeight, 0, hv_HalfHeight, hv_Width, this.CamSetting.HalconID,"blue");
+                CameraADisp.draw_line(0, hv_HalfWidth, hv_Height, hv_HalfWidth, this.CamSetting.HalconID, "green");
+                //
+                INI.axis_roi[Cam_idx].d3_min = hv_c;
+                this.D3_Min.Text = INI.axis_roi[Cam_idx].d3_min.ToString();
+                INI.writting();
             }
             catch (HalconException ex)
             {

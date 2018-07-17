@@ -50,7 +50,7 @@
 
                         <Button Content="检测沟槽直径"  Name="Bt_Slot"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Slot_Measure" Canvas.Left="30" Canvas.Top="141"/>
 
-                        <Button Content="检测轴高度"   Name="Bt_Height" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure" Canvas.Left="30" Canvas.Top="224"/>
+                        <Button Content="检测轴基准高度"   Name="Bt_Height" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure" Canvas.Left="30" Canvas.Top="224"/>
 
                         <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure" Canvas.Left="30" Canvas.Top="314.5"/>
 
@@ -85,10 +85,10 @@
                         <Label Name ="L_D2_Max"  Content="沟槽上限" Canvas.Left="455" Canvas.Top="141"/>
 
                         <TextBox Name="D3_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="224" Width="120"/>
-                        <Label Name ="L_D3_Min"  Content="高度下限" Canvas.Left="180" Canvas.Top="224"/>
+                        <Label Name ="L_D3_Min"  Content="基准高度" Canvas.Left="180" Canvas.Top="224"/>
 
                         <TextBox Name="D3_Max" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="224" Width="120"/>
-                        <Label Name ="L_D3_Max"  Content="高度上限" Canvas.Left="455" Canvas.Top="224"/>
+                        <Label Name ="L_D3_Max"  Content="基准偏差" Canvas.Left="455" Canvas.Top="224"/>
 
                         <TextBox Name="Gear_Threshold" Height="30" Canvas.Left="325" TextWrapping="Wrap"  Canvas.Top="314.5" Width="120"/>
                         <Label Name ="L_Gear_Threshold"  Content="齿轮相似阈值" Canvas.Left="204" Canvas.Top="314.5"/>

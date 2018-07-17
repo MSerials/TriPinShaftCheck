@@ -561,14 +561,15 @@ namespace ThressPinShaft
 
                     if (0 == global.GetIns().GotImage[idx])
                     {
-                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四抓图失败...\r\n";
+                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四抓图失败或者参数错误...\r\n";
                         toPLCdata += "T4," + "22,";
+                        
                     }
                     else
                     {
-
-                        history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四参数错误...\r\n";
-                        toPLCdata += "T4," + "22,";
+                        toPLCdata += global.GetIns().res[idx];
+                       // history.HistoryNotify += DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss ") + "相机四参数错误...\r\n";
+                       // toPLCdata += "T4," + "22,";
                         /*
                         try
                         {

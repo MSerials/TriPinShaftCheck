@@ -10,1438 +10,1550 @@ using System.Windows;
 using HalconDotNet;
 using ThressPinShaft;
 
-
-public partial class HDevelopExportDisp
+namespace ThressPinShaft
 {
-    public HTuple hv_ExpDefaultWinHandle;
-    HTuple w = 0, h = 0, pointer_, type_;
-    public HTuple Gear_Model = null;
-    public string Model_File_Name = "GearModel.shm";
-
-    public HTuple Track_Model = null;
-    public string Track_Model_Name = "Track.shm";
-
-    public Info_Ctrl ctrl_info = new Info_Ctrl();
-    //控制信息
-    public partial class Info_Ctrl {
-        public Info_Ctrl() {
-        }
-        //不可能存在-1这个值，所以这个的目的是为了解决
-        public double pos_x =0;
-        public double pos_y = 0;
-        public double pos_z = 0;
-        public double pos_bias_x = 0;
-        public double pos_bias_y = 0;
-        public double pos_bias_z = 0;
-        public double pos_width = 0;
-        public double pos_height = 0;
-        public double pos_radius = 0;
-        public double pos_angle = 0;
-        public double pos_angle_beta = 0;
-        public double pos_angle_gamma = 0;
-        public double pos_score = 0;
-        public double c_x = 0;
-        public double c_y = 0;
-        public double c_z = 0;
-        public bool isOK = false;
-    }
-
-
-    enum NG_INFO {
-        //没错误
-        OK_ALL = 0,
-        //轴ng
-        AXIS_NG = 1,
-        //轴高度ng
-        AXIS_H_NG = 2,
-        //沟槽ng
-        AXIS_G_NG = 4
-
-    }
-    // Main procedure 
-    private void action(HObject ho_Image)
+    public partial class HDevelopExportDisp
     {
-        //HOperatorSet.GenEmptyObj(out ho_Image);
-        try
+        public HTuple hv_ExpDefaultWinHandle;
+        HTuple w = 0, h = 0, pointer_, type_;
+        public HTuple Gear_Model = null;
+        public string Model_File_Name = "GearModel.shm";
+
+        public HTuple Track_Model = null;
+        public string Track_Model_Name = "Track.shm";
+
+        public Info_Ctrl ctrl_info = new Info_Ctrl();
+        //控制信息
+        public partial class Info_Ctrl
         {
-            //HOperatorSet.SetDraw(hv_ExpDefaultWinHandle,"margin");
-            HOperatorSet.GetImagePointer1(ho_Image, out pointer_, out type_, out w, out h);
-            HOperatorSet.SetPart(hv_ExpDefaultWinHandle, 0, 0, h, w);
-            HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
-        } catch (HalconException HDevExpDefaultException)
-        {
-            ho_Image.Dispose();
-            throw HDevExpDefaultException;
+            public Info_Ctrl()
+            {
+            }
+            //不可能存在-1这个值，所以这个的目的是为了解决
+            //三维坐标的 x方向位置
+            public double pos_x = 0;
+            //三维坐标的 y方向位置
+            public double pos_y = 0;
+            //三维坐标的 z方向位置
+            public double pos_z = 0;
+            public double pos_bias_x = 0;
+            public double pos_bias_y = 0;
+            public double pos_bias_z = 0;
+            //三维坐标的宽度
+            public double pos_width = 0;
+            public double pos_height = 0;
+            public double pos_radius = 0;
+            public double pos_angle = 0;
+            //三维坐标的 x轴角度
+            public double pos_angle_alpha = 0;
+            //三维坐标的 y轴角度
+            public double pos_angle_beta = 0;
+            //三维坐标的 z轴角度
+            public double pos_angle_gamma = 0;
+            public double pos_score = 0;
+            //x方向的中心点
+            public double c_x = 0;
+            //y方向的中心点
+            public double c_y = 0;
+            //z方向的中心点
+            public double c_z = 0;
+            public string name = "rectangle";
+            public bool isOK = false;
         }
-    }
 
-    private void action(HObject ho_Image,HTuple Window)
-    {
-        //HOperatorSet.GenEmptyObj(out ho_Image);
-        try
+
+        enum NG_INFO
         {
-            HTuple _w = 0, _h = 0, _pointer = null, _type = null ;
-            HOperatorSet.GetImagePointer1(ho_Image, out _pointer, out _type, out _w, out _h);
-            HOperatorSet.SetPart(Window, 0, 0, _h, _w);
-            HOperatorSet.DispObj(ho_Image, Window);
+            //没错误
+            OK_ALL = 0,
+            //轴ng
+            AXIS_NG = 1,
+            //轴高度ng
+            AXIS_H_NG = 2,
+            //沟槽ng
+            AXIS_G_NG = 4
+
         }
-        catch (HalconException HDevExpDefaultException)
+        // Main procedure 
+        private void action(HObject ho_Image)
         {
-            //ho_Image.Dispose();
-            throw HDevExpDefaultException;
-        }
-    }
-
-    public void disp_continue_message(HTuple hv_WindowHandle, HTuple hv_Color, HTuple hv_Box)
-    {
-
-
-
-        // Local iconic variables 
-
-        // Local control variables 
-
-        HTuple hv_ContinueMessage = null, hv_Row = null;
-        HTuple hv_Column = null, hv_Width = null, hv_Height = null;
-        HTuple hv_Ascent = null, hv_Descent = null, hv_TextWidth = null;
-        HTuple hv_TextHeight = null;
-        // Initialize local and output iconic variables 
-        //This procedure displays 'Press Run (F5) to continue' in the
-        //lower right corner of the screen.
-        //It uses the procedure disp_message.
-        //
-        //Input parameters:
-        //WindowHandle: The window, where the text shall be displayed
-        //Color: defines the text color.
-        //   If set to '' or 'auto', the currently set color is used.
-        //Box: If set to 'true', the text is displayed in a box.
-        //
-        hv_ContinueMessage = "Press Run (F5) to continue";
-        HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_Row, out hv_Column,
-            out hv_Width, out hv_Height);
-        HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, (" " + hv_ContinueMessage) + " ",
-            out hv_Ascent, out hv_Descent, out hv_TextWidth, out hv_TextHeight);
-        disp_message(hv_ExpDefaultWinHandle, hv_ContinueMessage, "window", (hv_Height - hv_TextHeight) - 12,
-            (hv_Width - hv_TextWidth) - 12, hv_Color, hv_Box, hv_ExpDefaultWinHandle);
-
-        return;
-    }
-
-    // Chapter: Graphics / Text
-    // Short Description: Set font independent of OS 
-    public void set_display_font(HTuple hv_WindowHandle, HTuple hv_Size, HTuple hv_Font,
-        HTuple hv_Bold, HTuple hv_Slant, HTuple hv_ExpDefaultWinHandle)
-    {
-
-
-
-        // Local iconic variables 
-
-        // Local control variables 
-
-        HTuple hv_OS = null, hv_BufferWindowHandle = new HTuple();
-        HTuple hv_Ascent = new HTuple(), hv_Descent = new HTuple();
-        HTuple hv_Width = new HTuple(), hv_Height = new HTuple();
-        HTuple hv_Scale = new HTuple(), hv_Exception = new HTuple();
-        HTuple hv_SubFamily = new HTuple(), hv_Fonts = new HTuple();
-        HTuple hv_SystemFonts = new HTuple(), hv_Guess = new HTuple();
-        HTuple hv_I = new HTuple(), hv_Index = new HTuple(), hv_AllowedFontSizes = new HTuple();
-        HTuple hv_Distances = new HTuple(), hv_Indices = new HTuple();
-        HTuple hv_FontSelRegexp = new HTuple(), hv_FontsCourier = new HTuple();
-        HTuple hv_Bold_COPY_INP_TMP = hv_Bold.Clone();
-        HTuple hv_Font_COPY_INP_TMP = hv_Font.Clone();
-        HTuple hv_Size_COPY_INP_TMP = hv_Size.Clone();
-        HTuple hv_Slant_COPY_INP_TMP = hv_Slant.Clone();
-
-        // Initialize local and output iconic variables 
-        //This procedure sets the text font of the current window with
-        //the specified attributes.
-        //It is assumed that following fonts are installed on the system:
-        //Windows: Courier New, Arial Times New Roman
-        //Mac OS X: CourierNewPS, Arial, TimesNewRomanPS
-        //Linux: courier, helvetica, times
-        //Because fonts are displayed smaller on Linux than on Windows,
-        //a scaling factor of 1.25 is used the get comparable results.
-        //For Linux, only a limited number of font sizes is supported,
-        //to get comparable results, it is recommended to use one of the
-        //following sizes: 9, 11, 14, 16, 20, 27
-        //(which will be mapped internally on Linux systems to 11, 14, 17, 20, 25, 34)
-        //
-        //Input parameters:
-        //WindowHandle: The graphics window for which the font will be set
-        //Size: The font size. If Size=-1, the default of 16 is used.
-        //Bold: If set to 'true', a bold font is used
-        //Slant: If set to 'true', a slanted font is used
-        //
-        HOperatorSet.GetSystem("operating_system", out hv_OS);
-        // dev_get_preferences(...); only in hdevelop
-        // dev_set_preferences(...); only in hdevelop
-        if ((int)((new HTuple(hv_Size_COPY_INP_TMP.TupleEqual(new HTuple()))).TupleOr(
-            new HTuple(hv_Size_COPY_INP_TMP.TupleEqual(-1)))) != 0)
-        {
-            hv_Size_COPY_INP_TMP = 16;
-        }
-        if ((int)(new HTuple(((hv_OS.TupleSubstr(0, 2))).TupleEqual("Win"))) != 0)
-        {
-            //Set font on Windows systems
+            //HOperatorSet.GenEmptyObj(out ho_Image);
             try
             {
-                //Check, if font scaling is switched on
-                //open_window(...);
-                HOperatorSet.SetFont(hv_ExpDefaultWinHandle, "-Consolas-16-*-0-*-*-1-");
-                HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, "test_string", out hv_Ascent,
-                    out hv_Descent, out hv_Width, out hv_Height);
-                //Expected width is 110
-                hv_Scale = 110.0 / hv_Width;
-                hv_Size_COPY_INP_TMP = ((hv_Size_COPY_INP_TMP * hv_Scale)).TupleInt();
-                //close_window(...);
+                //HOperatorSet.SetDraw(hv_ExpDefaultWinHandle,"margin");
+                HOperatorSet.GetImagePointer1(ho_Image, out pointer_, out type_, out w, out h);
+                HOperatorSet.SetPart(hv_ExpDefaultWinHandle, 0, 0, h, w);
+                HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
             }
-            // catch (Exception) 
-            catch (HalconException HDevExpDefaultException1)
+            catch (HalconException HDevExpDefaultException)
             {
-                HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                //throw (Exception)
+                ho_Image.Dispose();
+                throw HDevExpDefaultException;
             }
-            if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("Courier"))).TupleOr(
-                new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "Courier New";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "Consolas";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "Arial";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "Times New Roman";
-            }
-            if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                hv_Bold_COPY_INP_TMP = 1;
-            }
-            else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("false"))) != 0)
-            {
-                hv_Bold_COPY_INP_TMP = 0;
-            }
-            else
-            {
-                hv_Exception = "Wrong value of control parameter Bold";
-                throw new HalconException(hv_Exception);
-            }
-            if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                hv_Slant_COPY_INP_TMP = 1;
-            }
-            else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("false"))) != 0)
-            {
-                hv_Slant_COPY_INP_TMP = 0;
-            }
-            else
-            {
-                hv_Exception = "Wrong value of control parameter Slant";
-                throw new HalconException(hv_Exception);
-            }
+        }
+
+        private void action(HObject ho_Image, HTuple Window)
+        {
+            //HOperatorSet.GenEmptyObj(out ho_Image);
             try
             {
-                HOperatorSet.SetFont(hv_ExpDefaultWinHandle, ((((((("-" + hv_Font_COPY_INP_TMP) + "-") + hv_Size_COPY_INP_TMP) + "-*-") + hv_Slant_COPY_INP_TMP) + "-*-*-") + hv_Bold_COPY_INP_TMP) + "-");
+                HTuple _w = 0, _h = 0, _pointer = null, _type = null;
+                HOperatorSet.GetImagePointer1(ho_Image, out _pointer, out _type, out _w, out _h);
+                HOperatorSet.SetPart(Window, 0, 0, _h, _w);
+                HOperatorSet.DispObj(ho_Image, Window);
             }
-            // catch (Exception) 
-            catch (HalconException HDevExpDefaultException1)
+            catch (HalconException HDevExpDefaultException)
             {
-                HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                //throw (Exception)
+                //ho_Image.Dispose();
+                throw HDevExpDefaultException;
             }
         }
-        else if ((int)(new HTuple(((hv_OS.TupleSubstr(0, 2))).TupleEqual("Dar"))) != 0)
-        {
-            //Set font on Mac OS X systems. Since OS X does not have a strict naming
-            //scheme for font attributes, we use tables to determine the correct font
-            //name.
-            hv_SubFamily = 0;
-            if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                hv_SubFamily = hv_SubFamily.TupleBor(1);
-            }
-            else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleNotEqual("false"))) != 0)
-            {
-                hv_Exception = "Wrong value of control parameter Slant";
-                throw new HalconException(hv_Exception);
-            }
-            if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                hv_SubFamily = hv_SubFamily.TupleBor(2);
-            }
-            else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleNotEqual("false"))) != 0)
-            {
-                hv_Exception = "Wrong value of control parameter Bold";
-                throw new HalconException(hv_Exception);
-            }
-            if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))) != 0)
-            {
-                hv_Fonts = new HTuple();
-                hv_Fonts[0] = "Menlo-Regular";
-                hv_Fonts[1] = "Menlo-Italic";
-                hv_Fonts[2] = "Menlo-Bold";
-                hv_Fonts[3] = "Menlo-BoldItalic";
-            }
-            else if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("Courier"))).TupleOr(
-                new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
-            {
-                hv_Fonts = new HTuple();
-                hv_Fonts[0] = "CourierNewPSMT";
-                hv_Fonts[1] = "CourierNewPS-ItalicMT";
-                hv_Fonts[2] = "CourierNewPS-BoldMT";
-                hv_Fonts[3] = "CourierNewPS-BoldItalicMT";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
-            {
-                hv_Fonts = new HTuple();
-                hv_Fonts[0] = "ArialMT";
-                hv_Fonts[1] = "Arial-ItalicMT";
-                hv_Fonts[2] = "Arial-BoldMT";
-                hv_Fonts[3] = "Arial-BoldItalicMT";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
-            {
-                hv_Fonts = new HTuple();
-                hv_Fonts[0] = "TimesNewRomanPSMT";
-                hv_Fonts[1] = "TimesNewRomanPS-ItalicMT";
-                hv_Fonts[2] = "TimesNewRomanPS-BoldMT";
-                hv_Fonts[3] = "TimesNewRomanPS-BoldItalicMT";
-            }
-            else
-            {
-                //Attempt to figure out which of the fonts installed on the system
-                //the user could have meant.
-                HOperatorSet.QueryFont(hv_ExpDefaultWinHandle, out hv_SystemFonts);
-                hv_Fonts = new HTuple();
-                hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
-                hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
-                hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
-                hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
-                hv_Guess = new HTuple();
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP);
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Regular");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "MT");
-                for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
-                {
-                    HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
-                    if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
-                    {
-                        if (hv_Fonts == null)
-                            hv_Fonts = new HTuple();
-                        hv_Fonts[0] = hv_Guess.TupleSelect(hv_I);
-                        break;
-                    }
-                }
-                //Guess name of slanted font
-                hv_Guess = new HTuple();
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Italic");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-ItalicMT");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Oblique");
-                for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
-                {
-                    HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
-                    if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
-                    {
-                        if (hv_Fonts == null)
-                            hv_Fonts = new HTuple();
-                        hv_Fonts[1] = hv_Guess.TupleSelect(hv_I);
-                        break;
-                    }
-                }
-                //Guess name of bold font
-                hv_Guess = new HTuple();
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Bold");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldMT");
-                for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
-                {
-                    HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
-                    if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
-                    {
-                        if (hv_Fonts == null)
-                            hv_Fonts = new HTuple();
-                        hv_Fonts[2] = hv_Guess.TupleSelect(hv_I);
-                        break;
-                    }
-                }
-                //Guess name of bold slanted font
-                hv_Guess = new HTuple();
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldItalic");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldItalicMT");
-                hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldOblique");
-                for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
-                {
-                    HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
-                    if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
-                    {
-                        if (hv_Fonts == null)
-                            hv_Fonts = new HTuple();
-                        hv_Fonts[3] = hv_Guess.TupleSelect(hv_I);
-                        break;
-                    }
-                }
-            }
-            hv_Font_COPY_INP_TMP = hv_Fonts.TupleSelect(hv_SubFamily);
-            try
-            {
-                HOperatorSet.SetFont(hv_ExpDefaultWinHandle, (hv_Font_COPY_INP_TMP + "-") + hv_Size_COPY_INP_TMP);
-            }
-            // catch (Exception) 
-            catch (HalconException HDevExpDefaultException1)
-            {
-                HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                //throw (Exception)
-            }
-        }
-        else
-        {
-            //Set font for UNIX systems
-            hv_Size_COPY_INP_TMP = hv_Size_COPY_INP_TMP * 1.25;
-            hv_AllowedFontSizes = new HTuple();
-            hv_AllowedFontSizes[0] = 11;
-            hv_AllowedFontSizes[1] = 14;
-            hv_AllowedFontSizes[2] = 17;
-            hv_AllowedFontSizes[3] = 20;
-            hv_AllowedFontSizes[4] = 25;
-            hv_AllowedFontSizes[5] = 34;
-            if ((int)(new HTuple(((hv_AllowedFontSizes.TupleFind(hv_Size_COPY_INP_TMP))).TupleEqual(
-                -1))) != 0)
-            {
-                hv_Distances = ((hv_AllowedFontSizes - hv_Size_COPY_INP_TMP)).TupleAbs();
-                HOperatorSet.TupleSortIndex(hv_Distances, out hv_Indices);
-                hv_Size_COPY_INP_TMP = hv_AllowedFontSizes.TupleSelect(hv_Indices.TupleSelect(
-                    0));
-            }
-            if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))).TupleOr(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual(
-                "Courier")))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "courier";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "helvetica";
-            }
-            else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
-            {
-                hv_Font_COPY_INP_TMP = "times";
-            }
-            if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                hv_Bold_COPY_INP_TMP = "bold";
-            }
-            else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("false"))) != 0)
-            {
-                hv_Bold_COPY_INP_TMP = "medium";
-            }
-            else
-            {
-                hv_Exception = "Wrong value of control parameter Bold";
-                throw new HalconException(hv_Exception);
-            }
-            if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
-            {
-                if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("times"))) != 0)
-                {
-                    hv_Slant_COPY_INP_TMP = "i";
-                }
-                else
-                {
-                    hv_Slant_COPY_INP_TMP = "o";
-                }
-            }
-            else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("false"))) != 0)
-            {
-                hv_Slant_COPY_INP_TMP = "r";
-            }
-            else
-            {
-                hv_Exception = "Wrong value of control parameter Slant";
-                throw new HalconException(hv_Exception);
-            }
-            try
-            {
-                HOperatorSet.SetFont(hv_ExpDefaultWinHandle, ((((((("-adobe-" + hv_Font_COPY_INP_TMP) + "-") + hv_Bold_COPY_INP_TMP) + "-") + hv_Slant_COPY_INP_TMP) + "-normal-*-") + hv_Size_COPY_INP_TMP) + "-*-*-*-*-*-*-*");
-            }
-            // catch (Exception) 
-            catch (HalconException HDevExpDefaultException1)
-            {
-                HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                if ((int)((new HTuple(((hv_OS.TupleSubstr(0, 4))).TupleEqual("Linux"))).TupleAnd(
-                    new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
-                {
-                    HOperatorSet.QueryFont(hv_ExpDefaultWinHandle, out hv_Fonts);
-                    hv_FontSelRegexp = (("^-[^-]*-[^-]*[Cc]ourier[^-]*-" + hv_Bold_COPY_INP_TMP) + "-") + hv_Slant_COPY_INP_TMP;
-                    hv_FontsCourier = ((hv_Fonts.TupleRegexpSelect(hv_FontSelRegexp))).TupleRegexpMatch(
-                        hv_FontSelRegexp);
-                    if ((int)(new HTuple((new HTuple(hv_FontsCourier.TupleLength())).TupleEqual(
-                        0))) != 0)
-                    {
-                        hv_Exception = "Wrong font name";
-                        //throw (Exception)
-                    }
-                    else
-                    {
-                        try
-                        {
-                            HOperatorSet.SetFont(hv_ExpDefaultWinHandle, (((hv_FontsCourier.TupleSelect(
-                                0)) + "-normal-*-") + hv_Size_COPY_INP_TMP) + "-*-*-*-*-*-*-*");
-                        }
-                        // catch (Exception) 
-                        catch (HalconException HDevExpDefaultException2)
-                        {
-                            HDevExpDefaultException2.ToHTuple(out hv_Exception);
-                            //throw (Exception)
-                        }
-                    }
-                }
-                //throw (Exception)
-            }
-        }
-        // dev_set_preferences(...); only in hdevelop
 
-        return;
-    }
-
-    // Chapter: Graphics / Text
-    // Short Description: This procedure writes a text message. 
-    public void disp_message(HTuple hv_WindowHandle, HTuple hv_String, HTuple hv_CoordSystem,
-        HTuple hv_Row, HTuple hv_Column, HTuple hv_Color, HTuple hv_Box, HTuple hv_ExpDefaultWinHandle)
-    {
+        public void disp_continue_message(HTuple hv_WindowHandle, HTuple hv_Color, HTuple hv_Box)
+        {
 
 
 
-        // Local iconic variables 
+            // Local iconic variables 
 
-        // Local control variables 
+            // Local control variables 
 
-        HTuple hv_Red = null, hv_Green = null, hv_Blue = null;
-        HTuple hv_Row1Part = null, hv_Column1Part = null, hv_Row2Part = null;
-        HTuple hv_Column2Part = null, hv_RowWin = null, hv_ColumnWin = null;
-        HTuple hv_WidthWin = new HTuple(), hv_HeightWin = null;
-        HTuple hv_MaxAscent = null, hv_MaxDescent = null, hv_MaxWidth = null;
-        HTuple hv_MaxHeight = null, hv_R1 = new HTuple(), hv_C1 = new HTuple();
-        HTuple hv_FactorRow = new HTuple(), hv_FactorColumn = new HTuple();
-        HTuple hv_UseShadow = null, hv_ShadowColor = null, hv_Exception = new HTuple();
-        HTuple hv_Width = new HTuple(), hv_Index = new HTuple();
-        HTuple hv_Ascent = new HTuple(), hv_Descent = new HTuple();
-        HTuple hv_W = new HTuple(), hv_H = new HTuple(), hv_FrameHeight = new HTuple();
-        HTuple hv_FrameWidth = new HTuple(), hv_R2 = new HTuple();
-        HTuple hv_C2 = new HTuple(), hv_DrawMode = new HTuple();
-        HTuple hv_CurrentColor = new HTuple();
-        HTuple hv_Box_COPY_INP_TMP = hv_Box.Clone();
-        HTuple hv_Color_COPY_INP_TMP = hv_Color.Clone();
-        HTuple hv_Column_COPY_INP_TMP = hv_Column.Clone();
-        HTuple hv_Row_COPY_INP_TMP = hv_Row.Clone();
-        HTuple hv_String_COPY_INP_TMP = hv_String.Clone();
+            HTuple hv_ContinueMessage = null, hv_Row = null;
+            HTuple hv_Column = null, hv_Width = null, hv_Height = null;
+            HTuple hv_Ascent = null, hv_Descent = null, hv_TextWidth = null;
+            HTuple hv_TextHeight = null;
+            // Initialize local and output iconic variables 
+            //This procedure displays 'Press Run (F5) to continue' in the
+            //lower right corner of the screen.
+            //It uses the procedure disp_message.
+            //
+            //Input parameters:
+            //WindowHandle: The window, where the text shall be displayed
+            //Color: defines the text color.
+            //   If set to '' or 'auto', the currently set color is used.
+            //Box: If set to 'true', the text is displayed in a box.
+            //
+            hv_ContinueMessage = "Press Run (F5) to continue";
+            HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_Row, out hv_Column,
+                out hv_Width, out hv_Height);
+            HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, (" " + hv_ContinueMessage) + " ",
+                out hv_Ascent, out hv_Descent, out hv_TextWidth, out hv_TextHeight);
+            disp_message(hv_ExpDefaultWinHandle, hv_ContinueMessage, "window", (hv_Height - hv_TextHeight) - 12,
+                (hv_Width - hv_TextWidth) - 12, hv_Color, hv_Box, hv_ExpDefaultWinHandle);
 
-        // Initialize local and output iconic variables 
-        //This procedure displays text in a graphics window.
-        //
-        //Input parameters:
-        //WindowHandle: The WindowHandle of the graphics window, where
-        //   the message should be displayed
-        //String: A tuple of strings containing the text message to be displayed
-        //CoordSystem: If set to 'window', the text position is given
-        //   with respect to the window coordinate system.
-        //   If set to 'image', image coordinates are used.
-        //   (This may be useful in zoomed images.)
-        //Row: The row coordinate of the desired text position
-        //   If set to -1, a default value of 12 is used.
-        //Column: The column coordinate of the desired text position
-        //   If set to -1, a default value of 12 is used.
-        //Color: defines the color of the text as string.
-        //   If set to [], '' or 'auto' the currently set color is used.
-        //   If a tuple of strings is passed, the colors are used cyclically
-        //   for each new textline.
-        //Box: If Box[0] is set to 'true', the text is written within an orange box.
-        //     If set to' false', no box is displayed.
-        //     If set to a color string (e.g. 'white', '#FF00CC', etc.),
-        //       the text is written in a box of that color.
-        //     An optional second value for Box (Box[1]) controls if a shadow is displayed:
-        //       'true' -> display a shadow in a default color
-        //       'false' -> display no shadow (same as if no second value is given)
-        //       otherwise -> use given string as color string for the shadow color
-        //
-        //Prepare window
-        HOperatorSet.GetRgb(hv_ExpDefaultWinHandle, out hv_Red, out hv_Green, out hv_Blue);
-        HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
-            out hv_Row2Part, out hv_Column2Part);
-        HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
-            out hv_WidthWin, out hv_HeightWin);
-        HOperatorSet.SetPart(hv_ExpDefaultWinHandle, 0, 0, hv_HeightWin - 1, hv_WidthWin - 1);
-        //
-        //default settings
-        if ((int)(new HTuple(hv_Row_COPY_INP_TMP.TupleEqual(-1))) != 0)
-        {
-            hv_Row_COPY_INP_TMP = 12;
+            return;
         }
-        if ((int)(new HTuple(hv_Column_COPY_INP_TMP.TupleEqual(-1))) != 0)
+
+        // Chapter: Graphics / Text
+        // Short Description: Set font independent of OS 
+        public void set_display_font(HTuple hv_WindowHandle, HTuple hv_Size, HTuple hv_Font,
+            HTuple hv_Bold, HTuple hv_Slant, HTuple hv_ExpDefaultWinHandle)
         {
-            hv_Column_COPY_INP_TMP = 12;
-        }
-        if ((int)(new HTuple(hv_Color_COPY_INP_TMP.TupleEqual(new HTuple()))) != 0)
-        {
-            hv_Color_COPY_INP_TMP = "";
-        }
-        //
-        hv_String_COPY_INP_TMP = ((("" + hv_String_COPY_INP_TMP) + "")).TupleSplit("\n");
-        //
-        //Estimate extentions of text depending on font size.
-        HOperatorSet.GetFontExtents(hv_ExpDefaultWinHandle, out hv_MaxAscent, out hv_MaxDescent,
-            out hv_MaxWidth, out hv_MaxHeight);
-        if ((int)(new HTuple(hv_CoordSystem.TupleEqual("window"))) != 0)
-        {
-            hv_R1 = hv_Row_COPY_INP_TMP.Clone();
-            hv_C1 = hv_Column_COPY_INP_TMP.Clone();
-        }
-        else
-        {
-            //Transform image to window coordinates
-            hv_FactorRow = (1.0 * hv_HeightWin) / ((hv_Row2Part - hv_Row1Part) + 1);
-            hv_FactorColumn = (1.0 * hv_WidthWin) / ((hv_Column2Part - hv_Column1Part) + 1);
-            hv_R1 = ((hv_Row_COPY_INP_TMP - hv_Row1Part) + 0.5) * hv_FactorRow;
-            hv_C1 = ((hv_Column_COPY_INP_TMP - hv_Column1Part) + 0.5) * hv_FactorColumn;
-        }
-        //
-        //Display text box depending on text size
-        hv_UseShadow = 1;
-        hv_ShadowColor = "gray";
-        if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(0))).TupleEqual("true"))) != 0)
-        {
-            if (hv_Box_COPY_INP_TMP == null)
-                hv_Box_COPY_INP_TMP = new HTuple();
-            hv_Box_COPY_INP_TMP[0] = "#fce9d4";
-            hv_ShadowColor = "#f28d26";
-        }
-        if ((int)(new HTuple((new HTuple(hv_Box_COPY_INP_TMP.TupleLength())).TupleGreater(
-            1))) != 0)
-        {
-            if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(1))).TupleEqual("true"))) != 0)
+
+
+
+            // Local iconic variables 
+
+            // Local control variables 
+
+            HTuple hv_OS = null, hv_BufferWindowHandle = new HTuple();
+            HTuple hv_Ascent = new HTuple(), hv_Descent = new HTuple();
+            HTuple hv_Width = new HTuple(), hv_Height = new HTuple();
+            HTuple hv_Scale = new HTuple(), hv_Exception = new HTuple();
+            HTuple hv_SubFamily = new HTuple(), hv_Fonts = new HTuple();
+            HTuple hv_SystemFonts = new HTuple(), hv_Guess = new HTuple();
+            HTuple hv_I = new HTuple(), hv_Index = new HTuple(), hv_AllowedFontSizes = new HTuple();
+            HTuple hv_Distances = new HTuple(), hv_Indices = new HTuple();
+            HTuple hv_FontSelRegexp = new HTuple(), hv_FontsCourier = new HTuple();
+            HTuple hv_Bold_COPY_INP_TMP = hv_Bold.Clone();
+            HTuple hv_Font_COPY_INP_TMP = hv_Font.Clone();
+            HTuple hv_Size_COPY_INP_TMP = hv_Size.Clone();
+            HTuple hv_Slant_COPY_INP_TMP = hv_Slant.Clone();
+
+            // Initialize local and output iconic variables 
+            //This procedure sets the text font of the current window with
+            //the specified attributes.
+            //It is assumed that following fonts are installed on the system:
+            //Windows: Courier New, Arial Times New Roman
+            //Mac OS X: CourierNewPS, Arial, TimesNewRomanPS
+            //Linux: courier, helvetica, times
+            //Because fonts are displayed smaller on Linux than on Windows,
+            //a scaling factor of 1.25 is used the get comparable results.
+            //For Linux, only a limited number of font sizes is supported,
+            //to get comparable results, it is recommended to use one of the
+            //following sizes: 9, 11, 14, 16, 20, 27
+            //(which will be mapped internally on Linux systems to 11, 14, 17, 20, 25, 34)
+            //
+            //Input parameters:
+            //WindowHandle: The graphics window for which the font will be set
+            //Size: The font size. If Size=-1, the default of 16 is used.
+            //Bold: If set to 'true', a bold font is used
+            //Slant: If set to 'true', a slanted font is used
+            //
+            HOperatorSet.GetSystem("operating_system", out hv_OS);
+            // dev_get_preferences(...); only in hdevelop
+            // dev_set_preferences(...); only in hdevelop
+            if ((int)((new HTuple(hv_Size_COPY_INP_TMP.TupleEqual(new HTuple()))).TupleOr(
+                new HTuple(hv_Size_COPY_INP_TMP.TupleEqual(-1)))) != 0)
             {
-                //Use default ShadowColor set above
+                hv_Size_COPY_INP_TMP = 16;
             }
-            else if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(1))).TupleEqual(
-                "false"))) != 0)
+            if ((int)(new HTuple(((hv_OS.TupleSubstr(0, 2))).TupleEqual("Win"))) != 0)
             {
-                hv_UseShadow = 0;
-            }
-            else
-            {
-                hv_ShadowColor = hv_Box_COPY_INP_TMP[1];
-                //Valid color?
+                //Set font on Windows systems
                 try
                 {
-                    HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Box_COPY_INP_TMP.TupleSelect(
-                        1));
+                    //Check, if font scaling is switched on
+                    //open_window(...);
+                    HOperatorSet.SetFont(hv_ExpDefaultWinHandle, "-Consolas-16-*-0-*-*-1-");
+                    HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, "test_string", out hv_Ascent,
+                        out hv_Descent, out hv_Width, out hv_Height);
+                    //Expected width is 110
+                    hv_Scale = 110.0 / hv_Width;
+                    hv_Size_COPY_INP_TMP = ((hv_Size_COPY_INP_TMP * hv_Scale)).TupleInt();
+                    //close_window(...);
                 }
                 // catch (Exception) 
                 catch (HalconException HDevExpDefaultException1)
                 {
                     HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                    hv_Exception = "Wrong value of control parameter Box[1] (must be a 'true', 'false', or a valid color string)";
+                    //throw (Exception)
+                }
+                if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("Courier"))).TupleOr(
+                    new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "Courier New";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "Consolas";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "Arial";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "Times New Roman";
+                }
+                if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    hv_Bold_COPY_INP_TMP = 1;
+                }
+                else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("false"))) != 0)
+                {
+                    hv_Bold_COPY_INP_TMP = 0;
+                }
+                else
+                {
+                    hv_Exception = "Wrong value of control parameter Bold";
                     throw new HalconException(hv_Exception);
                 }
+                if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    hv_Slant_COPY_INP_TMP = 1;
+                }
+                else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("false"))) != 0)
+                {
+                    hv_Slant_COPY_INP_TMP = 0;
+                }
+                else
+                {
+                    hv_Exception = "Wrong value of control parameter Slant";
+                    throw new HalconException(hv_Exception);
+                }
+                try
+                {
+                    HOperatorSet.SetFont(hv_ExpDefaultWinHandle, ((((((("-" + hv_Font_COPY_INP_TMP) + "-") + hv_Size_COPY_INP_TMP) + "-*-") + hv_Slant_COPY_INP_TMP) + "-*-*-") + hv_Bold_COPY_INP_TMP) + "-");
+                }
+                // catch (Exception) 
+                catch (HalconException HDevExpDefaultException1)
+                {
+                    HDevExpDefaultException1.ToHTuple(out hv_Exception);
+                    //throw (Exception)
+                }
             }
-        }
-        if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(0))).TupleNotEqual("false"))) != 0)
-        {
-            //Valid color?
-            try
+            else if ((int)(new HTuple(((hv_OS.TupleSubstr(0, 2))).TupleEqual("Dar"))) != 0)
             {
+                //Set font on Mac OS X systems. Since OS X does not have a strict naming
+                //scheme for font attributes, we use tables to determine the correct font
+                //name.
+                hv_SubFamily = 0;
+                if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    hv_SubFamily = hv_SubFamily.TupleBor(1);
+                }
+                else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleNotEqual("false"))) != 0)
+                {
+                    hv_Exception = "Wrong value of control parameter Slant";
+                    throw new HalconException(hv_Exception);
+                }
+                if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    hv_SubFamily = hv_SubFamily.TupleBor(2);
+                }
+                else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleNotEqual("false"))) != 0)
+                {
+                    hv_Exception = "Wrong value of control parameter Bold";
+                    throw new HalconException(hv_Exception);
+                }
+                if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))) != 0)
+                {
+                    hv_Fonts = new HTuple();
+                    hv_Fonts[0] = "Menlo-Regular";
+                    hv_Fonts[1] = "Menlo-Italic";
+                    hv_Fonts[2] = "Menlo-Bold";
+                    hv_Fonts[3] = "Menlo-BoldItalic";
+                }
+                else if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("Courier"))).TupleOr(
+                    new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
+                {
+                    hv_Fonts = new HTuple();
+                    hv_Fonts[0] = "CourierNewPSMT";
+                    hv_Fonts[1] = "CourierNewPS-ItalicMT";
+                    hv_Fonts[2] = "CourierNewPS-BoldMT";
+                    hv_Fonts[3] = "CourierNewPS-BoldItalicMT";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
+                {
+                    hv_Fonts = new HTuple();
+                    hv_Fonts[0] = "ArialMT";
+                    hv_Fonts[1] = "Arial-ItalicMT";
+                    hv_Fonts[2] = "Arial-BoldMT";
+                    hv_Fonts[3] = "Arial-BoldItalicMT";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
+                {
+                    hv_Fonts = new HTuple();
+                    hv_Fonts[0] = "TimesNewRomanPSMT";
+                    hv_Fonts[1] = "TimesNewRomanPS-ItalicMT";
+                    hv_Fonts[2] = "TimesNewRomanPS-BoldMT";
+                    hv_Fonts[3] = "TimesNewRomanPS-BoldItalicMT";
+                }
+                else
+                {
+                    //Attempt to figure out which of the fonts installed on the system
+                    //the user could have meant.
+                    HOperatorSet.QueryFont(hv_ExpDefaultWinHandle, out hv_SystemFonts);
+                    hv_Fonts = new HTuple();
+                    hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
+                    hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
+                    hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
+                    hv_Fonts = hv_Fonts.TupleConcat(hv_Font_COPY_INP_TMP);
+                    hv_Guess = new HTuple();
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP);
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Regular");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "MT");
+                    for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
+                    {
+                        HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
+                        if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
+                        {
+                            if (hv_Fonts == null)
+                                hv_Fonts = new HTuple();
+                            hv_Fonts[0] = hv_Guess.TupleSelect(hv_I);
+                            break;
+                        }
+                    }
+                    //Guess name of slanted font
+                    hv_Guess = new HTuple();
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Italic");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-ItalicMT");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Oblique");
+                    for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
+                    {
+                        HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
+                        if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
+                        {
+                            if (hv_Fonts == null)
+                                hv_Fonts = new HTuple();
+                            hv_Fonts[1] = hv_Guess.TupleSelect(hv_I);
+                            break;
+                        }
+                    }
+                    //Guess name of bold font
+                    hv_Guess = new HTuple();
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-Bold");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldMT");
+                    for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
+                    {
+                        HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
+                        if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
+                        {
+                            if (hv_Fonts == null)
+                                hv_Fonts = new HTuple();
+                            hv_Fonts[2] = hv_Guess.TupleSelect(hv_I);
+                            break;
+                        }
+                    }
+                    //Guess name of bold slanted font
+                    hv_Guess = new HTuple();
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldItalic");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldItalicMT");
+                    hv_Guess = hv_Guess.TupleConcat(hv_Font_COPY_INP_TMP + "-BoldOblique");
+                    for (hv_I = 0; (int)hv_I <= (int)((new HTuple(hv_Guess.TupleLength())) - 1); hv_I = (int)hv_I + 1)
+                    {
+                        HOperatorSet.TupleFind(hv_SystemFonts, hv_Guess.TupleSelect(hv_I), out hv_Index);
+                        if ((int)(new HTuple(hv_Index.TupleNotEqual(-1))) != 0)
+                        {
+                            if (hv_Fonts == null)
+                                hv_Fonts = new HTuple();
+                            hv_Fonts[3] = hv_Guess.TupleSelect(hv_I);
+                            break;
+                        }
+                    }
+                }
+                hv_Font_COPY_INP_TMP = hv_Fonts.TupleSelect(hv_SubFamily);
+                try
+                {
+                    HOperatorSet.SetFont(hv_ExpDefaultWinHandle, (hv_Font_COPY_INP_TMP + "-") + hv_Size_COPY_INP_TMP);
+                }
+                // catch (Exception) 
+                catch (HalconException HDevExpDefaultException1)
+                {
+                    HDevExpDefaultException1.ToHTuple(out hv_Exception);
+                    //throw (Exception)
+                }
+            }
+            else
+            {
+                //Set font for UNIX systems
+                hv_Size_COPY_INP_TMP = hv_Size_COPY_INP_TMP * 1.25;
+                hv_AllowedFontSizes = new HTuple();
+                hv_AllowedFontSizes[0] = 11;
+                hv_AllowedFontSizes[1] = 14;
+                hv_AllowedFontSizes[2] = 17;
+                hv_AllowedFontSizes[3] = 20;
+                hv_AllowedFontSizes[4] = 25;
+                hv_AllowedFontSizes[5] = 34;
+                if ((int)(new HTuple(((hv_AllowedFontSizes.TupleFind(hv_Size_COPY_INP_TMP))).TupleEqual(
+                    -1))) != 0)
+                {
+                    hv_Distances = ((hv_AllowedFontSizes - hv_Size_COPY_INP_TMP)).TupleAbs();
+                    HOperatorSet.TupleSortIndex(hv_Distances, out hv_Indices);
+                    hv_Size_COPY_INP_TMP = hv_AllowedFontSizes.TupleSelect(hv_Indices.TupleSelect(
+                        0));
+                }
+                if ((int)((new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("mono"))).TupleOr(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual(
+                    "Courier")))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "courier";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("sans"))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "helvetica";
+                }
+                else if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("serif"))) != 0)
+                {
+                    hv_Font_COPY_INP_TMP = "times";
+                }
+                if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    hv_Bold_COPY_INP_TMP = "bold";
+                }
+                else if ((int)(new HTuple(hv_Bold_COPY_INP_TMP.TupleEqual("false"))) != 0)
+                {
+                    hv_Bold_COPY_INP_TMP = "medium";
+                }
+                else
+                {
+                    hv_Exception = "Wrong value of control parameter Bold";
+                    throw new HalconException(hv_Exception);
+                }
+                if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("true"))) != 0)
+                {
+                    if ((int)(new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("times"))) != 0)
+                    {
+                        hv_Slant_COPY_INP_TMP = "i";
+                    }
+                    else
+                    {
+                        hv_Slant_COPY_INP_TMP = "o";
+                    }
+                }
+                else if ((int)(new HTuple(hv_Slant_COPY_INP_TMP.TupleEqual("false"))) != 0)
+                {
+                    hv_Slant_COPY_INP_TMP = "r";
+                }
+                else
+                {
+                    hv_Exception = "Wrong value of control parameter Slant";
+                    throw new HalconException(hv_Exception);
+                }
+                try
+                {
+                    HOperatorSet.SetFont(hv_ExpDefaultWinHandle, ((((((("-adobe-" + hv_Font_COPY_INP_TMP) + "-") + hv_Bold_COPY_INP_TMP) + "-") + hv_Slant_COPY_INP_TMP) + "-normal-*-") + hv_Size_COPY_INP_TMP) + "-*-*-*-*-*-*-*");
+                }
+                // catch (Exception) 
+                catch (HalconException HDevExpDefaultException1)
+                {
+                    HDevExpDefaultException1.ToHTuple(out hv_Exception);
+                    if ((int)((new HTuple(((hv_OS.TupleSubstr(0, 4))).TupleEqual("Linux"))).TupleAnd(
+                        new HTuple(hv_Font_COPY_INP_TMP.TupleEqual("courier")))) != 0)
+                    {
+                        HOperatorSet.QueryFont(hv_ExpDefaultWinHandle, out hv_Fonts);
+                        hv_FontSelRegexp = (("^-[^-]*-[^-]*[Cc]ourier[^-]*-" + hv_Bold_COPY_INP_TMP) + "-") + hv_Slant_COPY_INP_TMP;
+                        hv_FontsCourier = ((hv_Fonts.TupleRegexpSelect(hv_FontSelRegexp))).TupleRegexpMatch(
+                            hv_FontSelRegexp);
+                        if ((int)(new HTuple((new HTuple(hv_FontsCourier.TupleLength())).TupleEqual(
+                            0))) != 0)
+                        {
+                            hv_Exception = "Wrong font name";
+                            //throw (Exception)
+                        }
+                        else
+                        {
+                            try
+                            {
+                                HOperatorSet.SetFont(hv_ExpDefaultWinHandle, (((hv_FontsCourier.TupleSelect(
+                                    0)) + "-normal-*-") + hv_Size_COPY_INP_TMP) + "-*-*-*-*-*-*-*");
+                            }
+                            // catch (Exception) 
+                            catch (HalconException HDevExpDefaultException2)
+                            {
+                                HDevExpDefaultException2.ToHTuple(out hv_Exception);
+                                //throw (Exception)
+                            }
+                        }
+                    }
+                    //throw (Exception)
+                }
+            }
+            // dev_set_preferences(...); only in hdevelop
+
+            return;
+        }
+
+        // Chapter: Graphics / Text
+        // Short Description: This procedure writes a text message. 
+        public void disp_message(HTuple hv_WindowHandle, HTuple hv_String, HTuple hv_CoordSystem,
+            HTuple hv_Row, HTuple hv_Column, HTuple hv_Color, HTuple hv_Box, HTuple hv_ExpDefaultWinHandle)
+        {
+
+
+
+            // Local iconic variables 
+
+            // Local control variables 
+
+            HTuple hv_Red = null, hv_Green = null, hv_Blue = null;
+            HTuple hv_Row1Part = null, hv_Column1Part = null, hv_Row2Part = null;
+            HTuple hv_Column2Part = null, hv_RowWin = null, hv_ColumnWin = null;
+            HTuple hv_WidthWin = new HTuple(), hv_HeightWin = null;
+            HTuple hv_MaxAscent = null, hv_MaxDescent = null, hv_MaxWidth = null;
+            HTuple hv_MaxHeight = null, hv_R1 = new HTuple(), hv_C1 = new HTuple();
+            HTuple hv_FactorRow = new HTuple(), hv_FactorColumn = new HTuple();
+            HTuple hv_UseShadow = null, hv_ShadowColor = null, hv_Exception = new HTuple();
+            HTuple hv_Width = new HTuple(), hv_Index = new HTuple();
+            HTuple hv_Ascent = new HTuple(), hv_Descent = new HTuple();
+            HTuple hv_W = new HTuple(), hv_H = new HTuple(), hv_FrameHeight = new HTuple();
+            HTuple hv_FrameWidth = new HTuple(), hv_R2 = new HTuple();
+            HTuple hv_C2 = new HTuple(), hv_DrawMode = new HTuple();
+            HTuple hv_CurrentColor = new HTuple();
+            HTuple hv_Box_COPY_INP_TMP = hv_Box.Clone();
+            HTuple hv_Color_COPY_INP_TMP = hv_Color.Clone();
+            HTuple hv_Column_COPY_INP_TMP = hv_Column.Clone();
+            HTuple hv_Row_COPY_INP_TMP = hv_Row.Clone();
+            HTuple hv_String_COPY_INP_TMP = hv_String.Clone();
+
+            // Initialize local and output iconic variables 
+            //This procedure displays text in a graphics window.
+            //
+            //Input parameters:
+            //WindowHandle: The WindowHandle of the graphics window, where
+            //   the message should be displayed
+            //String: A tuple of strings containing the text message to be displayed
+            //CoordSystem: If set to 'window', the text position is given
+            //   with respect to the window coordinate system.
+            //   If set to 'image', image coordinates are used.
+            //   (This may be useful in zoomed images.)
+            //Row: The row coordinate of the desired text position
+            //   If set to -1, a default value of 12 is used.
+            //Column: The column coordinate of the desired text position
+            //   If set to -1, a default value of 12 is used.
+            //Color: defines the color of the text as string.
+            //   If set to [], '' or 'auto' the currently set color is used.
+            //   If a tuple of strings is passed, the colors are used cyclically
+            //   for each new textline.
+            //Box: If Box[0] is set to 'true', the text is written within an orange box.
+            //     If set to' false', no box is displayed.
+            //     If set to a color string (e.g. 'white', '#FF00CC', etc.),
+            //       the text is written in a box of that color.
+            //     An optional second value for Box (Box[1]) controls if a shadow is displayed:
+            //       'true' -> display a shadow in a default color
+            //       'false' -> display no shadow (same as if no second value is given)
+            //       otherwise -> use given string as color string for the shadow color
+            //
+            //Prepare window
+            HOperatorSet.GetRgb(hv_ExpDefaultWinHandle, out hv_Red, out hv_Green, out hv_Blue);
+            HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
+                out hv_Row2Part, out hv_Column2Part);
+            HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
+                out hv_WidthWin, out hv_HeightWin);
+            HOperatorSet.SetPart(hv_ExpDefaultWinHandle, 0, 0, hv_HeightWin - 1, hv_WidthWin - 1);
+            //
+            //default settings
+            if ((int)(new HTuple(hv_Row_COPY_INP_TMP.TupleEqual(-1))) != 0)
+            {
+                hv_Row_COPY_INP_TMP = 12;
+            }
+            if ((int)(new HTuple(hv_Column_COPY_INP_TMP.TupleEqual(-1))) != 0)
+            {
+                hv_Column_COPY_INP_TMP = 12;
+            }
+            if ((int)(new HTuple(hv_Color_COPY_INP_TMP.TupleEqual(new HTuple()))) != 0)
+            {
+                hv_Color_COPY_INP_TMP = "";
+            }
+            //
+            hv_String_COPY_INP_TMP = ((("" + hv_String_COPY_INP_TMP) + "")).TupleSplit("\n");
+            //
+            //Estimate extentions of text depending on font size.
+            HOperatorSet.GetFontExtents(hv_ExpDefaultWinHandle, out hv_MaxAscent, out hv_MaxDescent,
+                out hv_MaxWidth, out hv_MaxHeight);
+            if ((int)(new HTuple(hv_CoordSystem.TupleEqual("window"))) != 0)
+            {
+                hv_R1 = hv_Row_COPY_INP_TMP.Clone();
+                hv_C1 = hv_Column_COPY_INP_TMP.Clone();
+            }
+            else
+            {
+                //Transform image to window coordinates
+                hv_FactorRow = (1.0 * hv_HeightWin) / ((hv_Row2Part - hv_Row1Part) + 1);
+                hv_FactorColumn = (1.0 * hv_WidthWin) / ((hv_Column2Part - hv_Column1Part) + 1);
+                hv_R1 = ((hv_Row_COPY_INP_TMP - hv_Row1Part) + 0.5) * hv_FactorRow;
+                hv_C1 = ((hv_Column_COPY_INP_TMP - hv_Column1Part) + 0.5) * hv_FactorColumn;
+            }
+            //
+            //Display text box depending on text size
+            hv_UseShadow = 1;
+            hv_ShadowColor = "gray";
+            if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(0))).TupleEqual("true"))) != 0)
+            {
+                if (hv_Box_COPY_INP_TMP == null)
+                    hv_Box_COPY_INP_TMP = new HTuple();
+                hv_Box_COPY_INP_TMP[0] = "#fce9d4";
+                hv_ShadowColor = "#f28d26";
+            }
+            if ((int)(new HTuple((new HTuple(hv_Box_COPY_INP_TMP.TupleLength())).TupleGreater(
+                1))) != 0)
+            {
+                if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(1))).TupleEqual("true"))) != 0)
+                {
+                    //Use default ShadowColor set above
+                }
+                else if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(1))).TupleEqual(
+                    "false"))) != 0)
+                {
+                    hv_UseShadow = 0;
+                }
+                else
+                {
+                    hv_ShadowColor = hv_Box_COPY_INP_TMP[1];
+                    //Valid color?
+                    try
+                    {
+                        HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Box_COPY_INP_TMP.TupleSelect(
+                            1));
+                    }
+                    // catch (Exception) 
+                    catch (HalconException HDevExpDefaultException1)
+                    {
+                        HDevExpDefaultException1.ToHTuple(out hv_Exception);
+                        hv_Exception = "Wrong value of control parameter Box[1] (must be a 'true', 'false', or a valid color string)";
+                        throw new HalconException(hv_Exception);
+                    }
+                }
+            }
+            if ((int)(new HTuple(((hv_Box_COPY_INP_TMP.TupleSelect(0))).TupleNotEqual("false"))) != 0)
+            {
+                //Valid color?
+                try
+                {
+                    HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Box_COPY_INP_TMP.TupleSelect(
+                        0));
+                }
+                // catch (Exception) 
+                catch (HalconException HDevExpDefaultException1)
+                {
+                    HDevExpDefaultException1.ToHTuple(out hv_Exception);
+                    hv_Exception = "Wrong value of control parameter Box[0] (must be a 'true', 'false', or a valid color string)";
+                    throw new HalconException(hv_Exception);
+                }
+                //Calculate box extents
+                hv_String_COPY_INP_TMP = (" " + hv_String_COPY_INP_TMP) + " ";
+                hv_Width = new HTuple();
+                for (hv_Index = 0; (int)hv_Index <= (int)((new HTuple(hv_String_COPY_INP_TMP.TupleLength()
+                    )) - 1); hv_Index = (int)hv_Index + 1)
+                {
+                    HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_String_COPY_INP_TMP.TupleSelect(
+                        hv_Index), out hv_Ascent, out hv_Descent, out hv_W, out hv_H);
+                    hv_Width = hv_Width.TupleConcat(hv_W);
+                }
+                hv_FrameHeight = hv_MaxHeight * (new HTuple(hv_String_COPY_INP_TMP.TupleLength()
+                    ));
+                hv_FrameWidth = (((new HTuple(0)).TupleConcat(hv_Width))).TupleMax();
+                hv_R2 = hv_R1 + hv_FrameHeight;
+                hv_C2 = hv_C1 + hv_FrameWidth;
+                //Display rectangles
+                HOperatorSet.GetDraw(hv_ExpDefaultWinHandle, out hv_DrawMode);
+                HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "fill");
+                //Set shadow color
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_ShadowColor);
+                if ((int)(hv_UseShadow) != 0)
+                {
+                    HOperatorSet.DispRectangle1(hv_ExpDefaultWinHandle, hv_R1 + 1, hv_C1 + 1, hv_R2 + 1,
+                        hv_C2 + 1);
+                }
+                //Set box color
                 HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Box_COPY_INP_TMP.TupleSelect(
                     0));
+                HOperatorSet.DispRectangle1(hv_ExpDefaultWinHandle, hv_R1, hv_C1, hv_R2, hv_C2);
+                HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, hv_DrawMode);
             }
-            // catch (Exception) 
-            catch (HalconException HDevExpDefaultException1)
-            {
-                HDevExpDefaultException1.ToHTuple(out hv_Exception);
-                hv_Exception = "Wrong value of control parameter Box[0] (must be a 'true', 'false', or a valid color string)";
-                throw new HalconException(hv_Exception);
-            }
-            //Calculate box extents
-            hv_String_COPY_INP_TMP = (" " + hv_String_COPY_INP_TMP) + " ";
-            hv_Width = new HTuple();
+            //Write text.
             for (hv_Index = 0; (int)hv_Index <= (int)((new HTuple(hv_String_COPY_INP_TMP.TupleLength()
                 )) - 1); hv_Index = (int)hv_Index + 1)
             {
-                HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_String_COPY_INP_TMP.TupleSelect(
-                    hv_Index), out hv_Ascent, out hv_Descent, out hv_W, out hv_H);
-                hv_Width = hv_Width.TupleConcat(hv_W);
-            }
-            hv_FrameHeight = hv_MaxHeight * (new HTuple(hv_String_COPY_INP_TMP.TupleLength()
-                ));
-            hv_FrameWidth = (((new HTuple(0)).TupleConcat(hv_Width))).TupleMax();
-            hv_R2 = hv_R1 + hv_FrameHeight;
-            hv_C2 = hv_C1 + hv_FrameWidth;
-            //Display rectangles
-            HOperatorSet.GetDraw(hv_ExpDefaultWinHandle, out hv_DrawMode);
-            HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "fill");
-            //Set shadow color
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_ShadowColor);
-            if ((int)(hv_UseShadow) != 0)
-            {
-                HOperatorSet.DispRectangle1(hv_ExpDefaultWinHandle, hv_R1 + 1, hv_C1 + 1, hv_R2 + 1,
-                    hv_C2 + 1);
-            }
-            //Set box color
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Box_COPY_INP_TMP.TupleSelect(
-                0));
-            HOperatorSet.DispRectangle1(hv_ExpDefaultWinHandle, hv_R1, hv_C1, hv_R2, hv_C2);
-            HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, hv_DrawMode);
-        }
-        //Write text.
-        for (hv_Index = 0; (int)hv_Index <= (int)((new HTuple(hv_String_COPY_INP_TMP.TupleLength()
-            )) - 1); hv_Index = (int)hv_Index + 1)
-        {
-            hv_CurrentColor = hv_Color_COPY_INP_TMP.TupleSelect(hv_Index % (new HTuple(hv_Color_COPY_INP_TMP.TupleLength()
-                )));
-            if ((int)((new HTuple(hv_CurrentColor.TupleNotEqual(""))).TupleAnd(new HTuple(hv_CurrentColor.TupleNotEqual(
-                "auto")))) != 0)
-            {
-                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_CurrentColor);
-            }
-            else
-            {
-                HOperatorSet.SetRgb(hv_ExpDefaultWinHandle, hv_Red, hv_Green, hv_Blue);
-            }
-            hv_Row_COPY_INP_TMP = hv_R1 + (hv_MaxHeight * hv_Index);
-            HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_Row_COPY_INP_TMP, hv_C1);
-            HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_String_COPY_INP_TMP.TupleSelect(
-                hv_Index));
-        }
-        //Reset changed window settings
-        HOperatorSet.SetRgb(hv_ExpDefaultWinHandle, hv_Red, hv_Green, hv_Blue);
-        HOperatorSet.SetPart(hv_ExpDefaultWinHandle, hv_Row1Part, hv_Column1Part, hv_Row2Part,
-            hv_Column2Part);
-
-        return;
-    }
-
-    public void p_disp_edge_marker(HTuple hv_Row, HTuple hv_Col, HTuple hv_Phi, HTuple hv_Length,
-     HTuple hv_Color, HTuple hv_LineWidth, HTuple hv_WindowHandle, string Color, HTuple hv_ExpDefaultWinHandle)
-    {
-
-
-
-        // Local iconic variables 
-
-        HObject ho_Marker;
-
-        // Local control variables 
-
-        HTuple hv_RowStart = null, hv_RowEnd = null;
-        HTuple hv_ColStart = null, hv_ColEnd = null;
-        // Initialize local and output iconic variables 
-        HOperatorSet.GenEmptyObj(out ho_Marker);
-        try
-        {
-            //Determine start and end point of the edge marker.
-            hv_RowStart = hv_Row + (hv_Length * (hv_Phi.TupleCos()));
-            hv_RowEnd = hv_Row - (hv_Length * (hv_Phi.TupleCos()));
-            hv_ColStart = hv_Col + (hv_Length * (hv_Phi.TupleSin()));
-            hv_ColEnd = hv_Col - (hv_Length * (hv_Phi.TupleSin()));
-            //
-            //Generate a contour that connects the start and end point.
-            ho_Marker.Dispose();
-            HOperatorSet.GenContourPolygonXld(out ho_Marker, hv_RowStart.TupleConcat(hv_RowEnd),
-                hv_ColStart.TupleConcat(hv_ColEnd));
-            //
-            //Display the contour with  the specified style.
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Color);
-            HOperatorSet.SetLineWidth(hv_ExpDefaultWinHandle, hv_LineWidth);
-            HOperatorSet.DispObj(ho_Marker, hv_ExpDefaultWinHandle);
-            //
-            //Reset the line width.
-            HOperatorSet.SetLineWidth(hv_ExpDefaultWinHandle, 1);
-            ho_Marker.Dispose();
-
-            return;
-        }
-        catch (HalconException HDevExpDefaultException)
-        {
-            ho_Marker.Dispose();
-
-            throw HDevExpDefaultException;
-        }
-    }
-
-    public void p_disp_dimensions(HTuple hv_RowEdgeFirst, HTuple hv_ColumnEdgeFirst,
-    HTuple hv_RowEdgeSecond, HTuple hv_ColumnEdgeSecond, HTuple hv_IntraDistance,
-    HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle, string Color, HTuple hv_ExpDefaultWinHandle)
-    {
-        // Local iconic variables 
-
-        // Local control variables 
-
-        HTuple hv_Number = null, hv_i = null, hv_Text = new HTuple();
-        // Initialize local and output iconic variables 
-        //Loop over all edge pairs.
-        hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
-        HTuple end_val2 = hv_Number - 1;
-        HTuple step_val2 = 1;
-        for (hv_i = 0; hv_i.Continue(end_val2, step_val2); hv_i = hv_i.TupleAdd(step_val2))
-        {
-            //
-            //Display markers for the edges.
-            p_disp_edge_marker(hv_RowEdgeFirst.TupleSelect(hv_i), hv_ColumnEdgeFirst.TupleSelect(
-                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
-            p_disp_edge_marker(hv_RowEdgeSecond.TupleSelect(hv_i), hv_ColumnEdgeSecond.TupleSelect(
-                hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
-            //
-            //Display the IntraDistance between the edges.
-            hv_Text = hv_IntraDistance.TupleSelect(hv_i);
-            p_disp_text_right_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeFirst.TupleSelect(
-                hv_i), hv_ColumnEdgeFirst.TupleSelect(hv_i), hv_RowEdgeSecond.TupleSelect(
-                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length, Color, hv_ExpDefaultWinHandle);
-        }
-        //
-        //Loop to display the distance between the edge pairs.
-        HTuple end_val14 = hv_Number - 2;
-        HTuple step_val14 = 1;
-        for (hv_i = 0; hv_i.Continue(end_val14, step_val14); hv_i = hv_i.TupleAdd(step_val14))
-        {
-            //
-            //Display the InterDistance between the edge pairs.
-            hv_Text = hv_InterDistance.TupleSelect(hv_i);
-            p_disp_text_left_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeSecond.TupleSelect(
-                hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_RowEdgeFirst.TupleSelect(
-                hv_i + 1), hv_ColumnEdgeFirst.TupleSelect(hv_i + 1), hv_Phi, 2.0 * hv_Length, hv_ExpDefaultWinHandle);
-        }
-
-        return;
-    }
-
-    public void p_disp_text_right_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
-     HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
-     HTuple hv_Phi, HTuple hv_Distance, string Color, HTuple hv_ExpDefaultWinHandle)
-    {
-
-        HTuple hv_Row1Part = null, hv_Column1Part = null;
-        HTuple hv_Row2Part = null, hv_Column2Part = null, hv_RowWin = null;
-        HTuple hv_ColumnWin = null, hv_WidthWin = new HTuple();
-        HTuple hv_HeightWin = null, hv_FactorRow = null, hv_FactorColumn = null;
-        HTuple hv_Ascent = null, hv_Descent = null, hv_Width = null;
-        HTuple hv_Height = null, hv_RowCenter = null, hv_ColCenter = null;
-        HTuple hv_RowPos = null, hv_ColPos = null, hv_RowText = null;
-        HTuple hv_ColText = null;
-        HTuple hv_Distance_COPY_INP_TMP = hv_Distance.Clone();
-
-        // Initialize local and output iconic variables 
-        //Determine factors for the adaptation of the string extents that might be necessary
-        //because of image zooming.
-        HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
-            out hv_Row2Part, out hv_Column2Part);
-        HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
-            out hv_WidthWin, out hv_HeightWin);
-        hv_FactorRow = (1.0 * ((hv_Row2Part - hv_Row1Part) + 1)) / hv_HeightWin;
-        hv_FactorColumn = (1.0 * ((hv_Column2Part - hv_Column1Part) + 1)) / hv_WidthWin;
-        //
-        //Determine the extent of the string and its position.
-        HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_Text, out hv_Ascent,
-            out hv_Descent, out hv_Width, out hv_Height);
-        hv_Width = hv_Width * hv_FactorColumn;
-        hv_Height = hv_Height * hv_FactorRow;
-        hv_RowCenter = (hv_RowFirst + hv_RowSecond) / 2.0;
-        hv_ColCenter = (hv_ColFirst + hv_ColSecond) / 2.0;
-        if ((int)(new HTuple(((hv_Phi.TupleSin())).TupleLess(0))) != 0)
-        {
-            hv_Distance_COPY_INP_TMP = -hv_Distance_COPY_INP_TMP;
-        }
-        hv_RowPos = hv_RowCenter + (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleCos()));
-        hv_ColPos = hv_ColCenter + (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleSin()));
-        hv_RowText = hv_RowPos - (hv_Height / 2.0);
-        hv_ColText = hv_ColPos.Clone();
-        //
-        //Set the text position and color and display the text.
-        HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_RowText, hv_ColText);
-        HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
-        HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_Text);
-
-        return;
-    }
-
-    // Short Description: Displays text right of the center of two given points. 
-    public void p_disp_text_left_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
-        HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
-        HTuple hv_Phi, HTuple hv_Distance, HTuple hv_ExpDefaultWinHandle)
-    {
-
-        HTuple hv_Row1Part = null, hv_Column1Part = null;
-        HTuple hv_Row2Part = null, hv_Column2Part = null, hv_RowWin = null;
-        HTuple hv_ColumnWin = null, hv_WidthWin = new HTuple();
-        HTuple hv_HeightWin = null, hv_FactorRow = null, hv_FactorColumn = null;
-        HTuple hv_Ascent = null, hv_Descent = null, hv_Width = null;
-        HTuple hv_Height = null, hv_RowCenter = null, hv_ColCenter = null;
-        HTuple hv_RowPos = null, hv_ColPos = null, hv_RowText = null;
-        HTuple hv_ColText = null;
-        HTuple hv_Distance_COPY_INP_TMP = hv_Distance.Clone();
-
-        // Initialize local and output iconic variables 
-        //Determine factors for the adaptation of the string extents that might be necessary
-        //because of image zooming.
-        HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
-            out hv_Row2Part, out hv_Column2Part);
-        HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
-            out hv_WidthWin, out hv_HeightWin);
-        hv_FactorRow = (1.0 * ((hv_Row2Part - hv_Row1Part) + 1)) / hv_HeightWin;
-        hv_FactorColumn = (1.0 * ((hv_Column2Part - hv_Column1Part) + 1)) / hv_WidthWin;
-        //
-        //Determine the extent of the string and its position.
-        HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_Text, out hv_Ascent,
-            out hv_Descent, out hv_Width, out hv_Height);
-        hv_Width = hv_Width * hv_FactorColumn;
-        hv_Height = hv_Height * hv_FactorRow;
-        hv_RowCenter = (hv_RowFirst + hv_RowSecond) / 2.0;
-        hv_ColCenter = (hv_ColFirst + hv_ColSecond) / 2.0;
-        if ((int)(new HTuple(((hv_Phi.TupleSin())).TupleLess(0))) != 0)
-        {
-            hv_Distance_COPY_INP_TMP = -hv_Distance_COPY_INP_TMP;
-        }
-        hv_RowPos = hv_RowCenter - (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleCos()));
-        hv_ColPos = hv_ColCenter - (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleSin()));
-        hv_RowText = hv_RowPos - (hv_Height / 2.0);
-        hv_ColText = hv_ColPos - hv_Width;
-        //
-        //Set the text position and color and display the text.
-        HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_RowText, hv_ColText);
-        HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "black");
-        HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_Text);
-
-        return;
-    }
-
-
-
-    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, out Info_Ctrl info_Ctrl, HTuple Window, HTuple _Track_Model, bool isDisp = true, string Color = "#FF00FF")
-    {
-        info_Ctrl = new Info_Ctrl();
-        HObject ho_Rectangle;
-        HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
-        HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
-        HTuple hv_Transition = null, hv_Select = null, hv_RowEdgeFirst = null;
-        HTuple hv_ColumnEdgeFirst = null, hv_AmplitudeFirst = null;
-        HTuple hv_RowEdgeSecond = null, hv_ColumnEdgeSecond = null;
-        HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
-        HTuple hv_InterDistance = null;
-        // Initialize local and output iconic variables 
-        HOperatorSet.GenEmptyObj(out ho_Rectangle);
-        try
-        {
-
-            SetDisp(Window, Color);
-            HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
-            FindTrackPos(ho_Image, Window, out info_Ctrl, _Track_Model,false);
-            HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
-                hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
-            hv_Sigma = 0.9;
-            hv_Threshold = 12;
-            hv_Transition = "negative";
-            hv_Select = "all";
-            HOperatorSet.MeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_Threshold,
-                hv_Transition, hv_Select, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
-                out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
-                out hv_IntraDistance, out hv_InterDistance);
-
-            if (isDisp) HOperatorSet.DispObj(ho_Image, Window);
-            HOperatorSet.SetDraw(Window, "margin");
-            HOperatorSet.SetColor(Window, Color);
-            ho_Rectangle.Dispose();
-            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
-                hv_Length2);
-
-            HTuple hv_Number = null;
-            hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
-            HTuple end_val36 = hv_Number - 1;
-            HTuple step_val36 = 1;
-
-
-
-            for (HTuple hv_i = 0; hv_i.Continue(end_val36, step_val36); hv_i = hv_i.TupleAdd(step_val36))
-            {
-                info_Ctrl.c_y = ((hv_RowEdgeFirst.TupleSelect(hv_i)) + (hv_RowEdgeSecond.TupleSelect(
-                    hv_i))) / 2;
-                info_Ctrl.c_x = ((hv_ColumnEdgeFirst.TupleSelect(hv_i)) + (hv_ColumnEdgeSecond.TupleSelect(
-                    hv_i))) / 2;
-            }
-
-
-
-
-
-
-
-
-
-
-            p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
-                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle, Color, Window);
-
-            HOperatorSet.DispObj(ho_Rectangle, Window);
-            ho_Rectangle.Dispose();
-            HOperatorSet.CloseMeasure(hv_MeasureHandle);
-
-            HTuple Max = -1;
-            for (int hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_IntraDistance.TupleLength())) - 1); hv_j++) {
-                HTuple len = hv_IntraDistance.TupleSelect(hv_j);
-                if (Max < len)
+                hv_CurrentColor = hv_Color_COPY_INP_TMP.TupleSelect(hv_Index % (new HTuple(hv_Color_COPY_INP_TMP.TupleLength()
+                    )));
+                if ((int)((new HTuple(hv_CurrentColor.TupleNotEqual(""))).TupleAnd(new HTuple(hv_CurrentColor.TupleNotEqual(
+                    "auto")))) != 0)
                 {
-                    Max = len;
+                    HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_CurrentColor);
                 }
-              //  Console.WriteLine(hv_j.ToString() + "len " + len.ToString());
+                else
+                {
+                    HOperatorSet.SetRgb(hv_ExpDefaultWinHandle, hv_Red, hv_Green, hv_Blue);
+                }
+                hv_Row_COPY_INP_TMP = hv_R1 + (hv_MaxHeight * hv_Index);
+                HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_Row_COPY_INP_TMP, hv_C1);
+                HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_String_COPY_INP_TMP.TupleSelect(
+                    hv_Index));
             }
+            //Reset changed window settings
+            HOperatorSet.SetRgb(hv_ExpDefaultWinHandle, hv_Red, hv_Green, hv_Blue);
+            HOperatorSet.SetPart(hv_ExpDefaultWinHandle, hv_Row1Part, hv_Column1Part, hv_Row2Part,
+                hv_Column2Part);
 
-
-            ho_Rectangle.Dispose();
-            //选取最大值去检测
-
-
-            if (Max < 0)
-            {
-                return hv_IntraDistance.ToString();
-            }
-            else {
-                return Max.ToString();
-            }
-
-
-        }
-        catch (HalconException HDevExpDefaultException)
-        {
-            ho_Image.Dispose();
-            ho_Rectangle.Dispose();
-            throw HDevExpDefaultException;
-        }
-        // ho_Image.Dispose();
-
-
-    }
-
-    void SetDisp(HTuple Window, string Color)
-    {
-        try
-        {
-            HOperatorSet.SetColor(Window, Color);
-          //  set_display_font(Window, 16, "mono", "true", "false");
-            HOperatorSet.SetDraw(Window, "margin");
-        }
-        catch (HalconException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
             return;
         }
-    }
 
-
-
-    public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, out HTuple hv__c, out HTuple hv__r, HTuple Window, bool isDisp = true, string Color = "#FF00FF")
-    {
-        HObject ho_Rectangle;
-        HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
-        HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
-        HTuple hv_Transition = null, hv_Select = null, hv_RowEdgeFirst = null;
-        HTuple hv_ColumnEdgeFirst = null, hv_AmplitudeFirst = null;
-        HTuple hv_RowEdgeSecond = null, hv_ColumnEdgeSecond = null;
-        HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
-        HTuple hv_InterDistance = null;
-        // Initialize local and output iconic variables 
-
-        HOperatorSet.GenEmptyObj(out ho_Rectangle);
-        try
+        public void p_disp_edge_marker(HTuple hv_Row, HTuple hv_Col, HTuple hv_Phi, HTuple hv_Length,
+         HTuple hv_Color, HTuple hv_LineWidth, HTuple hv_WindowHandle, string Color, HTuple hv_ExpDefaultWinHandle)
         {
-            hv__c = 0;
-            hv__r = 0;
-            hv_ExpDefaultWinHandle = Window;
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
-            HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
-           // set_display_font(hv_ExpDefaultWinHandle, 16, "mono", "true", "false");
-            // HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
-            HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
-                hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
-            hv_Sigma = 0.9;
-            hv_Threshold = 12;
-            hv_Transition = "negative";
-            hv_Select = "all";
-            HOperatorSet.MeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_Threshold,
-                hv_Transition, hv_Select, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
-                out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
-                out hv_IntraDistance, out hv_InterDistance);
-
-            if (isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
-            HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
-            ho_Rectangle.Dispose();
-            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
-                hv_Length2);
 
 
 
-            HTuple hv_Number = null, hv_i = null;
+            // Local iconic variables 
 
-            hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
-            HTuple end_val36 = hv_Number - 1;
-            HTuple step_val36 = 1;
-            for (hv_i = 0; hv_i.Continue(end_val36, step_val36); hv_i = hv_i.TupleAdd(step_val36))
+            HObject ho_Marker;
+
+            // Local control variables 
+
+            HTuple hv_RowStart = null, hv_RowEnd = null;
+            HTuple hv_ColStart = null, hv_ColEnd = null;
+            // Initialize local and output iconic variables 
+            HOperatorSet.GenEmptyObj(out ho_Marker);
+            try
             {
-                hv__r = ((hv_RowEdgeFirst.TupleSelect(hv_i)) + (hv_RowEdgeSecond.TupleSelect(
-                    hv_i))) / 2;
-                hv__c = ((hv_ColumnEdgeFirst.TupleSelect(hv_i)) + (hv_ColumnEdgeSecond.TupleSelect(
-                    hv_i))) / 2;
+                //Determine start and end point of the edge marker.
+                hv_RowStart = hv_Row + (hv_Length * (hv_Phi.TupleCos()));
+                hv_RowEnd = hv_Row - (hv_Length * (hv_Phi.TupleCos()));
+                hv_ColStart = hv_Col + (hv_Length * (hv_Phi.TupleSin()));
+                hv_ColEnd = hv_Col - (hv_Length * (hv_Phi.TupleSin()));
+                //
+                //Generate a contour that connects the start and end point.
+                ho_Marker.Dispose();
+                HOperatorSet.GenContourPolygonXld(out ho_Marker, hv_RowStart.TupleConcat(hv_RowEnd),
+                    hv_ColStart.TupleConcat(hv_ColEnd));
+                //
+                //Display the contour with  the specified style.
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, hv_Color);
+                HOperatorSet.SetLineWidth(hv_ExpDefaultWinHandle, hv_LineWidth);
+                HOperatorSet.DispObj(ho_Marker, hv_ExpDefaultWinHandle);
+                //
+                //Reset the line width.
+                HOperatorSet.SetLineWidth(hv_ExpDefaultWinHandle, 1);
+                ho_Marker.Dispose();
+
+                return;
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                ho_Marker.Dispose();
+
+                throw HDevExpDefaultException;
+            }
+        }
+
+        public void p_disp_dimensions(HTuple hv_RowEdgeFirst, HTuple hv_ColumnEdgeFirst,
+        HTuple hv_RowEdgeSecond, HTuple hv_ColumnEdgeSecond, HTuple hv_IntraDistance,
+        HTuple hv_InterDistance, HTuple hv_Phi, HTuple hv_Length, HTuple hv_WindowHandle, string Color, HTuple hv_ExpDefaultWinHandle)
+        {
+            // Local iconic variables 
+
+            // Local control variables 
+
+            HTuple hv_Number = null, hv_i = null, hv_Text = new HTuple();
+            // Initialize local and output iconic variables 
+            //Loop over all edge pairs.
+            hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
+            HTuple end_val2 = hv_Number - 1;
+            HTuple step_val2 = 1;
+            for (hv_i = 0; hv_i.Continue(end_val2, step_val2); hv_i = hv_i.TupleAdd(step_val2))
+            {
+                //
+                //Display markers for the edges.
+                p_disp_edge_marker(hv_RowEdgeFirst.TupleSelect(hv_i), hv_ColumnEdgeFirst.TupleSelect(
+                    hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
+                p_disp_edge_marker(hv_RowEdgeSecond.TupleSelect(hv_i), hv_ColumnEdgeSecond.TupleSelect(
+                    hv_i), hv_Phi, hv_Length, Color, 2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
+                //
+                //Display the IntraDistance between the edges.
+                hv_Text = hv_IntraDistance.TupleSelect(hv_i);
+                p_disp_text_right_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeFirst.TupleSelect(
+                    hv_i), hv_ColumnEdgeFirst.TupleSelect(hv_i), hv_RowEdgeSecond.TupleSelect(
+                    hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_Phi, 2.0 * hv_Length, Color, hv_ExpDefaultWinHandle);
+            }
+            //
+            //Loop to display the distance between the edge pairs.
+            HTuple end_val14 = hv_Number - 2;
+            HTuple step_val14 = 1;
+            for (hv_i = 0; hv_i.Continue(end_val14, step_val14); hv_i = hv_i.TupleAdd(step_val14))
+            {
+                //
+                //Display the InterDistance between the edge pairs.
+                hv_Text = hv_InterDistance.TupleSelect(hv_i);
+                p_disp_text_left_of_center(hv_WindowHandle, hv_Text.TupleString(".2f"), hv_RowEdgeSecond.TupleSelect(
+                    hv_i), hv_ColumnEdgeSecond.TupleSelect(hv_i), hv_RowEdgeFirst.TupleSelect(
+                    hv_i + 1), hv_ColumnEdgeFirst.TupleSelect(hv_i + 1), hv_Phi, 2.0 * hv_Length, hv_ExpDefaultWinHandle);
             }
 
-
-            p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
-                hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
-
-            HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
-            ho_Rectangle.Dispose();
-            HOperatorSet.CloseMeasure(hv_MeasureHandle);
-            ho_Rectangle.Dispose();
-            return hv_IntraDistance.ToString();
-
-
+            return;
         }
-        catch (HalconException HDevExpDefaultException)
+
+        public void p_disp_text_right_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
+         HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
+         HTuple hv_Phi, HTuple hv_Distance, string Color, HTuple hv_ExpDefaultWinHandle)
         {
-            ho_Image.Dispose();
-            ho_Rectangle.Dispose();
-            throw HDevExpDefaultException;
+
+            HTuple hv_Row1Part = null, hv_Column1Part = null;
+            HTuple hv_Row2Part = null, hv_Column2Part = null, hv_RowWin = null;
+            HTuple hv_ColumnWin = null, hv_WidthWin = new HTuple();
+            HTuple hv_HeightWin = null, hv_FactorRow = null, hv_FactorColumn = null;
+            HTuple hv_Ascent = null, hv_Descent = null, hv_Width = null;
+            HTuple hv_Height = null, hv_RowCenter = null, hv_ColCenter = null;
+            HTuple hv_RowPos = null, hv_ColPos = null, hv_RowText = null;
+            HTuple hv_ColText = null;
+            HTuple hv_Distance_COPY_INP_TMP = hv_Distance.Clone();
+
+            // Initialize local and output iconic variables 
+            //Determine factors for the adaptation of the string extents that might be necessary
+            //because of image zooming.
+            HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
+                out hv_Row2Part, out hv_Column2Part);
+            HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
+                out hv_WidthWin, out hv_HeightWin);
+            hv_FactorRow = (1.0 * ((hv_Row2Part - hv_Row1Part) + 1)) / hv_HeightWin;
+            hv_FactorColumn = (1.0 * ((hv_Column2Part - hv_Column1Part) + 1)) / hv_WidthWin;
+            //
+            //Determine the extent of the string and its position.
+            HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_Text, out hv_Ascent,
+                out hv_Descent, out hv_Width, out hv_Height);
+            hv_Width = hv_Width * hv_FactorColumn;
+            hv_Height = hv_Height * hv_FactorRow;
+            hv_RowCenter = (hv_RowFirst + hv_RowSecond) / 2.0;
+            hv_ColCenter = (hv_ColFirst + hv_ColSecond) / 2.0;
+            if ((int)(new HTuple(((hv_Phi.TupleSin())).TupleLess(0))) != 0)
+            {
+                hv_Distance_COPY_INP_TMP = -hv_Distance_COPY_INP_TMP;
+            }
+            hv_RowPos = hv_RowCenter + (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleCos()));
+            hv_ColPos = hv_ColCenter + (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleSin()));
+            hv_RowText = hv_RowPos - (hv_Height / 2.0);
+            hv_ColText = hv_ColPos.Clone();
+            //
+            //Set the text position and color and display the text.
+            HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_RowText, hv_ColText);
+            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
+            HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_Text);
+
+            return;
         }
-        // ho_Image.Dispose();
-        
 
-    }
-
-   public bool isEmpty(HObject A)
-    {
-        HTuple isEqual = null;
-        HObject Ho_Image = null; 
-        try
+        // Short Description: Displays text right of the center of two given points. 
+        public void p_disp_text_left_of_center(HTuple hv_WindowHandle, HTuple hv_Text,
+            HTuple hv_RowFirst, HTuple hv_ColFirst, HTuple hv_RowSecond, HTuple hv_ColSecond,
+            HTuple hv_Phi, HTuple hv_Distance, HTuple hv_ExpDefaultWinHandle)
         {
-            HOperatorSet.GenEmptyObj(out Ho_Image);
-            HOperatorSet.TestEqualObj(Ho_Image, A, out isEqual);
-            Ho_Image.Dispose();
-            if (isEqual)
-                return true;
-            return false;
+
+            HTuple hv_Row1Part = null, hv_Column1Part = null;
+            HTuple hv_Row2Part = null, hv_Column2Part = null, hv_RowWin = null;
+            HTuple hv_ColumnWin = null, hv_WidthWin = new HTuple();
+            HTuple hv_HeightWin = null, hv_FactorRow = null, hv_FactorColumn = null;
+            HTuple hv_Ascent = null, hv_Descent = null, hv_Width = null;
+            HTuple hv_Height = null, hv_RowCenter = null, hv_ColCenter = null;
+            HTuple hv_RowPos = null, hv_ColPos = null, hv_RowText = null;
+            HTuple hv_ColText = null;
+            HTuple hv_Distance_COPY_INP_TMP = hv_Distance.Clone();
+
+            // Initialize local and output iconic variables 
+            //Determine factors for the adaptation of the string extents that might be necessary
+            //because of image zooming.
+            HOperatorSet.GetPart(hv_ExpDefaultWinHandle, out hv_Row1Part, out hv_Column1Part,
+                out hv_Row2Part, out hv_Column2Part);
+            HOperatorSet.GetWindowExtents(hv_ExpDefaultWinHandle, out hv_RowWin, out hv_ColumnWin,
+                out hv_WidthWin, out hv_HeightWin);
+            hv_FactorRow = (1.0 * ((hv_Row2Part - hv_Row1Part) + 1)) / hv_HeightWin;
+            hv_FactorColumn = (1.0 * ((hv_Column2Part - hv_Column1Part) + 1)) / hv_WidthWin;
+            //
+            //Determine the extent of the string and its position.
+            HOperatorSet.GetStringExtents(hv_ExpDefaultWinHandle, hv_Text, out hv_Ascent,
+                out hv_Descent, out hv_Width, out hv_Height);
+            hv_Width = hv_Width * hv_FactorColumn;
+            hv_Height = hv_Height * hv_FactorRow;
+            hv_RowCenter = (hv_RowFirst + hv_RowSecond) / 2.0;
+            hv_ColCenter = (hv_ColFirst + hv_ColSecond) / 2.0;
+            if ((int)(new HTuple(((hv_Phi.TupleSin())).TupleLess(0))) != 0)
+            {
+                hv_Distance_COPY_INP_TMP = -hv_Distance_COPY_INP_TMP;
+            }
+            hv_RowPos = hv_RowCenter - (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleCos()));
+            hv_ColPos = hv_ColCenter - (hv_Distance_COPY_INP_TMP * (hv_Phi.TupleSin()));
+            hv_RowText = hv_RowPos - (hv_Height / 2.0);
+            hv_ColText = hv_ColPos - hv_Width;
+            //
+            //Set the text position and color and display the text.
+            HOperatorSet.SetTposition(hv_ExpDefaultWinHandle, hv_RowText, hv_ColText);
+            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "black");
+            HOperatorSet.WriteString(hv_ExpDefaultWinHandle, hv_Text);
+
+            return;
         }
-        catch (HalconException ex)
-        {
-            throw ex;
-        }     
-    }
 
-    public double Disp_Adjust_Line(HObject ho_Image1, HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window, bool isDisp = true) {
-        try
-        {
-            hv_ExpDefaultWinHandle = Window;
-            HObject ho_Rectangle, ho_red, ho_green;
-            HObject ho_blue, ho_ImageGray, ho_ImageReduced, ho_Border;
-            HObject ho_UnionContours, ho_RegionLines, ho_ImageRotated;
 
-            HTuple hv_Width = null, hv_Height = null,isEqual = null;
-            HTuple hv_RowBegin = null, hv_ColBegin = null;
-            HTuple hv_RowEnd = null, hv_ColEnd = null, hv_Nr = null;
-            HTuple hv_Nc = null, hv_Dist = null, hv_Angle = null, hv_a = null;
+
+        public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, out Info_Ctrl info_Ctrl, HTuple Window, HTuple _Track_Model, bool isDisp = true, string Color = "#FF00FF")
+        {
+            info_Ctrl = new Info_Ctrl();
+            HObject ho_Rectangle;
+            HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
+            HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
+            HTuple hv_Transition = null, hv_Select = null, hv_RowEdgeFirst = null;
+            HTuple hv_ColumnEdgeFirst = null, hv_AmplitudeFirst = null;
+            HTuple hv_RowEdgeSecond = null, hv_ColumnEdgeSecond = null;
+            HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
+            HTuple hv_InterDistance = null;
             // Initialize local and output iconic variables 
             HOperatorSet.GenEmptyObj(out ho_Rectangle);
-            HOperatorSet.TestEqualObj(ho_Rectangle, ho_Image1, out isEqual);
-            if (isEqual)
+            try
             {
+
+                SetDisp(Window, Color);
+                HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
+                FindTrackPos(ho_Image, Window, out info_Ctrl, _Track_Model, false);
+                HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
+                    hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
+                hv_Sigma = 0.9;
+                hv_Threshold = 12;
+                hv_Transition = "negative";
+                hv_Select = "all";
+                HOperatorSet.MeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_Threshold,
+                    hv_Transition, hv_Select, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
+                    out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
+                    out hv_IntraDistance, out hv_InterDistance);
+
+                if (isDisp) HOperatorSet.DispObj(ho_Image, Window);
+                HOperatorSet.SetDraw(Window, "margin");
+                HOperatorSet.SetColor(Window, Color);
                 ho_Rectangle.Dispose();
-                return 0.0;
+                HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
+                    hv_Length2);
+
+                HTuple hv_Number = null;
+                hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
+                HTuple end_val36 = hv_Number - 1;
+                HTuple step_val36 = 1;
+
+
+
+                for (HTuple hv_i = 0; hv_i.Continue(end_val36, step_val36); hv_i = hv_i.TupleAdd(step_val36))
+                {
+                    info_Ctrl.c_y = ((hv_RowEdgeFirst.TupleSelect(hv_i)) + (hv_RowEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                    info_Ctrl.c_x = ((hv_ColumnEdgeFirst.TupleSelect(hv_i)) + (hv_ColumnEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                }
+
+
+
+
+
+
+
+
+
+
+                p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
+                    hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle, Color, Window);
+
+                HOperatorSet.DispObj(ho_Rectangle, Window);
+                ho_Rectangle.Dispose();
+                HOperatorSet.CloseMeasure(hv_MeasureHandle);
+
+                HTuple Max = -1;
+                for (int hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_IntraDistance.TupleLength())) - 1); hv_j++)
+                {
+                    HTuple len = hv_IntraDistance.TupleSelect(hv_j);
+                    if (Max < len)
+                    {
+                        Max = len;
+                    }
+                    //  Console.WriteLine(hv_j.ToString() + "len " + len.ToString());
+                }
+
+
+                ho_Rectangle.Dispose();
+                //选取最大值去检测
+
+
+                if (Max < 0)
+                {
+                    return hv_IntraDistance.ToString();
+                }
+                else
+                {
+                    return Max.ToString();
+                }
+
+
             }
-
-            HOperatorSet.GenEmptyObj(out ho_red);
-            HOperatorSet.GenEmptyObj(out ho_green);
-            HOperatorSet.GenEmptyObj(out ho_blue);
-            HOperatorSet.GenEmptyObj(out ho_ImageGray);
-            HOperatorSet.GenEmptyObj(out ho_ImageReduced);
-            HOperatorSet.GenEmptyObj(out ho_Border);
-            HOperatorSet.GenEmptyObj(out ho_UnionContours);
-            HOperatorSet.GenEmptyObj(out ho_RegionLines);
-            HOperatorSet.GenEmptyObj(out ho_ImageRotated);
-
-
-            HOperatorSet.GetImageSize(ho_Image1, out hv_Width, out hv_Height);
-            HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
-            HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
-            ho_Rectangle.Dispose();
-            HOperatorSet.GenRectangle2(out ho_Rectangle, hv_row, hv_column, hv_angle, hv_length1, hv_length2);
-            HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
-            ho_red.Dispose(); ho_green.Dispose(); ho_blue.Dispose();
-            ho_ImageGray.Dispose();
-            ho_ImageReduced.Dispose();
-            HOperatorSet.ReduceDomain(ho_Image1, ho_Rectangle, out ho_ImageReduced);
-            ho_Border.Dispose();
-            HOperatorSet.ThresholdSubPix(ho_ImageReduced, out ho_Border, 200);
-
-            HOperatorSet.DispObj(ho_Border, hv_ExpDefaultWinHandle);
-            ho_UnionContours.Dispose();
-            HOperatorSet.UnionCollinearContoursXld(ho_Border, out ho_UnionContours, 5, 1,
-                2, 0.1, "attr_keep");
-            HOperatorSet.FitLineContourXld(ho_UnionContours, "tukey", -1, 0, 5, 2, out hv_RowBegin,
-                out hv_ColBegin, out hv_RowEnd, out hv_ColEnd, out hv_Nr, out hv_Nc, out hv_Dist);
-            ho_RegionLines.Dispose();
-
-            HOperatorSet.GenRegionLine(out ho_RegionLines, hv_RowBegin, hv_ColBegin, hv_RowEnd,
-                hv_ColEnd);
-
-            HOperatorSet.AngleLx(hv_RowEnd, hv_ColEnd, hv_RowBegin, hv_ColBegin, out hv_Angle);
-            hv_a = 270 - (((hv_Angle.TupleSelect(0)) * 360) / (2 * 3.141592654));
-            ho_ImageRotated.Dispose();
-            HOperatorSet.RotateImage(ho_Image1, out ho_ImageRotated, hv_a, "constant");
-
-            if (isDisp)
+            catch (HalconException HDevExpDefaultException)
             {
-                action(ho_Image1);
-                HOperatorSet.DispObj(ho_ImageRotated, hv_ExpDefaultWinHandle);
-                HOperatorSet.DispObj(ho_RegionLines, hv_ExpDefaultWinHandle);
-                HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
-                //ho_Image1.Dispose();
+                ho_Image.Dispose();
                 ho_Rectangle.Dispose();
-                ho_red.Dispose();
-                ho_green.Dispose();
-                ho_blue.Dispose();
+                throw HDevExpDefaultException;
+            }
+            // ho_Image.Dispose();
+
+
+        }
+
+        void SetDisp(HTuple Window, string Color)
+        {
+            try
+            {
+                HOperatorSet.SetColor(Window, Color);
+                //  set_display_font(Window, 16, "mono", "true", "false");
+                HOperatorSet.SetDraw(Window, "margin");
+            }
+            catch (HalconException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+        }
+
+        public string Measure_Diameter(HObject ho_Image,Info_Ctrl in_para, out Info_Ctrl out_para, HTuple Window, bool isDisp = true, string Color = "#FF00FF")
+        {
+            out_para = new Info_Ctrl();
+            HObject ho_Rectangle;
+            HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
+            HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
+            HTuple hv_Transition = null, hv_Select = null, hv_RowEdgeFirst = null;
+            HTuple hv_ColumnEdgeFirst = null, hv_AmplitudeFirst = null;
+            HTuple hv_RowEdgeSecond = null, hv_ColumnEdgeSecond = null;
+            HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
+            HTuple hv_InterDistance = null;
+            // Initialize local and output iconic variables 
+
+            HOperatorSet.GenEmptyObj(out ho_Rectangle);
+            try
+            {
+                out_para.pos_x = 0;
+                out_para.pos_y = 0;
+                hv_ExpDefaultWinHandle = Window;
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
+                HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
+                HOperatorSet.GenMeasureRectangle2(in_para.c_y, in_para.c_x, in_para.pos_angle, in_para.pos_height, in_para.pos_width,hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
+                hv_Sigma = 0.9;
+                hv_Threshold = 12;
+                hv_Transition = "negative";
+                hv_Select = "all";
+                HOperatorSet.MeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_Threshold,
+                    hv_Transition, hv_Select, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
+                    out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
+                    out hv_IntraDistance, out hv_InterDistance);
+
+                if (isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+                HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
+                ho_Rectangle.Dispose();
+                HOperatorSet.GenRectangle2(out ho_Rectangle, in_para.c_y, in_para.c_x, in_para.pos_angle, in_para.pos_height, in_para.pos_width);
+
+
+
+                HTuple hv_Number = null, hv_i = null;
+
+                hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
+                HTuple end_val36 = hv_Number - 1;
+                HTuple step_val36 = 1;
+                for (hv_i = 0; hv_i.Continue(end_val36, step_val36); hv_i = hv_i.TupleAdd(step_val36))
+                {
+                    out_para.pos_y = ((hv_RowEdgeFirst.TupleSelect(hv_i)) + (hv_RowEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                    out_para.pos_x = ((hv_ColumnEdgeFirst.TupleSelect(hv_i)) + (hv_ColumnEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                }
+
+
+                p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
+                    hv_IntraDistance, hv_InterDistance, in_para.pos_angle, in_para.pos_width, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
+
+                HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+                ho_Rectangle.Dispose();
+                HOperatorSet.CloseMeasure(hv_MeasureHandle);
+                ho_Rectangle.Dispose();
+                return hv_IntraDistance.ToString();
+
+
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                ho_Image.Dispose();
+                ho_Rectangle.Dispose();
+                throw HDevExpDefaultException;
+            }
+        }
+
+        public string Measure_Diameter(HObject ho_Image, HTuple hv_Row, HTuple hv_Column, HTuple hv_Phi, HTuple hv_Length1, HTuple hv_Length2, out HTuple hv__c, out HTuple hv__r, HTuple Window, bool isDisp = true, string Color = "#FF00FF")
+        {
+            HObject ho_Rectangle;
+            HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = new HTuple();
+            HTuple hv_MeasureHandle = null, hv_Sigma = null, hv_Threshold = null;
+            HTuple hv_Transition = null, hv_Select = null, hv_RowEdgeFirst = null;
+            HTuple hv_ColumnEdgeFirst = null, hv_AmplitudeFirst = null;
+            HTuple hv_RowEdgeSecond = null, hv_ColumnEdgeSecond = null;
+            HTuple hv_AmplitudeSecond = null, hv_IntraDistance = null;
+            HTuple hv_InterDistance = null;
+            // Initialize local and output iconic variables 
+
+            HOperatorSet.GenEmptyObj(out ho_Rectangle);
+            try
+            {
+                hv__c = 0;
+                hv__r = 0;
+                hv_ExpDefaultWinHandle = Window;
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
+                HOperatorSet.GetImageSize(ho_Image, out hv_Width, out hv_Height);
+                // set_display_font(hv_ExpDefaultWinHandle, 16, "mono", "true", "false");
+                // HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+                HOperatorSet.GenMeasureRectangle2(hv_Row, hv_Column, hv_Phi, hv_Length1, hv_Length2,
+                    hv_Width, hv_Height, "nearest_neighbor", out hv_MeasureHandle);
+                hv_Sigma = 0.9;
+                hv_Threshold = 12;
+                hv_Transition = "negative";
+                hv_Select = "all";
+                HOperatorSet.MeasurePairs(ho_Image, hv_MeasureHandle, hv_Sigma, hv_Threshold,
+                    hv_Transition, hv_Select, out hv_RowEdgeFirst, out hv_ColumnEdgeFirst,
+                    out hv_AmplitudeFirst, out hv_RowEdgeSecond, out hv_ColumnEdgeSecond, out hv_AmplitudeSecond,
+                    out hv_IntraDistance, out hv_InterDistance);
+
+                if (isDisp) HOperatorSet.DispObj(ho_Image, hv_ExpDefaultWinHandle);
+                HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, Color);
+                ho_Rectangle.Dispose();
+                HOperatorSet.GenRectangle2(out ho_Rectangle, hv_Row, hv_Column, hv_Phi, hv_Length1,
+                    hv_Length2);
+
+
+
+                HTuple hv_Number = null, hv_i = null;
+
+                hv_Number = new HTuple(hv_RowEdgeFirst.TupleLength());
+                HTuple end_val36 = hv_Number - 1;
+                HTuple step_val36 = 1;
+                for (hv_i = 0; hv_i.Continue(end_val36, step_val36); hv_i = hv_i.TupleAdd(step_val36))
+                {
+                    hv__r = ((hv_RowEdgeFirst.TupleSelect(hv_i)) + (hv_RowEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                    hv__c = ((hv_ColumnEdgeFirst.TupleSelect(hv_i)) + (hv_ColumnEdgeSecond.TupleSelect(
+                        hv_i))) / 2;
+                }
+
+
+                p_disp_dimensions(hv_RowEdgeFirst, hv_ColumnEdgeFirst, hv_RowEdgeSecond, hv_ColumnEdgeSecond,
+                    hv_IntraDistance, hv_InterDistance, hv_Phi, hv_Length2, hv_WindowHandle, Color, hv_ExpDefaultWinHandle);
+
+                HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+                ho_Rectangle.Dispose();
+                HOperatorSet.CloseMeasure(hv_MeasureHandle);
+                ho_Rectangle.Dispose();
+                return hv_IntraDistance.ToString();
+
+
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+                ho_Image.Dispose();
+                ho_Rectangle.Dispose();
+                throw HDevExpDefaultException;
+            }
+            // ho_Image.Dispose();
+
+
+        }
+
+        public double check_relative_height(double base_c, double mesure_c) {
+            return Math.Abs(base_c - mesure_c);
+        }
+
+        public void draw_line(HTuple hv_rBegin, HTuple hv_cBegin, HTuple hv_rEnd, HTuple hv_cEnd, HTuple Window, string Color = "#FF00FF")
+        {
+           HObject ho_LineLength = null;
+            HOperatorSet.GenEmptyObj(out ho_LineLength);
+            try
+            {
+                HOperatorSet.SetColor(Window, Color);
+                HOperatorSet.GenRegionLine(out ho_LineLength, hv_rBegin, hv_cBegin, hv_rEnd, hv_cEnd);
+                HOperatorSet.DispObj(ho_LineLength,Window);
+            }
+            catch (HalconException Ex)
+            {
+                ho_LineLength.Dispose();
+                return;
+            }
+            ho_LineLength.Dispose();
+        }
+
+        public bool isEmpty(HObject A)
+        {
+            HTuple isEqual = null;
+            HObject Ho_Image = null;
+            try
+            {
+                HOperatorSet.GenEmptyObj(out Ho_Image);
+                HOperatorSet.TestEqualObj(Ho_Image, A, out isEqual);
+                Ho_Image.Dispose();
+                if (isEqual)
+                    return true;
+                return false;
+            }
+            catch (HalconException ex)
+            {
+                throw ex;
+            }
+        }
+
+        public double Disp_Adjust_Line(HObject ho_Image1, HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple Window, bool isDisp = true)
+        {
+            try
+            {
+                hv_ExpDefaultWinHandle = Window;
+                HObject ho_Rectangle, ho_red, ho_green;
+                HObject ho_blue, ho_ImageGray, ho_ImageReduced, ho_Border;
+                HObject ho_UnionContours, ho_RegionLines, ho_ImageRotated;
+
+                HTuple hv_Width = null, hv_Height = null, isEqual = null;
+                HTuple hv_RowBegin = null, hv_ColBegin = null;
+                HTuple hv_RowEnd = null, hv_ColEnd = null, hv_Nr = null;
+                HTuple hv_Nc = null, hv_Dist = null, hv_Angle = null, hv_a = null;
+                // Initialize local and output iconic variables 
+                HOperatorSet.GenEmptyObj(out ho_Rectangle);
+                HOperatorSet.TestEqualObj(ho_Rectangle, ho_Image1, out isEqual);
+                if (isEqual)
+                {
+                    ho_Rectangle.Dispose();
+                    return 0.0;
+                }
+
+                HOperatorSet.GenEmptyObj(out ho_red);
+                HOperatorSet.GenEmptyObj(out ho_green);
+                HOperatorSet.GenEmptyObj(out ho_blue);
+                HOperatorSet.GenEmptyObj(out ho_ImageGray);
+                HOperatorSet.GenEmptyObj(out ho_ImageReduced);
+                HOperatorSet.GenEmptyObj(out ho_Border);
+                HOperatorSet.GenEmptyObj(out ho_UnionContours);
+                HOperatorSet.GenEmptyObj(out ho_RegionLines);
+                HOperatorSet.GenEmptyObj(out ho_ImageRotated);
+
+
+                HOperatorSet.GetImageSize(ho_Image1, out hv_Width, out hv_Height);
+                HOperatorSet.SetDraw(hv_ExpDefaultWinHandle, "margin");
+                HOperatorSet.SetColor(hv_ExpDefaultWinHandle, "#FF00FF");
+                ho_Rectangle.Dispose();
+                HOperatorSet.GenRectangle2(out ho_Rectangle, hv_row, hv_column, hv_angle, hv_length1, hv_length2);
+                HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+                ho_red.Dispose(); ho_green.Dispose(); ho_blue.Dispose();
                 ho_ImageGray.Dispose();
                 ho_ImageReduced.Dispose();
+                HOperatorSet.ReduceDomain(ho_Image1, ho_Rectangle, out ho_ImageReduced);
                 ho_Border.Dispose();
+                HOperatorSet.ThresholdSubPix(ho_ImageReduced, out ho_Border, 200);
+
+                HOperatorSet.DispObj(ho_Border, hv_ExpDefaultWinHandle);
                 ho_UnionContours.Dispose();
+                HOperatorSet.UnionCollinearContoursXld(ho_Border, out ho_UnionContours, 5, 1,
+                    2, 0.1, "attr_keep");
+                HOperatorSet.FitLineContourXld(ho_UnionContours, "tukey", -1, 0, 5, 2, out hv_RowBegin,
+                    out hv_ColBegin, out hv_RowEnd, out hv_ColEnd, out hv_Nr, out hv_Nc, out hv_Dist);
                 ho_RegionLines.Dispose();
+
+                HOperatorSet.GenRegionLine(out ho_RegionLines, hv_RowBegin, hv_ColBegin, hv_RowEnd,
+                    hv_ColEnd);
+
+                HOperatorSet.AngleLx(hv_RowEnd, hv_ColEnd, hv_RowBegin, hv_ColBegin, out hv_Angle);
+                hv_a = 270 - (((hv_Angle.TupleSelect(0)) * 360) / (2 * 3.141592654));
                 ho_ImageRotated.Dispose();
-            }
-            return (double)hv_a;
-        }
-        catch (HalconException ex)
-        {
-            throw ex;
-        }
-    }
+                HOperatorSet.RotateImage(ho_Image1, out ho_ImageRotated, hv_a, "constant");
 
-
-    public bool create_gear_model(HObject Ho_Image, HTuple hv_threshold_value, HTuple Window, string FileName = "GearModel.shm", bool isDisp = true)
-    {
-
-
-        HTuple Pointer = null, Width = null, Height = null, Type = null;
-        //    HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
-        HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
-        HTuple NumLevels = 0, isEqual;
-        HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
-        HOperatorSet.GenEmptyObj(out hv_ModelImage);
-        HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
-        if (isEqual)
-        {
-            hv_ModelImage.Dispose();
-            return false;
-        }
-
-        HOperatorSet.GenEmptyObj(out ROI);
-        HOperatorSet.GenEmptyObj(out ImageROI);
-        HOperatorSet.GenEmptyObj(out ShapeModelImages);
-        HOperatorSet.GenEmptyObj(out ShapeModelRegions);
-        HOperatorSet.GenEmptyObj(out ShapeModel);
-        HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null;
-        try
-        {
-            HOperatorSet.SetColor(Window, "yellow");
-            HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
-            HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, hv_threshold_value);
-            HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
-
-            HOperatorSet.DrawRectangle1(Window, out hv_r,out hv_c,out hv_r2,out hv_c2);
-            HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
-
-            HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
-            if (isDisp)
-            {
-                HOperatorSet.DispObj(ImageROI, Window);
-            }
-       
-            HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
-            HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
-            HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
-
-            for (HTuple i = 1; i <= HeightPyramid; i += 1)
-            {
-                if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
+                if (isDisp)
                 {
-                    NumLevels = i;
+                    action(ho_Image1);
+                    HOperatorSet.DispObj(ho_ImageRotated, hv_ExpDefaultWinHandle);
+                    HOperatorSet.DispObj(ho_RegionLines, hv_ExpDefaultWinHandle);
+                    HOperatorSet.DispObj(ho_Rectangle, hv_ExpDefaultWinHandle);
+                    //ho_Image1.Dispose();
+                    ho_Rectangle.Dispose();
+                    ho_red.Dispose();
+                    ho_green.Dispose();
+                    ho_blue.Dispose();
+                    ho_ImageGray.Dispose();
+                    ho_ImageReduced.Dispose();
+                    ho_Border.Dispose();
+                    ho_UnionContours.Dispose();
+                    ho_RegionLines.Dispose();
+                    ho_ImageRotated.Dispose();
                 }
+                return (double)hv_a;
             }
-            HOperatorSet.SetColor(Window, "blue");
-
-            if (Gear_Model != null)
+            catch (HalconException ex)
             {
-                try
-                {
-                    HOperatorSet.ClearShapeModel(Gear_Model);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+                throw ex;
             }
-
-            HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Gear_Model);
-
-
-
-            if (Gear_Model.Length > 0)
-            {
-                HOperatorSet.GetShapeModelContours(out ShapeModel, Gear_Model, 1);
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.DispObj(ShapeModelRegions, Window);
-                HOperatorSet.WriteShapeModel(Gear_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
-                MessageBox.Show("设置成功");
-            }
-            else
-            {
-
-                MessageBox.Show("没有发现轮廓");
-            }
-
         }
-        catch (HalconException ex)
+
+
+        public bool create_gear_model(HObject Ho_Image, HTuple hv_threshold_value, HTuple Window, string FileName = "GearModel.shm", bool isDisp = true)
         {
+
+
+            HTuple Pointer = null, Width = null, Height = null, Type = null;
+            //    HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
+            HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
+            HTuple NumLevels = 0, isEqual;
+            HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
+            HOperatorSet.GenEmptyObj(out hv_ModelImage);
+            HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
+            if (isEqual)
+            {
+                hv_ModelImage.Dispose();
+                return false;
+            }
+
+            HOperatorSet.GenEmptyObj(out ROI);
+            HOperatorSet.GenEmptyObj(out ImageROI);
+            HOperatorSet.GenEmptyObj(out ShapeModelImages);
+            HOperatorSet.GenEmptyObj(out ShapeModelRegions);
+            HOperatorSet.GenEmptyObj(out ShapeModel);
+            HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null;
+            try
+            {
+                HOperatorSet.SetColor(Window, "yellow");
+                HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
+                HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, hv_threshold_value);
+                HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
+
+                HOperatorSet.DrawRectangle1(Window, out hv_r, out hv_c, out hv_r2, out hv_c2);
+                HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
+
+                HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
+                if (isDisp)
+                {
+                    HOperatorSet.DispObj(ImageROI, Window);
+                }
+
+                HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
+                HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
+                HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
+
+                for (HTuple i = 1; i <= HeightPyramid; i += 1)
+                {
+                    if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
+                    {
+                        NumLevels = i;
+                    }
+                }
+                HOperatorSet.SetColor(Window, "blue");
+
+                if (Gear_Model != null)
+                {
+                    try
+                    {
+                        HOperatorSet.ClearShapeModel(Gear_Model);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+
+                HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Gear_Model);
+
+
+
+                if (Gear_Model.Length > 0)
+                {
+                    HOperatorSet.GetShapeModelContours(out ShapeModel, Gear_Model, 1);
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.DispObj(ShapeModelRegions, Window);
+                    HOperatorSet.WriteShapeModel(Gear_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
+                    MessageBox.Show("设置成功");
+                }
+                else
+                {
+
+                    MessageBox.Show("没有发现轮廓");
+                }
+
+            }
+            catch (HalconException ex)
+            {
+                ImageROI.Dispose();
+                hv_ModelImage.Dispose();
+                ROI.Dispose();
+                ShapeModelImages.Dispose();
+                ShapeModelRegions.Dispose();
+                ShapeModel.Dispose();
+                throw ex;
+            }
             ImageROI.Dispose();
             hv_ModelImage.Dispose();
             ROI.Dispose();
             ShapeModelImages.Dispose();
             ShapeModelRegions.Dispose();
             ShapeModel.Dispose();
-            throw ex;
-        }
-        ImageROI.Dispose();
-        hv_ModelImage.Dispose();
-        ROI.Dispose();
-        ShapeModelImages.Dispose();
-        ShapeModelRegions.Dispose();
-        ShapeModel.Dispose();
-        return true;
-    }
-
-
-        public bool create_gear_model(HObject Ho_Image, HTuple hv_r,HTuple hv_c, HTuple hv_radius, HTuple hv_threshold_value, HTuple Window, string FileName = "GearModel.shm", bool isDisp = true)
-    {
-
-
-        HTuple Pointer = null, Width = null, Height = null, Type = null;
-    //    HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
-        HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
-        HTuple NumLevels = 0, isEqual, hv_r2 = null,hv_c2 = null;
-        HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
-        HOperatorSet.GenEmptyObj(out hv_ModelImage);
-        HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
-        if (isEqual)
-        {
-            hv_ModelImage.Dispose();
-            return false;
+            return true;
         }
 
-        HOperatorSet.GenEmptyObj(out ROI);
-        HOperatorSet.GenEmptyObj(out ImageROI);
-        HOperatorSet.GenEmptyObj(out ShapeModelImages);
-        HOperatorSet.GenEmptyObj(out ShapeModelRegions);
-        HOperatorSet.GenEmptyObj(out ShapeModel);
 
-        try
+        public bool create_gear_model(HObject Ho_Image, HTuple hv_r, HTuple hv_c, HTuple hv_radius, HTuple hv_threshold_value, HTuple Window, string FileName = "GearModel.shm", bool isDisp = true)
         {
-            HOperatorSet.SetColor(Window, "yellow");
-            HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
-            HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
-            HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
-
-            hv_radius = 1;
-        //    HOperatorSet.DrawRectangle1(Window, out hv_r, out hv_c, out hv_r2, out hv_c2);
-
-          //   HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
 
 
-           HOperatorSet.GenCircle(out ROI, hv_r, hv_c, hv_radius);
-            
-            
-
-            HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
-            if (isDisp)
+            HTuple Pointer = null, Width = null, Height = null, Type = null;
+            //    HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
+            HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
+            HTuple NumLevels = 0, isEqual, hv_r2 = null, hv_c2 = null;
+            HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
+            HOperatorSet.GenEmptyObj(out hv_ModelImage);
+            HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
+            if (isEqual)
             {
-                HOperatorSet.DispObj(ImageROI, Window);
+                hv_ModelImage.Dispose();
+                return false;
             }
-            HOperatorSet.DispObj(ROI, Window);
-            HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
-            HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
-            HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
 
+            HOperatorSet.GenEmptyObj(out ROI);
+            HOperatorSet.GenEmptyObj(out ImageROI);
+            HOperatorSet.GenEmptyObj(out ShapeModelImages);
+            HOperatorSet.GenEmptyObj(out ShapeModelRegions);
+            HOperatorSet.GenEmptyObj(out ShapeModel);
 
-
-
-            for (HTuple i = 1; i <= HeightPyramid; i += 1)
+            try
             {
-                if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
+                HOperatorSet.SetColor(Window, "yellow");
+                HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
+                HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
+                HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
+
+                hv_radius = 1;
+                //    HOperatorSet.DrawRectangle1(Window, out hv_r, out hv_c, out hv_r2, out hv_c2);
+
+                //   HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
+
+
+                HOperatorSet.GenCircle(out ROI, hv_r, hv_c, hv_radius);
+
+
+
+                HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
+                if (isDisp)
                 {
-                    NumLevels = i;
+                    HOperatorSet.DispObj(ImageROI, Window);
                 }
-            }
-            HOperatorSet.SetColor(Window, "blue");
+                HOperatorSet.DispObj(ROI, Window);
+                HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
+                HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
+                HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
 
-            if (Gear_Model != null)
-            {
-                try
+
+
+
+                for (HTuple i = 1; i <= HeightPyramid; i += 1)
                 {
-                    HOperatorSet.ClearShapeModel(Gear_Model);
+                    if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
+                    {
+                        NumLevels = i;
+                    }
                 }
-                catch (Exception ex)
+                HOperatorSet.SetColor(Window, "blue");
+
+                if (Gear_Model != null)
                 {
-                    Console.WriteLine(ex.ToString());
+                    try
+                    {
+                        HOperatorSet.ClearShapeModel(Gear_Model);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
+
+                HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Gear_Model);
+
+
+
+                if (Gear_Model.Length > 0)
+                {
+                    HOperatorSet.GetShapeModelContours(out ShapeModel, Gear_Model, 1);
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.DispObj(ShapeModelRegions, Window);
+                    HOperatorSet.WriteShapeModel(Gear_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
+                }
+                else
+                {
+
+                    MessageBox.Show("没有发现轮廓");
+                }
+
             }
-
-            HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Gear_Model);
-
-
-
-            if (Gear_Model.Length > 0)
+            catch (HalconException ex)
             {
-                HOperatorSet.GetShapeModelContours(out ShapeModel, Gear_Model, 1);
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.DispObj(ShapeModelRegions, Window);
-                HOperatorSet.WriteShapeModel(Gear_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
+                ImageROI.Dispose();
+                hv_ModelImage.Dispose();
+                ROI.Dispose();
+                ShapeModelImages.Dispose();
+                ShapeModelRegions.Dispose();
+                ShapeModel.Dispose();
+                throw ex;
             }
-            else
-            {
-
-                MessageBox.Show("没有发现轮廓");
-            }
-
-        }
-        catch (HalconException ex)
-        {
             ImageROI.Dispose();
             hv_ModelImage.Dispose();
             ROI.Dispose();
             ShapeModelImages.Dispose();
             ShapeModelRegions.Dispose();
             ShapeModel.Dispose();
-            throw ex;
-        }
-        ImageROI.Dispose();
-        hv_ModelImage.Dispose();
-        ROI.Dispose();
-        ShapeModelImages.Dispose();
-        ShapeModelRegions.Dispose();
-        ShapeModel.Dispose();
-        return true;
+            return true;
 
-        /*
-         * 
-         * old
+            /*
+             * 
+             * old
 
 
 
@@ -1449,132 +1561,154 @@ public partial class HDevelopExportDisp
 
 
 
-        HObject ho_ROI, ho_Trhes, ho_ImageROI,to_Bin;
-        HObject ho_ShapeModelImage, ho_ShapeModelRegion, ho_FilledModelRegion;
-        HObject ho_ShapeModel, ho_regionROI, ho_ConnectedRegions, ho_selectedRegion;
+            HObject ho_ROI, ho_Trhes, ho_ImageROI,to_Bin;
+            HObject ho_ShapeModelImage, ho_ShapeModelRegion, ho_FilledModelRegion;
+            HObject ho_ShapeModel, ho_regionROI, ho_ConnectedRegions, ho_selectedRegion;
 
-        // Local control variables 
+            // Local control variables 
 
-        HTuple hv_Pointer = null, hv_Type = null;
-        HTuple hv_Width = null, hv_Height = null;
-        HTuple hv_ModelRegionRow1 = null, hv_ModelRegionColumn1 = null;
-        HTuple hv_ModelRegionRow2 = null, hv_ModelRegionColumn2 = null;
-        HTuple hv_ModelID = null;
-        // Initialize local and output iconic variables 
+            HTuple hv_Pointer = null, hv_Type = null;
+            HTuple hv_Width = null, hv_Height = null;
+            HTuple hv_ModelRegionRow1 = null, hv_ModelRegionColumn1 = null;
+            HTuple hv_ModelRegionRow2 = null, hv_ModelRegionColumn2 = null;
+            HTuple hv_ModelID = null;
+            // Initialize local and output iconic variables 
 
-        HOperatorSet.GenEmptyObj(out to_Bin);
-        HOperatorSet.GenEmptyObj(out ho_ROI);
-        HOperatorSet.GenEmptyObj(out ho_Trhes);
-        HOperatorSet.GenEmptyObj(out ho_ImageROI);
-        HOperatorSet.GenEmptyObj(out ho_ShapeModelImage);
-        HOperatorSet.GenEmptyObj(out ho_ShapeModelRegion);
-        HOperatorSet.GenEmptyObj(out ho_FilledModelRegion);
-        HOperatorSet.GenEmptyObj(out ho_ShapeModel);
+            HOperatorSet.GenEmptyObj(out to_Bin);
+            HOperatorSet.GenEmptyObj(out ho_ROI);
+            HOperatorSet.GenEmptyObj(out ho_Trhes);
+            HOperatorSet.GenEmptyObj(out ho_ImageROI);
+            HOperatorSet.GenEmptyObj(out ho_ShapeModelImage);
+            HOperatorSet.GenEmptyObj(out ho_ShapeModelRegion);
+            HOperatorSet.GenEmptyObj(out ho_FilledModelRegion);
+            HOperatorSet.GenEmptyObj(out ho_ShapeModel);
 
-        HOperatorSet.GenEmptyObj(out ho_regionROI);
-        HOperatorSet.GenEmptyObj(out ho_ConnectedRegions);
-        HOperatorSet.GenEmptyObj(out ho_selectedRegion);
-        
-        try
-        {
-            //------------------------------------------------------------------------------------------------
-            //This example program creates a model ROI from the result of inspect_shape_model.
-            //------------------------------------------------------------------------------------------------
-            //general configuration of HDevelop
-            // dev_update_window(...); only in hdevelop
-            //image acquisition and window size
-            //Image Acquisition 01: Code generated by Image Acquisition 01
- 
-            HOperatorSet.GetImagePointer1(ho_ModelImage, out hv_Pointer, out hv_Type, out hv_Width,
-                out hv_Height);
+            HOperatorSet.GenEmptyObj(out ho_regionROI);
+            HOperatorSet.GenEmptyObj(out ho_ConnectedRegions);
+            HOperatorSet.GenEmptyObj(out ho_selectedRegion);
 
-            ho_ROI.Dispose();
-            HOperatorSet.GenCircle(out ho_ROI, hv_r, hv_c, hv_radius);
+            try
+            {
+                //------------------------------------------------------------------------------------------------
+                //This example program creates a model ROI from the result of inspect_shape_model.
+                //------------------------------------------------------------------------------------------------
+                //general configuration of HDevelop
+                // dev_update_window(...); only in hdevelop
+                //image acquisition and window size
+                //Image Acquisition 01: Code generated by Image Acquisition 01
 
+                HOperatorSet.GetImagePointer1(ho_ModelImage, out hv_Pointer, out hv_Type, out hv_Width,
+                    out hv_Height);
 
-            ho_Trhes.Dispose();
-            HOperatorSet.Threshold(ho_ModelImage, out ho_Trhes, 0, hv_threshold_value);
-            
-            HOperatorSet.RegionToBin(ho_Trhes, out to_Bin, 0, 255, hv_Width, hv_Height);
-
-            
-            HOperatorSet.SetColor(hv_Window, "blue");
-            HOperatorSet.SetDraw(hv_Window, "margin");
-            HOperatorSet.DispObj(to_Bin, hv_Window);
-            HOperatorSet.SetColor(hv_Window, "yellow");
-            HOperatorSet.DispObj(ho_ROI, hv_Window);
-
-            ho_ImageROI.Dispose();
-            HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
-            ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
+                ho_ROI.Dispose();
+                HOperatorSet.GenCircle(out ho_ROI, hv_r, hv_c, hv_radius);
 
 
+                ho_Trhes.Dispose();
+                HOperatorSet.Threshold(ho_ModelImage, out ho_Trhes, 0, hv_threshold_value);
+
+                HOperatorSet.RegionToBin(ho_Trhes, out to_Bin, 0, 255, hv_Width, hv_Height);
 
 
-      
-            HOperatorSet.ReduceDomain(ho_ModelImage, ho_ROI, out ho_regionROI);
-            ho_Trhes.Dispose();
-            HOperatorSet.Threshold(ho_regionROI, out ho_Trhes, 0, hv_threshold_value);
+                HOperatorSet.SetColor(hv_Window, "blue");
+                HOperatorSet.SetDraw(hv_Window, "margin");
+                HOperatorSet.DispObj(to_Bin, hv_Window);
+                HOperatorSet.SetColor(hv_Window, "yellow");
+                HOperatorSet.DispObj(ho_ROI, hv_Window);
+
+                ho_ImageROI.Dispose();
+                HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
+                ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
+
+
+
+
+
+                HOperatorSet.ReduceDomain(ho_ModelImage, ho_ROI, out ho_regionROI);
+                ho_Trhes.Dispose();
+                HOperatorSet.Threshold(ho_regionROI, out ho_Trhes, 0, hv_threshold_value);
+                ho_ConnectedRegions.Dispose();
+                HOperatorSet.Connection(ho_Trhes, out ho_ConnectedRegions);
+                ho_selectedRegion.Dispose();
+                HOperatorSet.SelectShapeStd(ho_ConnectedRegions, out ho_selectedRegion, "max_area",
+                    70);
+                ho_ImageROI.Dispose();
+                HOperatorSet.RegionToBin(ho_selectedRegion, out ho_ImageROI, 0, 255, hv_Width,
+                    hv_Height);
+
+
+
+
+
+
+
+                HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
+                    1, 30);
+                HOperatorSet.SmallestRectangle1(ho_ShapeModelRegion, out hv_ModelRegionRow1,
+                    out hv_ModelRegionColumn1, out hv_ModelRegionRow2, out hv_ModelRegionColumn2);
+                ho_FilledModelRegion.Dispose();
+                HOperatorSet.FillUp(ho_ShapeModelRegion, out ho_FilledModelRegion);
+                ho_ROI.Dispose();
+                HOperatorSet.OpeningCircle(ho_FilledModelRegion, out ho_ROI, 3.5);
+                ho_ImageROI.Dispose();
+                HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
+                HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
+                    , "auto", "none", "use_polarity", 30, 15, out hv_ModelID);
+
+                if (Gear_Model != null)
+                {
+                    HOperatorSet.ClearShapeModel(Gear_Model);
+                }
+
+                HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
+        , "auto", "none", "use_polarity", 30, 15, out Gear_Model);
+                ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
+                HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
+                    1, 30);
+                ho_ShapeModel.Dispose();
+
+                if (hv_ModelID.Length > 0)
+                {
+                   HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
+                    HOperatorSet.SetColor(hv_Window, "#FF00FF");
+                    HOperatorSet.DispObj(ho_ShapeModelRegion, hv_Window);
+                    HOperatorSet.WriteShapeModel(hv_ModelID, AppDomain.CurrentDomain.BaseDirectory + "/" + GearModelFile);
+
+                    HOperatorSet.ClearShapeModel(hv_ModelID);
+                }
+                else
+                {
+
+                    MessageBox.Show("没有发现轮廓");
+                }
+
+
+            }
+            catch (HalconException HDevExpDefaultException)
+            {
+              //  ho_ModelImage.Dispose();
+                ho_ROI.Dispose();
+                ho_Trhes.Dispose();
+                ho_ImageROI.Dispose();
+                ho_ShapeModelImage.Dispose();
+                ho_ShapeModelRegion.Dispose();
+                ho_FilledModelRegion.Dispose();
+                ho_ShapeModel.Dispose();
+
+                ho_regionROI.Dispose();
+                ho_ConnectedRegions.Dispose();
+                ho_selectedRegion.Dispose();
+
+                throw HDevExpDefaultException;
+            }
+            // ho_ModelImage.Dispose();
+
+
+
+            ho_regionROI.Dispose();
             ho_ConnectedRegions.Dispose();
-            HOperatorSet.Connection(ho_Trhes, out ho_ConnectedRegions);
             ho_selectedRegion.Dispose();
-            HOperatorSet.SelectShapeStd(ho_ConnectedRegions, out ho_selectedRegion, "max_area",
-                70);
-            ho_ImageROI.Dispose();
-            HOperatorSet.RegionToBin(ho_selectedRegion, out ho_ImageROI, 0, 255, hv_Width,
-                hv_Height);
 
-
-
-
-
-
-
-            HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
-                1, 30);
-            HOperatorSet.SmallestRectangle1(ho_ShapeModelRegion, out hv_ModelRegionRow1,
-                out hv_ModelRegionColumn1, out hv_ModelRegionRow2, out hv_ModelRegionColumn2);
-            ho_FilledModelRegion.Dispose();
-            HOperatorSet.FillUp(ho_ShapeModelRegion, out ho_FilledModelRegion);
-            ho_ROI.Dispose();
-            HOperatorSet.OpeningCircle(ho_FilledModelRegion, out ho_ROI, 3.5);
-            ho_ImageROI.Dispose();
-            HOperatorSet.ReduceDomain(to_Bin, ho_ROI, out ho_ImageROI);
-            HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
-                , "auto", "none", "use_polarity", 30, 15, out hv_ModelID);
-
-            if (Gear_Model != null)
-            {
-                HOperatorSet.ClearShapeModel(Gear_Model);
-            }
-
-            HOperatorSet.CreateShapeModel(ho_ImageROI, 3, 0, (new HTuple(360)).TupleRad()
-    , "auto", "none", "use_polarity", 30, 15, out Gear_Model);
-            ho_ShapeModelImage.Dispose(); ho_ShapeModelRegion.Dispose();
-            HOperatorSet.InspectShapeModel(ho_ImageROI, out ho_ShapeModelImage, out ho_ShapeModelRegion,
-                1, 30);
-            ho_ShapeModel.Dispose();
-
-            if (hv_ModelID.Length > 0)
-            {
-               HOperatorSet.GetShapeModelContours(out ho_ShapeModel, hv_ModelID, 1);
-                HOperatorSet.SetColor(hv_Window, "#FF00FF");
-                HOperatorSet.DispObj(ho_ShapeModelRegion, hv_Window);
-                HOperatorSet.WriteShapeModel(hv_ModelID, AppDomain.CurrentDomain.BaseDirectory + "/" + GearModelFile);
-          
-                HOperatorSet.ClearShapeModel(hv_ModelID);
-            }
-            else
-            {
-               
-                MessageBox.Show("没有发现轮廓");
-            }
-            
-
-        }
-        catch (HalconException HDevExpDefaultException)
-        {
-          //  ho_ModelImage.Dispose();
             ho_ROI.Dispose();
             ho_Trhes.Dispose();
             ho_ImageROI.Dispose();
@@ -1582,708 +1716,718 @@ public partial class HDevelopExportDisp
             ho_ShapeModelRegion.Dispose();
             ho_FilledModelRegion.Dispose();
             ho_ShapeModel.Dispose();
-
-            ho_regionROI.Dispose();
-            ho_ConnectedRegions.Dispose();
-            ho_selectedRegion.Dispose();
-
-            throw HDevExpDefaultException;
+            return true;
+            */
         }
-        // ho_ModelImage.Dispose();
 
-
-
-        ho_regionROI.Dispose();
-        ho_ConnectedRegions.Dispose();
-        ho_selectedRegion.Dispose();
-
-        ho_ROI.Dispose();
-        ho_Trhes.Dispose();
-        ho_ImageROI.Dispose();
-        ho_ShapeModelImage.Dispose();
-        ho_ShapeModelRegion.Dispose();
-        ho_FilledModelRegion.Dispose();
-        ho_ShapeModel.Dispose();
-        return true;
-        */
-    }
-
-    //返回了高度值
-    public string check_height(HObject ho_Image1, HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple hv_c, HTuple hv_r,HTuple Window, bool isDisp = true) {
-        // Local iconic variables 
-
-        HObject ho_Rectangle, ho_ImageReduced;
-        HObject ho_Border, ho_UnionContours, ho_RegionLines, ho_ImageRotated;
-        HObject ho_ROI, ho_LineLength;
-
-        // Local control variables 
-
-        HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = null;
-        HTuple hv_RowBegin = null;
-        HTuple hv_ColBegin = null, hv_RowEnd = null, hv_ColEnd = null;
-        HTuple hv_Nr = null, hv_Nc = null, hv_Dist = null, hv_Angle = null;
-        HTuple hv_a = null;
-        HTuple hv_center_y = null, hv_center_x = null, hv_axis_height = null;
-        HTuple hv_disp_x = null, hv_disp_y = null;
-        // Initialize local and output iconic variables 
-    
-        HOperatorSet.GenEmptyObj(out ho_Rectangle);
-        HOperatorSet.GenEmptyObj(out ho_ImageReduced);
-        HOperatorSet.GenEmptyObj(out ho_Border);
-        HOperatorSet.GenEmptyObj(out ho_UnionContours);
-        HOperatorSet.GenEmptyObj(out ho_RegionLines);
-        HOperatorSet.GenEmptyObj(out ho_ImageRotated);
-        HOperatorSet.GenEmptyObj(out ho_ROI);
-        HOperatorSet.GenEmptyObj(out ho_LineLength);
-
-        //Image Acquisition 01: Code generated by Image Acquisition 01
-
-        try
+        //返回了高度值
+        public string check_height(HObject ho_Image1, HTuple hv_row, HTuple hv_column, HTuple hv_angle, HTuple hv_length1, HTuple hv_length2, HTuple hv_c, HTuple hv_r, HTuple Window, bool isDisp = true)
         {
-            HOperatorSet.GenRectangle2(out ho_ROI, hv_row, hv_column, (new HTuple(hv_angle)).TupleRad()
-                , hv_length1, hv_length2);
-            ho_ImageReduced.Dispose();
-            HOperatorSet.ReduceDomain(ho_Image1, ho_ROI, out ho_ImageReduced);
-            ho_Border.Dispose();
-            HOperatorSet.ThresholdSubPix(ho_ImageReduced, out ho_Border, 200);
-            ho_UnionContours.Dispose();
-            HOperatorSet.UnionCollinearContoursXld(ho_Border, out ho_UnionContours, 5, 1,
-                2, 0.1, "attr_keep");
-            HOperatorSet.FitLineContourXld(ho_UnionContours, "tukey", -1, 0, 5, 2, out hv_RowBegin,
-                out hv_ColBegin, out hv_RowEnd, out hv_ColEnd, out hv_Nr, out hv_Nc, out hv_Dist);
-            ho_RegionLines.Dispose();
-            HOperatorSet.GenRegionLine(out ho_RegionLines, hv_RowBegin, hv_ColBegin, hv_RowEnd,
-                hv_ColEnd);
-            hv_center_y = (hv_RowBegin + hv_RowEnd) / 2;
-            hv_center_x = (hv_ColBegin + hv_ColEnd) / 2;
-            ho_LineLength.Dispose();
-            HOperatorSet.GenRegionLine(out ho_LineLength, hv_center_y, hv_c,
-                hv_center_y, hv_center_x);
-            hv_axis_height = ((hv_center_x - hv_c)).TupleAbs();
-            hv_disp_x = (hv_center_x + hv_r) / 2;
-            hv_disp_y = hv_center_y + 20;
+            // Local iconic variables 
 
-            if (isDisp)
-                HOperatorSet.DispObj(ho_Image1, Window);
-            HOperatorSet.SetColor(Window, "#FFFF00");
-            HOperatorSet.DispObj(ho_RegionLines, Window);
-            HOperatorSet.DispObj(ho_LineLength, Window);
-            HOperatorSet.SetTposition(Window, hv_disp_y, hv_disp_x);
-            HOperatorSet.WriteString(Window, hv_axis_height);
-        }
-        catch (HalconException ex)
-        {
-            ho_Rectangle.Dispose();
-            ho_ImageReduced.Dispose();
-            ho_Border.Dispose();
-            ho_UnionContours.Dispose();
-            ho_RegionLines.Dispose();
-            ho_ImageRotated.Dispose();
-            ho_ROI.Dispose();
-            ho_LineLength.Dispose();
-            Console.WriteLine(ex.ToString());
-            return "21";
-        }
-        catch (Exception ex)
-        {
-            ho_Rectangle.Dispose();
-            ho_ImageReduced.Dispose();
-            ho_Border.Dispose();
-            ho_UnionContours.Dispose();
-            ho_RegionLines.Dispose();
-            ho_ImageRotated.Dispose();
-            ho_ROI.Dispose();
-            ho_LineLength.Dispose();
-            Console.WriteLine(ex.ToString());
-            return "21";
-        }
+            HObject ho_Rectangle, ho_ImageReduced;
+            HObject ho_Border, ho_UnionContours, ho_RegionLines, ho_ImageRotated;
+            HObject ho_ROI, ho_LineLength;
 
-     
-        ho_Rectangle.Dispose();
-        ho_ImageReduced.Dispose();
-        ho_Border.Dispose();
-        ho_UnionContours.Dispose();
-        ho_RegionLines.Dispose();
-        ho_ImageRotated.Dispose();
-        ho_ROI.Dispose();
-        ho_LineLength.Dispose();
+            // Local control variables 
 
-        return hv_axis_height.ToString();
-    }
+            HTuple hv_Width = null, hv_Height = null, hv_WindowHandle = null;
+            HTuple hv_RowBegin = null;
+            HTuple hv_ColBegin = null, hv_RowEnd = null, hv_ColEnd = null;
+            HTuple hv_Nr = null, hv_Nc = null, hv_Dist = null, hv_Angle = null;
+            HTuple hv_a = null;
+            HTuple hv_center_y = null, hv_center_x = null, hv_axis_height = null;
+            HTuple hv_disp_x = null, hv_disp_y = null;
+            // Initialize local and output iconic variables 
 
+            HOperatorSet.GenEmptyObj(out ho_Rectangle);
+            HOperatorSet.GenEmptyObj(out ho_ImageReduced);
+            HOperatorSet.GenEmptyObj(out ho_Border);
+            HOperatorSet.GenEmptyObj(out ho_UnionContours);
+            HOperatorSet.GenEmptyObj(out ho_RegionLines);
+            HOperatorSet.GenEmptyObj(out ho_ImageRotated);
+            HOperatorSet.GenEmptyObj(out ho_ROI);
+            HOperatorSet.GenEmptyObj(out ho_LineLength);
 
-    public void Roatation(HObject Ho_Image, out HObject rotated, double Angle = 0)
-    {
-        rotated = null;
-        HOperatorSet.GenEmptyObj(out rotated);
-        try
-        {
-            HOperatorSet.RotateImage(Ho_Image, out rotated, Angle, "constant");
-        }
-        catch(HalconException ex) {
-            rotated.Dispose();
-            throw ex;
-        }
+            //Image Acquisition 01: Code generated by Image Acquisition 01
 
-    }
-    public bool FindTrackPos(HObject Ho_Image, HTuple Window, out Info_Ctrl Ctrl_Info, HTuple TrackModel, bool isDisp = true) {
-        Ctrl_Info = new Info_Ctrl();
-        HTuple Pointer = null, Width = null, Height = null, Type = null;
-        HTuple isEqual = null;
-
-        HTuple NumLevels = 0;
-        HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions;//hv_Rectange = null
-        HObject ShapeModel = null;
-        HOperatorSet.GenEmptyObj(out hv_ModelImage);
-
-        HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
-        if (isEqual)
-        {
-            hv_ModelImage.Dispose();
-            return false;
-        }
-
-        HObject ho_ShapeModel;
-        HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
-        HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
-        HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
-        HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
-        HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
-        // Initialize local and output iconic variables 
-
-        HOperatorSet.GenEmptyObj(out ho_ShapeModel);
-        HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
-        HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
-
-        HOperatorSet.GenEmptyObj(out ROI);
-        HOperatorSet.GenEmptyObj(out ImageROI);
-        HOperatorSet.GenEmptyObj(out ShapeModelImages);
-        HOperatorSet.GenEmptyObj(out ShapeModelRegions);
-        HOperatorSet.GenEmptyObj(out ShapeModel);
-
-        double Max_Angle = 0;
-        try
-        {
-            HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
-            HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
-            HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
-            if (isDisp)
-                HOperatorSet.DispObj(hv_ModelImage, Window);
-            /*
-            HOperatorSet.FindShapeModel(hv_ModelImage, TrackModel, 0, (new HTuple(360)).TupleRad(), 0.75, 3, 0, "least_squares",
-                    0, 0.7, out hv_RowCheck, out hv_ColumnCheck,  out hv_AngleCheck, out hv_Score);
-                    */
-
-            HOperatorSet.FindShapeModel(Ho_Image, TrackModel, 0, (new HTuple(360)).TupleRad(), 0.45, 3, 0, "least_squares",
-        0, 0.7, out hv_RowCheck, out hv_ColumnCheck, out hv_AngleCheck, out hv_Score);
-
-            if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
+            try
             {
-                HOperatorSet.GetShapeModelContours(out ho_ShapeModel, TrackModel, 1);
-                for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
+                HOperatorSet.GenRectangle2(out ho_ROI, hv_row, hv_column, (new HTuple(hv_angle)).TupleRad()
+                    , hv_length1, hv_length2);
+                ho_ImageReduced.Dispose();
+                HOperatorSet.ReduceDomain(ho_Image1, ho_ROI, out ho_ImageReduced);
+                ho_Border.Dispose();
+                HOperatorSet.ThresholdSubPix(ho_ImageReduced, out ho_Border, 200);
+                ho_UnionContours.Dispose();
+                HOperatorSet.UnionCollinearContoursXld(ho_Border, out ho_UnionContours, 5, 1,
+                    2, 0.1, "attr_keep");
+                HOperatorSet.FitLineContourXld(ho_UnionContours, "tukey", -1, 0, 5, 2, out hv_RowBegin,
+                    out hv_ColBegin, out hv_RowEnd, out hv_ColEnd, out hv_Nr, out hv_Nc, out hv_Dist);
+                ho_RegionLines.Dispose();
+                HOperatorSet.GenRegionLine(out ho_RegionLines, hv_RowBegin, hv_ColBegin, hv_RowEnd,
+                    hv_ColEnd);
+                hv_center_y = (hv_RowBegin + hv_RowEnd) / 2;
+                hv_center_x = (hv_ColBegin + hv_ColEnd) / 2;
+                ho_LineLength.Dispose();
+                HOperatorSet.GenRegionLine(out ho_LineLength, hv_center_y, hv_c,
+                    hv_center_y, hv_center_x);
+                hv_axis_height = ((hv_center_x - hv_c)).TupleAbs();
+                hv_disp_x = (hv_center_x + hv_r) / 2;
+                hv_disp_y = hv_center_y + 20;
+
+                if (isDisp)
+                    HOperatorSet.DispObj(ho_Image1, Window);
+                HOperatorSet.SetColor(Window, "#FFFF00");
+                HOperatorSet.DispObj(ho_RegionLines, Window);
+                HOperatorSet.DispObj(ho_LineLength, Window);
+                HOperatorSet.SetTposition(Window, hv_disp_y, hv_disp_x);
+                HOperatorSet.WriteString(Window, hv_axis_height);
+            }
+            catch (HalconException ex)
+            {
+                ho_Rectangle.Dispose();
+                ho_ImageReduced.Dispose();
+                ho_Border.Dispose();
+                ho_UnionContours.Dispose();
+                ho_RegionLines.Dispose();
+                ho_ImageRotated.Dispose();
+                ho_ROI.Dispose();
+                ho_LineLength.Dispose();
+                Console.WriteLine(ex.ToString());
+                return "21";
+            }
+            catch (Exception ex)
+            {
+                ho_Rectangle.Dispose();
+                ho_ImageReduced.Dispose();
+                ho_Border.Dispose();
+                ho_UnionContours.Dispose();
+                ho_RegionLines.Dispose();
+                ho_ImageRotated.Dispose();
+                ho_ROI.Dispose();
+                ho_LineLength.Dispose();
+                Console.WriteLine(ex.ToString());
+                return "21";
+            }
+
+
+            ho_Rectangle.Dispose();
+            ho_ImageReduced.Dispose();
+            ho_Border.Dispose();
+            ho_UnionContours.Dispose();
+            ho_RegionLines.Dispose();
+            ho_ImageRotated.Dispose();
+            ho_ROI.Dispose();
+            ho_LineLength.Dispose();
+
+            return hv_axis_height.ToString();
+        }
+
+
+        public void Roatation(HObject Ho_Image, out HObject rotated, double Angle = 0)
+        {
+            rotated = null;
+            HOperatorSet.GenEmptyObj(out rotated);
+            try
+            {
+                HOperatorSet.RotateImage(Ho_Image, out rotated, Angle, "constant");
+            }
+            catch (HalconException ex)
+            {
+                rotated.Dispose();
+                throw ex;
+            }
+
+        }
+        public bool FindTrackPos(HObject Ho_Image, HTuple Window, out Info_Ctrl Ctrl_Info, HTuple TrackModel, bool isDisp = true)
+        {
+            Ctrl_Info = new Info_Ctrl();
+            HTuple Pointer = null, Width = null, Height = null, Type = null;
+            HTuple isEqual = null;
+
+            HTuple NumLevels = 0;
+            HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions;//hv_Rectange = null
+            HObject ShapeModel = null;
+            HOperatorSet.GenEmptyObj(out hv_ModelImage);
+
+            HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
+            if (isEqual)
+            {
+                hv_ModelImage.Dispose();
+                return false;
+            }
+
+            HObject ho_ShapeModel;
+            HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
+            HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
+            HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
+            HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
+            HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
+            // Initialize local and output iconic variables 
+
+            HOperatorSet.GenEmptyObj(out ho_ShapeModel);
+            HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+            HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
+
+            HOperatorSet.GenEmptyObj(out ROI);
+            HOperatorSet.GenEmptyObj(out ImageROI);
+            HOperatorSet.GenEmptyObj(out ShapeModelImages);
+            HOperatorSet.GenEmptyObj(out ShapeModelRegions);
+            HOperatorSet.GenEmptyObj(out ShapeModel);
+
+            double Max_Angle = 0;
+            try
+            {
+                HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
+                HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
+                HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
+                if (isDisp)
+                    HOperatorSet.DispObj(hv_ModelImage, Window);
+                /*
+                HOperatorSet.FindShapeModel(hv_ModelImage, TrackModel, 0, (new HTuple(360)).TupleRad(), 0.75, 3, 0, "least_squares",
+                        0, 0.7, out hv_RowCheck, out hv_ColumnCheck,  out hv_AngleCheck, out hv_Score);
+                        */
+
+                HOperatorSet.FindShapeModel(Ho_Image, TrackModel, 0, (new HTuple(360)).TupleRad(), 0.45, 3, 0, "least_squares",
+            0, 0.7, out hv_RowCheck, out hv_ColumnCheck, out hv_AngleCheck, out hv_Score);
+
+                if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
                 {
-                    HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
-                        hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
-                        out hv_MovementOfObject);
-                    ho_ModelAtNewPosition.Dispose();
-                    HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
-                        hv_MovementOfObject);
-                    if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
+                    HOperatorSet.GetShapeModelContours(out ho_ShapeModel, TrackModel, 1);
+                    for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
                     {
-                        hv_Max_Score = hv_Score.TupleSelect(hv_j);
-                        ho_ModelAtMaxPosition.Dispose();
-                        ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
-                        hv_Disp_Row = hv_RowCheck.TupleSelect(hv_j);
-                        hv_Disp_Col = hv_ColumnCheck.TupleSelect(hv_j);
-                        Max_Angle = hv_AngleCheck.TupleSelect(hv_j);
+                        HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
+                            hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
+                            out hv_MovementOfObject);
+                        ho_ModelAtNewPosition.Dispose();
+                        HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
+                            hv_MovementOfObject);
+                        if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
+                        {
+                            hv_Max_Score = hv_Score.TupleSelect(hv_j);
+                            ho_ModelAtMaxPosition.Dispose();
+                            ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
+                            hv_Disp_Row = hv_RowCheck.TupleSelect(hv_j);
+                            hv_Disp_Col = hv_ColumnCheck.TupleSelect(hv_j);
+                            Max_Angle = hv_AngleCheck.TupleSelect(hv_j);
+                        }
                     }
-                }
 
 
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
 
 
-                Ctrl_Info.pos_x = hv_Disp_Col;
-                Ctrl_Info.pos_y = hv_Disp_Row;
-               // Ctrl_Info.pos_angle = (((hv_Max_Score.TupleSelect(0)) * 360) / (2 * 3.141592654));
-               // Ctrl_Info.pos_angle = (((hv_Max_Score.TupleSelect(0)) * 2 * 3.141592654) / (360));
-                Ctrl_Info.pos_angle = Max_Angle;
+                    Ctrl_Info.pos_x = hv_Disp_Col;
+                    Ctrl_Info.pos_y = hv_Disp_Row;
+                    // Ctrl_Info.pos_angle = (((hv_Max_Score.TupleSelect(0)) * 360) / (2 * 3.141592654));
+                    // Ctrl_Info.pos_angle = (((hv_Max_Score.TupleSelect(0)) * 2 * 3.141592654) / (360));
+                    Ctrl_Info.pos_angle = Max_Angle;
 #if DEBUG
                 Console.WriteLine("find pos x " + Ctrl_Info.pos_x.ToString() + " y " + Ctrl_Info.pos_y.ToString() + " angle " + Ctrl_Info.pos_angle.ToString());
 #endif
-            }
-            else {
-
-                Console.WriteLine("model not found");
-            }
-
-
-        }
-        catch (HalconException ex) {
-            return false ;
-        }
-        return true;
-    }
-
-    public void CopyTrackModel(HTuple model)
-    {
-        try
-        {
-            if(null != Track_Model)
-            HOperatorSet.ClearShapeModel(Track_Model);
-        }
-        catch (HalconException ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-        try
-        {
-            Track_Model = model;
-        }
-        catch (HalconException ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-        
-    }
-
-    public void CreateTraceModel(HObject Ho_Image, HTuple Window, out Info_Ctrl Ctrl_Info, string FileName = "Track.shm", bool isDisp = true) {
-        Ctrl_Info = new Info_Ctrl();
-        HTuple Pointer = null, Width = null, Height = null, Type = null;
-        HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
-        HTuple AreaModelRegions = null,  RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
-        HTuple NumLevels = 0;
-        HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
-        HOperatorSet.GenEmptyObj(out hv_ModelImage);
-        HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage,  out isEqual);
-        if (isEqual)
-        {
-            hv_ModelImage.Dispose();
-            return;
-        }
-
-        HOperatorSet.GenEmptyObj(out ROI);
-        HOperatorSet.GenEmptyObj(out ImageROI);
-        HOperatorSet.GenEmptyObj(out ShapeModelImages);
-        HOperatorSet.GenEmptyObj(out ShapeModelRegions);
-        HOperatorSet.GenEmptyObj(out ShapeModel);
-
-        try {
-            HOperatorSet.SetColor(Window, "yellow");
-            HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type,out Width, out Height);
-            HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
-            HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
-
-            HOperatorSet.DrawRectangle1(Window, out hv_r,  out hv_c, out hv_r2, out hv_c2);
-            HOperatorSet.GenRectangle1(out ROI, hv_r,  hv_c, hv_r2, hv_c2);
-
-            HOperatorSet.DispObj(ROI, Window);
-            
-            HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
-            if (isDisp)
-            {
-                HOperatorSet.DispObj(ImageROI, Window);
-            }
-            HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
-            HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
-            HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
-
-
-
-            
-            for (HTuple i = 1; i <= HeightPyramid; i += 1)
-            {
-                if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
-                {
-                    NumLevels = i;
                 }
-            }
-            HOperatorSet.SetColor(Window, "blue");
-
-            if (Track_Model != null)
-            {
-                try
+                else
                 {
+
+                    Console.WriteLine("model not found");
+                }
+
+
+            }
+            catch (HalconException ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void CopyTrackModel(HTuple model)
+        {
+            try
+            {
+                if (null != Track_Model)
                     HOperatorSet.ClearShapeModel(Track_Model);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
             }
-
-            HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity",30, 10, out Track_Model);
-
-
-
-            if (Track_Model.Length > 0)
+            catch (HalconException ex)
             {
-                HOperatorSet.GetShapeModelContours(out ShapeModel, Track_Model, 1);
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.DispObj(ShapeModelRegions, Window);
-                HOperatorSet.WriteShapeModel(Track_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
+                Console.WriteLine(ex.ToString());
             }
-            else
+            try
             {
-
-                MessageBox.Show("没有发现轮廓");
+                Track_Model = model;
+            }
+            catch (HalconException ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
 
         }
-        catch (HalconException ex)
+
+        public void CreateTraceModel(HObject Ho_Image, HTuple Window, out Info_Ctrl Ctrl_Info, string FileName = "Track.shm", bool isDisp = true)
         {
+            Ctrl_Info = new Info_Ctrl();
+            HTuple Pointer = null, Width = null, Height = null, Type = null;
+            HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
+            HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
+            HTuple NumLevels = 0;
+            HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
+            HOperatorSet.GenEmptyObj(out hv_ModelImage);
+            HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
+            if (isEqual)
+            {
+                hv_ModelImage.Dispose();
+                return;
+            }
+
+            HOperatorSet.GenEmptyObj(out ROI);
+            HOperatorSet.GenEmptyObj(out ImageROI);
+            HOperatorSet.GenEmptyObj(out ShapeModelImages);
+            HOperatorSet.GenEmptyObj(out ShapeModelRegions);
+            HOperatorSet.GenEmptyObj(out ShapeModel);
+
+            try
+            {
+                HOperatorSet.SetColor(Window, "yellow");
+                HOperatorSet.GetImagePointer1(Ho_Image, out Pointer, out Type, out Width, out Height);
+                HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, 128);
+                HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
+
+                HOperatorSet.DrawRectangle1(Window, out hv_r, out hv_c, out hv_r2, out hv_c2);
+                HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
+
+                HOperatorSet.DispObj(ROI, Window);
+
+                HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
+                if (isDisp)
+                {
+                    HOperatorSet.DispObj(ImageROI, Window);
+                }
+                HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
+                HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
+                HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
+
+
+
+
+                for (HTuple i = 1; i <= HeightPyramid; i += 1)
+                {
+                    if (0 != (int)(new HTuple(AreaModelRegions.TupleSelect(i - 1).TupleGreater(15))))
+                    {
+                        NumLevels = i;
+                    }
+                }
+                HOperatorSet.SetColor(Window, "blue");
+
+                if (Track_Model != null)
+                {
+                    try
+                    {
+                        HOperatorSet.ClearShapeModel(Track_Model);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+
+                HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Track_Model);
+
+
+
+                if (Track_Model.Length > 0)
+                {
+                    HOperatorSet.GetShapeModelContours(out ShapeModel, Track_Model, 1);
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.DispObj(ShapeModelRegions, Window);
+                    HOperatorSet.WriteShapeModel(Track_Model, AppDomain.CurrentDomain.BaseDirectory + "/" + FileName);
+                }
+                else
+                {
+
+                    MessageBox.Show("没有发现轮廓");
+                }
+
+            }
+            catch (HalconException ex)
+            {
+                ImageROI.Dispose();
+                hv_ModelImage.Dispose();
+                ROI.Dispose();
+                ShapeModelImages.Dispose();
+                ShapeModelRegions.Dispose();
+                ShapeModel.Dispose();
+                throw ex;
+            }
             ImageROI.Dispose();
             hv_ModelImage.Dispose();
             ROI.Dispose();
             ShapeModelImages.Dispose();
             ShapeModelRegions.Dispose();
             ShapeModel.Dispose();
-            throw ex;
         }
-        ImageROI.Dispose();
-        hv_ModelImage.Dispose();
-        ROI.Dispose();
-        ShapeModelImages.Dispose();
-        ShapeModelRegions.Dispose();
-        ShapeModel.Dispose();
-    }
 
 
 
-    public string Check_gear(HObject pho_SearchImage, HTuple Window, double Image_Threshold ,double phv_OK_Threshold,HTuple _Gear_Model, bool isDisp = true)
-    {
+        public string Check_gear(HObject pho_SearchImage, HTuple Window, double Image_Threshold, double phv_OK_Threshold, HTuple _Gear_Model, bool isDisp = true)
+        {
 #if false
 
 #else
 
 
 
-        bool isOK = false;
-        HObject ho_ShapeModel,bin_Thres,bin_Redion;
-        HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
-        HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
-        HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
-        HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
-        HTuple isEqual = null;
-        HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
-        HTuple hv_Pointer=null,  hv_Type = null,  hv_Width = null, hv_Height=null;
-        // Initialize local and output iconic variables 
+            bool isOK = false;
+            HObject ho_ShapeModel, bin_Thres, bin_Redion;
+            HObject ho_ModelAtMaxPosition = null, ho_ModelAtNewPosition = null;
+            HTuple hv_Max_Score = new HTuple(), hv_Disp_Row = new HTuple();
+            HTuple hv_Disp_Col = new HTuple(), hv_RowCheck = new HTuple();
+            HTuple hv_ColumnCheck = new HTuple(), hv_AngleCheck = new HTuple();
+            HTuple isEqual = null;
+            HTuple hv_Score = new HTuple(), hv_j = new HTuple(), hv_MovementOfObject = new HTuple();
+            HTuple hv_Pointer = null, hv_Type = null, hv_Width = null, hv_Height = null;
+            // Initialize local and output iconic variables 
 
-        HOperatorSet.GenEmptyObj(out ho_ShapeModel);
-        HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
-        HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
+            HOperatorSet.GenEmptyObj(out ho_ShapeModel);
+            HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+            HOperatorSet.GenEmptyObj(out ho_ModelAtNewPosition);
 
-        try
-        {
-            HOperatorSet.TestEqualObj(pho_SearchImage, ho_ShapeModel, out isEqual);
+            try
+            {
+                HOperatorSet.TestEqualObj(pho_SearchImage, ho_ShapeModel, out isEqual);
 #if DEBUG
             int a = (int)(new HTuple(hv_Max_Score.TupleGreater(0)));
             HTuple b = (int)(new HTuple(hv_Max_Score.TupleGreater(0)));
             Console.WriteLine(isEqual.ToString() + " " + b.ToString());
 #endif
-            if (isEqual)
-            {
-                return "22";
-            }
-            else if (null == _Gear_Model)
-            {
-                Console.WriteLine("NO MODEL");
-                return "23";
-            }
-           
-            HOperatorSet.DispObj(pho_SearchImage, Window);
-            hv_Max_Score = -1;
-            hv_Disp_Row = 0;
-            hv_Disp_Col = 0;
-            ho_ModelAtMaxPosition.Dispose();
-            HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
-
-            HOperatorSet.Threshold(pho_SearchImage, out bin_Thres, 0, Image_Threshold);
-
-            HOperatorSet.GetImagePointer1(pho_SearchImage, out hv_Pointer, out hv_Type, out hv_Width, out hv_Height);
-
-            HOperatorSet.RegionToBin(bin_Thres, out bin_Redion, 0, 255, hv_Width, hv_Height);
-
-            if (isDisp)
-            {
-                action(bin_Redion, Window);
-                // HOperatorSet.DispObj(bin_Redion,Window);
-            }
-
-            HOperatorSet.FindShapeModel(pho_SearchImage, _Gear_Model, 0, (new HTuple(360)).TupleRad()
-                    , 0.35, 3, 0, "least_squares", 0, 0.7, out hv_RowCheck, out hv_ColumnCheck,
-                    out hv_AngleCheck, out hv_Score);
-            HOperatorSet.GetShapeModelContours(out ho_ShapeModel, _Gear_Model, 1);
-            if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
-            {
-                for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
+                if (isEqual)
                 {
-                    HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
-                        hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
-                        out hv_MovementOfObject);
-                    ho_ModelAtNewPosition.Dispose();
-                    HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
-                        hv_MovementOfObject);
-                    if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
+                    return "22";
+                }
+                else if (null == _Gear_Model)
+                {
+                    Console.WriteLine("NO MODEL");
+                    return "23";
+                }
+
+                HOperatorSet.DispObj(pho_SearchImage, Window);
+                hv_Max_Score = -1;
+                hv_Disp_Row = 0;
+                hv_Disp_Col = 0;
+                ho_ModelAtMaxPosition.Dispose();
+                HOperatorSet.GenEmptyObj(out ho_ModelAtMaxPosition);
+
+                HOperatorSet.Threshold(pho_SearchImage, out bin_Thres, 0, Image_Threshold);
+
+                HOperatorSet.GetImagePointer1(pho_SearchImage, out hv_Pointer, out hv_Type, out hv_Width, out hv_Height);
+
+                HOperatorSet.RegionToBin(bin_Thres, out bin_Redion, 0, 255, hv_Width, hv_Height);
+
+                if (isDisp)
+                {
+                    action(bin_Redion, Window);
+                    // HOperatorSet.DispObj(bin_Redion,Window);
+                }
+
+                HOperatorSet.FindShapeModel(pho_SearchImage, _Gear_Model, 0, (new HTuple(360)).TupleRad()
+                        , 0.35, 3, 0, "least_squares", 0, 0.7, out hv_RowCheck, out hv_ColumnCheck,
+                        out hv_AngleCheck, out hv_Score);
+                HOperatorSet.GetShapeModelContours(out ho_ShapeModel, _Gear_Model, 1);
+                if ((int)(new HTuple((new HTuple(hv_Score.TupleLength())).TupleGreater(0))) != 0)
+                {
+                    for (hv_j = 0; (int)hv_j <= (int)((new HTuple(hv_Score.TupleLength())) - 1); hv_j = (int)hv_j + 1)
                     {
-                        hv_Max_Score = hv_Score.TupleSelect(hv_j);
-                        ho_ModelAtMaxPosition.Dispose();
-                        ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
-                        hv_Disp_Row = hv_RowCheck.TupleSelect(hv_j);
-                        hv_Disp_Col = hv_ColumnCheck.TupleSelect(hv_j);
+                        HOperatorSet.VectorAngleToRigid(0, 0, 0, hv_RowCheck.TupleSelect(hv_j),
+                            hv_ColumnCheck.TupleSelect(hv_j), hv_AngleCheck.TupleSelect(hv_j),
+                            out hv_MovementOfObject);
+                        ho_ModelAtNewPosition.Dispose();
+                        HOperatorSet.AffineTransContourXld(ho_ShapeModel, out ho_ModelAtNewPosition,
+                            hv_MovementOfObject);
+                        if ((int)(new HTuple(hv_Max_Score.TupleLess(hv_Score.TupleSelect(hv_j)))) != 0)
+                        {
+                            hv_Max_Score = hv_Score.TupleSelect(hv_j);
+                            ho_ModelAtMaxPosition.Dispose();
+                            ho_ModelAtMaxPosition = ho_ModelAtNewPosition.CopyObj(1, -1);
+                            hv_Disp_Row = hv_RowCheck.TupleSelect(hv_j);
+                            hv_Disp_Col = hv_ColumnCheck.TupleSelect(hv_j);
+                        }
                     }
                 }
-            }
-            if ((int)(new HTuple(hv_Max_Score.TupleGreater(0))) != 0)
-            {
-                if ((int)(new HTuple(hv_Max_Score.TupleGreater(phv_OK_Threshold))) != 0)
+                if ((int)(new HTuple(hv_Max_Score.TupleGreater(0))) != 0)
                 {
-                    HOperatorSet.SetColor(Window, "green");
-                    HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
-                    string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
-                    HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
-                    HOperatorSet.WriteString(Window, str);
-                    isOK = true;
+                    if ((int)(new HTuple(hv_Max_Score.TupleGreater(phv_OK_Threshold))) != 0)
+                    {
+                        HOperatorSet.SetColor(Window, "green");
+                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                        string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
+                        HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
+                        HOperatorSet.WriteString(Window, str);
+                        isOK = true;
+                    }
+                    else
+                    {
+                        HOperatorSet.SetColor(Window, "red");
+                        HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
+                        string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
+                        HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
+                        HOperatorSet.WriteString(Window, str);
+                    }
                 }
                 else
                 {
                     HOperatorSet.SetColor(Window, "red");
-                    HOperatorSet.DispObj(ho_ModelAtMaxPosition, Window);
-                    string str = "相似度:" + (hv_Max_Score.TupleString(".3"));
-                    HOperatorSet.SetTposition(Window, hv_Disp_Row, hv_Disp_Col);
-                    HOperatorSet.WriteString(Window, str);
+                    HOperatorSet.SetTposition(Window, 20, 20);
+                    HOperatorSet.WriteString(Window, "没有找到内齿");
                 }
+
             }
-            else
+            catch (HalconException HDevExpDefaultException)
             {
-                HOperatorSet.SetColor(Window, "red");
-                HOperatorSet.SetTposition(Window, 20, 20);
-                HOperatorSet.WriteString(Window, "没有找到内齿");
+                Console.WriteLine(HDevExpDefaultException.ToString());
+                ho_ShapeModel.Dispose();
+                ho_ModelAtMaxPosition.Dispose();
+                ho_ModelAtNewPosition.Dispose();
+                return "21";
+                //throw HDevExpDefaultException;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                ho_ShapeModel.Dispose();
+                ho_ModelAtMaxPosition.Dispose();
+                ho_ModelAtNewPosition.Dispose();
+                return "21";
 
-        }
-        catch (HalconException HDevExpDefaultException)
-        {
-            Console.WriteLine(HDevExpDefaultException.ToString());
+            }
             ho_ShapeModel.Dispose();
             ho_ModelAtMaxPosition.Dispose();
             ho_ModelAtNewPosition.Dispose();
-            return "21";
-            //throw HDevExpDefaultException;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            ho_ShapeModel.Dispose();
-            ho_ModelAtMaxPosition.Dispose();
-            ho_ModelAtNewPosition.Dispose();
-            return "21";
-
-        }
-        ho_ShapeModel.Dispose();     
-        ho_ModelAtMaxPosition.Dispose();
-        ho_ModelAtNewPosition.Dispose();
-
-
 #endif
-        if (isOK)
-            return "00";
-        else
-            return "08";
-    }
-
-    static private bool self_lock = false;
-    public string check_axis(HObject ho_Image, int Cam_idx,HTuple _Track_Model, HTuple Window) {
-
-        //while (self_lock)
-        //{
-         //   Thread.Sleep(5);
-        //}
-        self_lock = true;
-        HObject Ho_RImage = null;
-        HOperatorSet.GenEmptyObj(out Ho_RImage);
-        HTuple isEqual = null;
-        HOperatorSet.TestEqualObj(Ho_RImage, ho_Image, out isEqual);
-        if (isEqual)
-        {
-            Ho_RImage.Dispose();
-            self_lock = false;
-            return "22";
+            if (isOK)
+                return "00";
+            else
+                return "08";
         }
-        action(ho_Image, Window);
 
-        Info_Ctrl infc = new Info_Ctrl();
-
-        try
+        static private bool self_lock = false;
+        public string check_axis(HObject ho_Image, int Cam_idx, HTuple _Track_Model, HTuple Window)
         {
-            int ng_info = 0;
-            //bool isOK = true;
-            //获取角度
-            //矫正图片
-            //生成直径检测框
-           // hv_ExpDefaultWinHandle = Window;
-           // action(ho_Image);
-            Info_Ctrl ic = new Info_Ctrl();
-            if (false == FindTrackPos(ho_Image, Window, out ic, _Track_Model))
+            self_lock = true;
+            HObject Ho_RImage = null;
+            HOperatorSet.GenEmptyObj(out Ho_RImage);
+            HTuple isEqual = null;
+            HOperatorSet.TestEqualObj(Ho_RImage, ho_Image, out isEqual);
+            if (isEqual)
             {
                 Ho_RImage.Dispose();
                 self_lock = false;
                 return "22";
             }
+            action(ho_Image, Window);
+            Info_Ctrl infc = new Info_Ctrl();
+            try
+            {
+                int ng_info = 0;
+                //bool isOK = true;
+                //获取角度
+                //矫正图片
+                //生成直径检测框
+                // hv_ExpDefaultWinHandle = Window;
+                // action(ho_Image);
+                Info_Ctrl ic = new Info_Ctrl();
+                if (false == FindTrackPos(ho_Image, Window, out ic, _Track_Model))
+                {
+                    Ho_RImage.Dispose();
+                    self_lock = false;
+                    return "22";
+                }
 
-            //不赋值 0  可有bug
-            HTuple hv_r = 0, hv_c = 0,string_disp_row = 80,string_gap = 240;
-            double Angle_ = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,INI.axis_roi[Cam_idx].adjust_c2, Window, false);
-            HOperatorSet.RotateImage(ho_Image, out Ho_RImage, Angle_, "constant");
-            action(Ho_RImage);
-            FindTrackPos(Ho_RImage, Window, out ic, _Track_Model, false);            
-            double x_bias = ic.pos_x;
-            double y_bias = ic.pos_y;
-            double Angle = ic.pos_angle;
-            double y_center = 0;
-            double x_center = 0;
-            GetRelativePos(INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, INI.axis_roi[Cam_idx].axis_d2_relative_phi+ Angle, out x_center, out y_center);
-            //windows坐标系原因
-            y_center = y_bias - y_center;
-            x_center = x_bias + x_center;
-            //  Console.WriteLine(" xc " + ic.pos_x.ToString() + "yc " + ic.pos_y.ToString() + "y bias" + y_center.ToString() + "x_bias" + x_center.ToString());
-            //测沟槽直径
+                //不赋值 0  可有bug
+                HTuple hv_r = 0, hv_c = 0, string_disp_row = 80, string_gap = 240;
+                double Angle_ = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2, INI.axis_roi[Cam_idx].adjust_c2, Window, false);
+                HOperatorSet.RotateImage(ho_Image, out Ho_RImage, Angle_, "constant");
+                action(Ho_RImage);
+                FindTrackPos(Ho_RImage, Window, out ic, _Track_Model, false);
+                double x_bias = ic.pos_x;
+                double y_bias = ic.pos_y;
+                double Angle = ic.pos_angle;
+                double y_center = 0;
+                double x_center = 0;
+                GetRelativePos(INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, INI.axis_roi[Cam_idx].axis_d2_relative_phi + Angle, out x_center, out y_center);
+                //windows坐标系原因
+                y_center = y_bias - y_center;
+                x_center = x_bias + x_center;
+                //  Console.WriteLine(" xc " + ic.pos_x.ToString() + "yc " + ic.pos_y.ToString() + "y bias" + y_center.ToString() + "x_bias" + x_center.ToString());
+                //测沟槽直径
+                //INI.axis_roi[Cam_idx].axis_d2_phi + Angle,
+                string out_D = Measure_Diameter(Ho_RImage, y_center, x_center, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, out infc, Window, _Track_Model, false, "#00FFFF");
+                double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
+                if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
+                {
 
-            //INI.axis_roi[Cam_idx].axis_d2_phi + Angle,
-            string out_D = Measure_Diameter(Ho_RImage, y_center ,x_center, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, out infc, Window, _Track_Model, false, "#00FFFF");
+                    ng_info |= 4;
+                    HOperatorSet.SetColor(Window, "red");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
+                }
+                else
+                {
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
+                }
 
-            double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix*Convert.ToDouble(out_D);
-            if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
-            {
-                
-                ng_info |= 4;
-                HOperatorSet.SetColor(Window, "red");
+                //疑问
+                //测轴直径
+                GetRelativePos(INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, INI.axis_roi[Cam_idx].axis_d1_relative_phi + Angle, out x_center, out y_center);
+                y_center = y_bias - y_center;
+                x_center = x_bias + x_center;
+                out_D = Measure_Diameter(Ho_RImage, y_center, x_center, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out infc, Window, _Track_Model, false);
+                out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
+                if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
+                {
+                    ng_info |= 1;
+                    HOperatorSet.SetColor(Window, "red");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
+                }
+                else
+                {
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
+                }
+
+
+                HTuple hv_Width, hv_Height, hv_HalfHeight, hv_MeasureWidth,hv_BaseWidth;
+                HOperatorSet.GetImageSize(Ho_RImage, out hv_Width, out hv_Height);
+                hv_HalfHeight = hv_Height / 2;
+                hv_MeasureWidth = infc.c_x;
+                hv_BaseWidth = INI.axis_roi[Cam_idx].d3_min;
+                draw_line(hv_HalfHeight, 0, hv_HalfHeight, hv_Width, Window, "blue");
+                draw_line(0, hv_BaseWidth, hv_Height, hv_BaseWidth, Window, "green");
+                draw_line(0, hv_MeasureWidth, hv_Height, hv_MeasureWidth, Window, "#EF56F0");
+                draw_line(hv_HalfHeight, hv_MeasureWidth, hv_HalfHeight, hv_BaseWidth, Window, "yellow");
+                HOperatorSet.SetColor(Window, "yellow");
+                HOperatorSet.SetTposition(Window, hv_HalfHeight + 30, (hv_MeasureWidth + hv_BaseWidth) / 2);
+                double bias_hegiht = hv_MeasureWidth - hv_BaseWidth;
+                bias_hegiht = Math.Abs(bias_hegiht);
+                HOperatorSet.WriteString(Window,bias_hegiht.ToString("N4"));
+                if (bias_hegiht < INI.axis_roi[Cam_idx].d3_max)
+                {
+                    HOperatorSet.SetColor(Window, "green");
+                }
+                else {
+                    ng_info |= 2;
+                    HOperatorSet.SetColor(Window, "red");
+                }
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
+                HOperatorSet.WriteString(Window, "轴心高度偏差值 ：" + (INI.axis_roi[Cam_idx].d1_mmppix * bias_hegiht).ToString("N4") + "mm");
+
+
+
+                /*
+
+
+                out_D = check_height(Ho_RImage, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2, infc.c_x, infc.c_y, Window, false);
+                out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
+                if (out_D_data < INI.axis_roi[Cam_idx].d3_min || out_D_data > INI.axis_roi[Cam_idx].d3_max)
+                {
+                    ng_info |= 2;
+                    HOperatorSet.SetColor(Window, "red");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString("N4") + " mm");
+                }
+                else
+                {
+                    HOperatorSet.SetColor(Window, "green");
+                    HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                    HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString("N4") + " mm");
+                }
+
+                */
+                Ho_RImage.Dispose();
+                self_lock = false;
+                return "0" + ng_info.ToString();
+
             }
-            else
+            catch (HalconException ex)
             {
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
+                //  ho_Image.Dispose();
+                Ho_RImage.Dispose();
+                // Console.WriteLine("y异常错误"+ex.ToString());
+                Console.WriteLine("y异常错误" + ex.ToString());
+                self_lock = false;
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("参数设置错误??!！" + ex.ToString());
+                //   ho_Image.Dispose();
+                Ho_RImage.Dispose();
+                self_lock = false;
+                return "21";
             }
 
-            //疑问
-            //测轴直径
-            GetRelativePos(INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, INI.axis_roi[Cam_idx].axis_d1_relative_phi + Angle, out x_center, out y_center);
-            y_center = y_bias - y_center;
-            x_center = x_bias + x_center;
-            out_D = Measure_Diameter(Ho_RImage, y_center, x_center, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out infc, Window, _Track_Model,false);  
-            out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
-            if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
-            {
-                ng_info |= 1;
-                HOperatorSet.SetColor(Window, "red");
-                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
-            }
-            else
-            {
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
-            }
-
-           
-            out_D = check_height(Ho_RImage, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, 0, INI.axis_roi[Cam_idx].axis_d3_r2, INI.axis_roi[Cam_idx].axis_d3_c2, infc.c_x, infc.c_y, Window, false);
-            out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
-            if (out_D_data < INI.axis_roi[Cam_idx].d3_min || out_D_data > INI.axis_roi[Cam_idx].d3_max)
-            {
-                ng_info |= 2;
-                HOperatorSet.SetColor(Window, "red");
-                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString("N4") + " mm");
-            }
-            else
-            {
-                HOperatorSet.SetColor(Window, "green");
-                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
-                HOperatorSet.WriteString(Window, "轴心高度:" + out_D_data.ToString("N4") + " mm");
-            }
-            Ho_RImage.Dispose();
             self_lock = false;
-            return "0" + ng_info.ToString();
-
-        }
-        catch (HalconException ex)
-        {
-          //  ho_Image.Dispose();
-            Ho_RImage.Dispose();
-           // Console.WriteLine("y异常错误"+ex.ToString());
-            Console.WriteLine("y异常错误"+ex.ToString());
-            self_lock = false;
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("参数设置错误??!！" + ex.ToString());
-         //   ho_Image.Dispose();
-            Ho_RImage.Dispose();
-            self_lock = false;
-            return "21";
         }
 
-        self_lock = false;
+
+
+        public void InitHalcon(int width = 512, int height = 512)
+        {
+            // Default settings used in HDevelop 
+            HOperatorSet.SetSystem("width", width);
+            HOperatorSet.SetSystem("height", height);
+        }
+
+
+
+
+
+        public void RunHalcon(HTuple Window, HObject ho_Image)
+        {
+            try
+            {
+                hv_ExpDefaultWinHandle = Window;
+                action(ho_Image);
+            }
+            catch (HalconException e)
+            {
+                throw e;
+            }
+
+        }
+
+        public void GetRelativePos(double distance, double theta, out double x, out double y)
+        {
+            try
+            {
+                x = distance * Math.Cos(theta);
+                y = distance * Math.Sin(theta);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetRelativePos(double distance_x, double distance_y, double theta, out double x, out double y)
+        {
+            try
+            {
+                double distance = Math.Sqrt(distance_x * distance_x + distance_y * distance_y);
+                x = distance * Math.Cos(theta);
+                y = distance * Math.Sin(theta);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
-
-
-
-    public void InitHalcon(int width = 512, int height = 512)
-    {
-        // Default settings used in HDevelop 
-        HOperatorSet.SetSystem("width", width);
-        HOperatorSet.SetSystem("height", height);
-    }
-
-
-
-
-
-    public void RunHalcon(HTuple Window, HObject ho_Image)
-    {
-        try
-        {
-            hv_ExpDefaultWinHandle = Window;
-            action(ho_Image);
-        }
-        catch (HalconException e)
-        {
-            throw e;
-        }
-
-    }
-
-    public void GetRelativePos(double distance , double theta , out double x, out double y) {
-        try
-        {
-            x = distance * Math.Cos(theta);
-            y = distance * Math.Sin(theta);
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    public void GetRelativePos(double distance_x, double distance_y, double theta, out double x, out double y)
-    {
-        try { 
-        double distance = Math.Sqrt(distance_x * distance_x + distance_y * distance_y);
-        x = distance * Math.Cos(theta);
-        y = distance * Math.Sin(theta);
-    }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
 
 }
-
