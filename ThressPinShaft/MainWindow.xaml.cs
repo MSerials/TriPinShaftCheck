@@ -704,8 +704,6 @@ namespace ThressPinShaft
 
         private void Button_Click_Height_Measure(object sender, RoutedEventArgs e)
         {
-
-
             int Cam_idx = global.GetIns().CamSel;
             Info_Ctrl Infc = new Info_Ctrl();
             if (false == ImageOperate.FindTrackPos(Obj[Cam_idx], this.CamSetting.HalconID, out Infc, ImageOperate.Track_Model, false))
@@ -720,23 +718,40 @@ namespace ThressPinShaft
             {
                 double Angle = CameraADisp.Disp_Adjust_Line(Obj[Cam_idx], INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2,
                 INI.axis_roi[Cam_idx].adjust_c2, this.CamSetting.HalconID, false);
-                HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
-                HOperatorSet.DispObj(Ho_Image, this.CamSetting.HalconID);
+                //HOperatorSet.RotateImage(Obj[Cam_idx], out Ho_Image, Angle, "constant");
+                HOperatorSet.DispObj(Obj[Cam_idx], this.CamSetting.HalconID);
 
                 //恢复信息
                 double r1 = INI.axis_roi[Cam_idx].axis_d1_r1 + Infc.pos_y;
                 double c1 = INI.axis_roi[Cam_idx].axis_d1_c1 + Infc.pos_x;
-                CameraADisp.Measure_Diameter(Ho_Image, r1, c1, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
+                CameraADisp.Measure_Diameter(Obj[Cam_idx], r1, c1, new HTuple(-Angle).TupleRad(), INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out hv_c, out hv_r, this.CamSetting.HalconID, false);
 
                 //找到垂直线和找到图像的高度和宽度，来找到在哪儿画横线和纵线
                 HTuple hv_Width, hv_Height, hv_HalfHeight, hv_HalfWidth;
-                HOperatorSet.GetImageSize(Ho_Image, out hv_Width, out hv_Height);
+                HOperatorSet.GetImageSize(Obj[Cam_idx], out hv_Width, out hv_Height);
                 hv_HalfHeight = hv_Height / 2;
                 hv_HalfWidth = hv_c;
                 CameraADisp.draw_line(hv_HalfHeight, 0, hv_HalfHeight, hv_Width, this.CamSetting.HalconID,"blue");
-                CameraADisp.draw_line(0, hv_HalfWidth, hv_Height, hv_HalfWidth, this.CamSetting.HalconID, "green");
-                //
+                
+
+                //操作系统，操作系统本身自带选择功能，qt做映射
+                //win api
+
+
+                double x = 0;
+                double y = 0;
+                CameraADisp.GetPoint(hv_c, hv_r, Angle,out x, out y);
+                Console.WriteLine("hv_c:" + hv_c.ToString() + " hv_r:" + hv_r.ToString() + " end x:" + x.ToString() + " end y;" + y.ToString());
+                CameraADisp.draw_line(hv_r, hv_c, y, x, this.CamSetting.HalconID, "green");
+                CameraADisp.GetPoint(hv_c, hv_r, Angle + 180, out x, out y);
+                CameraADisp.draw_line(hv_r, hv_c, y, x, this.CamSetting.HalconID, "green");
+
                 INI.axis_roi[Cam_idx].d3_min = hv_c;
+                INI.axis_roi[Cam_idx].axis_d3_r1 = hv_r;
+                INI.axis_roi[Cam_idx].axis_d3_c1 = hv_c;
+                INI.axis_roi[Cam_idx].axis_d3_relative_phi = Angle;
+
+
                 this.D3_Min.Text = INI.axis_roi[Cam_idx].d3_min.ToString();
                 INI.writting();
             }

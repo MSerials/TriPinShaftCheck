@@ -1307,6 +1307,9 @@ namespace ThressPinShaft
                     hv_ColEnd);
 
                 HOperatorSet.AngleLx(hv_RowEnd, hv_ColEnd, hv_RowBegin, hv_ColBegin, out hv_Angle);
+#if DEBUG
+                Console.WriteLine("find angle :" + hv_Angle.ToString());
+#endif
                 hv_a = 270 - (((hv_Angle.TupleSelect(0)) * 360) / (2 * 3.141592654));
                 ho_ImageRotated.Dispose();
                 HOperatorSet.RotateImage(ho_Image1, out ho_ImageRotated, hv_a, "constant");
@@ -2070,6 +2073,8 @@ namespace ThressPinShaft
 
 
 
+
+
         public string Check_gear(HObject pho_SearchImage, HTuple Window, double Image_Threshold, double phv_OK_Threshold, HTuple _Gear_Model, bool isDisp = true)
         {
 #if false
@@ -2210,13 +2215,49 @@ namespace ThressPinShaft
                 return "08";
         }
 
+
+        public void GetPoint(HTuple cx, HTuple cy, HTuple theta, out double x, out double y, int distance = 1500)
+        {
+            x = 0;
+            y = 0;
+            try
+            {
+                double ag = new HTuple(theta - 270).TupleRad();
+                x = cx + distance * Math.Cos(ag);
+                y = cy + distance * Math.Sin(ag);
+                Console.WriteLine("theta:" + (theta - 270).ToString());
+            }
+            catch (Exception ex)
+            {      
+                Console.WriteLine(ex.ToString());
+            }
+    
+        }
+
+
+        public void GetXPoint(double x1, double y1, double x2, double y2,double yu, out double xu)
+        {
+            xu = 0;
+            if ((y2 - y1) == 0)
+                return;
+
+            xu = (x2 - x1) * (yu - y1) / (y2 - y1) + x1;
+        }
+
+        public void GetYPoint(double x1, double y1, double x2, double y2, double xu,out double yu)
+        {
+            yu = 0;
+        }
+
         static private bool self_lock = false;
         public string check_axis(HObject ho_Image, int Cam_idx, HTuple _Track_Model, HTuple Window)
         {
+
             self_lock = true;
             HObject Ho_RImage = null;
             HOperatorSet.GenEmptyObj(out Ho_RImage);
-            HTuple isEqual = null;
+            HTuple isEqual = null,Width = 0, Height = 0;
+
             HOperatorSet.TestEqualObj(Ho_RImage, ho_Image, out isEqual);
             if (isEqual)
             {
@@ -2248,11 +2289,15 @@ namespace ThressPinShaft
                 HTuple hv_r = 0, hv_c = 0, string_disp_row = 80, string_gap = 240;
                 double Angle_ = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2, INI.axis_roi[Cam_idx].adjust_c2, Window, false);
                 HOperatorSet.RotateImage(ho_Image, out Ho_RImage, Angle_, "constant");
-                action(Ho_RImage);
-                FindTrackPos(Ho_RImage, Window, out ic, _Track_Model, false);
+                //action(Ho_RImage);
+
+                // Ho_RImage = ho_Image;
+
+                HOperatorSet.GetImageSize(ho_Image, out Width, out Height);
+                FindTrackPos(ho_Image, Window, out ic, _Track_Model, false);
                 double x_bias = ic.pos_x;
                 double y_bias = ic.pos_y;
-                double Angle = ic.pos_angle;
+                double Angle =  ic.pos_angle;
                 double y_center = 0;
                 double x_center = 0;
                 GetRelativePos(INI.axis_roi[Cam_idx].axis_d2_r1, INI.axis_roi[Cam_idx].axis_d2_c1, INI.axis_roi[Cam_idx].axis_d2_relative_phi + Angle, out x_center, out y_center);
@@ -2262,7 +2307,8 @@ namespace ThressPinShaft
                 //  Console.WriteLine(" xc " + ic.pos_x.ToString() + "yc " + ic.pos_y.ToString() + "y bias" + y_center.ToString() + "x_bias" + x_center.ToString());
                 //测沟槽直径
                 //INI.axis_roi[Cam_idx].axis_d2_phi + Angle,
-                string out_D = Measure_Diameter(Ho_RImage, y_center, x_center, 0, INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, out infc, Window, _Track_Model, false, "#00FFFF");
+                
+                string out_D = Measure_Diameter(ho_Image, y_center, x_center, new HTuple(-Angle_).TupleRad(), INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, out infc, Window, _Track_Model, false, "#00FFFF");
                 double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
                 if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
                 {
@@ -2279,12 +2325,13 @@ namespace ThressPinShaft
                     HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
                 }
 
+    
                 //疑问
                 //测轴直径
                 GetRelativePos(INI.axis_roi[Cam_idx].axis_d1_r1, INI.axis_roi[Cam_idx].axis_d1_c1, INI.axis_roi[Cam_idx].axis_d1_relative_phi + Angle, out x_center, out y_center);
                 y_center = y_bias - y_center;
                 x_center = x_bias + x_center;
-                out_D = Measure_Diameter(Ho_RImage, y_center, x_center, 0, INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out infc, Window, _Track_Model, false);
+                out_D = Measure_Diameter(ho_Image, y_center, x_center, new HTuple(-Angle_).TupleRad(), INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out infc, Window, _Track_Model, false);
                 out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
                 if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
                 {
@@ -2299,6 +2346,65 @@ namespace ThressPinShaft
                     HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                     HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
                 }
+
+               
+                //获得了角度和中心距离
+                double x = 0;
+                double y = 0;
+                GetPoint(INI.axis_roi[Cam_idx].axis_d3_c1, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_relative_phi, out x, out y);
+                draw_line(INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, y, x, Window, "green");
+                GetPoint(INI.axis_roi[Cam_idx].axis_d3_c1, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_relative_phi + 180, out x, out y);
+                draw_line(INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_c1, y, x, Window, "green");
+
+
+                GetPoint(INI.axis_roi[Cam_idx].axis_d3_c1, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_relative_phi, out x, out y);
+
+                double y_base = Height/2;
+                double x_base = 0,x_detect = 0;
+                draw_line(y_base, 0, y_base, Width, Window, "blue");
+                GetXPoint(INI.axis_roi[Cam_idx].axis_d3_c1, INI.axis_roi[Cam_idx].axis_d3_r1,x,y,y_base,out x_base);
+                //画检测出来的高度
+                GetPoint(INI.axis_roi[Cam_idx].axis_d3_c1, INI.axis_roi[Cam_idx].axis_d3_r1, INI.axis_roi[Cam_idx].axis_d3_relative_phi, out x, out y);
+
+
+                GetPoint(infc.c_x, infc.c_y,Angle_, out x, out y);
+                draw_line(infc.c_y, infc.c_x, y, x, Window, "#EF56F0");
+                GetPoint(infc.c_x, infc.c_y, Angle_+180, out x, out y);
+                draw_line(infc.c_y, infc.c_x, y, x, Window, "#EF56F0");
+                GetXPoint(infc.c_x, infc.c_y, x, y, y_base, out x_detect);
+
+
+                draw_line(y_base, x_base, y_base, x_detect, Window, "yellow");
+
+                double chazhi = x_base - x_detect;
+
+                HOperatorSet.SetTposition(Window, y_base + 30, infc.c_x);
+                HOperatorSet.WriteString(Window, chazhi.ToString("N4"));
+                chazhi = Math.Abs(chazhi);
+                if (chazhi < INI.axis_roi[Cam_idx].d3_max)
+                {
+                    HOperatorSet.SetColor(Window, "green");
+                }
+                else
+                {
+                    ng_info |= 2;
+                    HOperatorSet.SetColor(Window, "red");
+                }
+                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                HOperatorSet.WriteString(Window, "轴心高度偏差值 ：" + (INI.axis_roi[Cam_idx].d1_mmppix * chazhi).ToString("N4") + "mm");
+
+                return "0.0";
+          //      INI.axis_roi[Cam_idx].d3_min = hv_c;
+           //     INI.axis_roi[Cam_idx].axis_d3_relative_phi = Angle;
+
+
+
+
+
+
+
+
+
 
 
                 HTuple hv_Width, hv_Height, hv_HalfHeight, hv_MeasureWidth,hv_BaseWidth;
