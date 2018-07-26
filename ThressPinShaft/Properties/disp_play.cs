@@ -5,6 +5,10 @@
 //  HDevelopTemplateWPF projects located under %HALCONEXAMPLES%\c#
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using HalconDotNet;
@@ -1347,9 +1351,14 @@ namespace ThressPinShaft
 
             HTuple Pointer = null, Width = null, Height = null, Type = null;
             //    HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, isEqual = null;
+            HTuple hv_Width, hv_Height;
             HTuple AreaModelRegions = null, RowModelRegions = null, ColumnModelRegions = null, HeightPyramid = null;
             HTuple NumLevels = 0, isEqual;
             HObject hv_ModelImage = null, ROI = null, ImageROI = null, ShapeModelImages, ShapeModelRegions, ShapeModel = null; ;//hv_Rectange = null
+            HObject ho_ConnectedRegions = null;
+            HObject ho_Selected;//.Dispose();
+            HObject ho_Filled;//.Dispose();
+            HObject ho_ImageRegion;//.Dispose();
             HOperatorSet.GenEmptyObj(out hv_ModelImage);
             HOperatorSet.TestEqualObj(Ho_Image, hv_ModelImage, out isEqual);
             if (isEqual)
@@ -1358,12 +1367,17 @@ namespace ThressPinShaft
                 return false;
             }
 
+
+            HOperatorSet.GenEmptyObj(out ho_Selected);
+            HOperatorSet.GenEmptyObj(out ho_Filled);
+            HOperatorSet.GenEmptyObj(out ho_ImageRegion);
+            HOperatorSet.GenEmptyObj(out ho_ConnectedRegions);
             HOperatorSet.GenEmptyObj(out ROI);
             HOperatorSet.GenEmptyObj(out ImageROI);
             HOperatorSet.GenEmptyObj(out ShapeModelImages);
             HOperatorSet.GenEmptyObj(out ShapeModelRegions);
             HOperatorSet.GenEmptyObj(out ShapeModel);
-            HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null;
+            HTuple hv_r = null, hv_c = null, hv_r2 = null, hv_c2 = null, hv_radius = null;
             try
             {
                 HOperatorSet.SetColor(Window, "yellow");
@@ -1371,16 +1385,38 @@ namespace ThressPinShaft
                 HOperatorSet.Threshold(Ho_Image, out hv_ModelImage, 0, hv_threshold_value);
                 HOperatorSet.RegionToBin(hv_ModelImage, out hv_ModelImage, 0, 255, Width, Height);
 
+                /*
                 HOperatorSet.DrawRectangle1(Window, out hv_r, out hv_c, out hv_r2, out hv_c2);
                 HOperatorSet.GenRectangle1(out ROI, hv_r, hv_c, hv_r2, hv_c2);
+                */
 
-                HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
+                HOperatorSet.DrawCircle(Window, out hv_r, out hv_c, out hv_radius);
+                HOperatorSet.GenCircle(out ROI, hv_r, hv_c,  hv_radius);
+
+                HOperatorSet.ReduceDomain(Ho_Image, ROI, out hv_ModelImage);
+         
+                HOperatorSet.Threshold(hv_ModelImage, out hv_ModelImage, 0, hv_threshold_value);
+                ho_ConnectedRegions.Dispose();
+                HOperatorSet.Connection(hv_ModelImage, out ho_ConnectedRegions);
+                ho_Selected.Dispose();
+                HOperatorSet.SelectShapeStd(ho_ConnectedRegions, out ho_Selected, "max_area",0.6);
+                ho_Filled.Dispose();
+                HOperatorSet.FillUp(ho_Selected, out ho_Filled);
+                HOperatorSet.GetImageSize(Ho_Image, out hv_Width, out hv_Height);
+                ho_ImageRegion.Dispose();
+                HOperatorSet.RegionToBin(ho_Filled, out ho_ImageRegion, 0, 255, hv_Width, hv_Height);
+
+
+
+  
+                //HOperatorSet.ReduceDomain(hv_ModelImage, ROI, out ImageROI);
                 if (isDisp)
                 {
                     HOperatorSet.DispObj(ImageROI, Window);
+                    HOperatorSet.DispObj(ho_ImageRegion, Window);
                 }
 
-                HOperatorSet.InspectShapeModel(ImageROI, out ShapeModelImages, out ShapeModelRegions, 8, 30);
+                HOperatorSet.InspectShapeModel(ho_ImageRegion, out ShapeModelImages, out ShapeModelRegions, 8, 30);
                 HOperatorSet.AreaCenter(ShapeModelRegions, out AreaModelRegions, out RowModelRegions, out ColumnModelRegions);
                 HOperatorSet.CountObj(ShapeModelRegions, out HeightPyramid);
 
@@ -1405,7 +1441,7 @@ namespace ThressPinShaft
                     }
                 }
 
-                HOperatorSet.CreateShapeModel(ImageROI, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, 10, out Gear_Model);
+                HOperatorSet.CreateShapeModel(ho_ImageRegion, NumLevels, 0, (new HTuple(360)).TupleRad(), "auto", "none", "use_polarity", 30, "auto", out Gear_Model);
 
 
 
@@ -1430,16 +1466,24 @@ namespace ThressPinShaft
                 hv_ModelImage.Dispose();
                 ROI.Dispose();
                 ShapeModelImages.Dispose();
+                ho_ConnectedRegions.Dispose();
                 ShapeModelRegions.Dispose();
                 ShapeModel.Dispose();
+                ho_Selected.Dispose();
+                ho_Filled.Dispose();
+                ho_ImageRegion.Dispose();
                 throw ex;
             }
             ImageROI.Dispose();
             hv_ModelImage.Dispose();
             ROI.Dispose();
             ShapeModelImages.Dispose();
+            ho_ConnectedRegions.Dispose();
             ShapeModelRegions.Dispose();
             ShapeModel.Dispose();
+            ho_Selected.Dispose();
+            ho_Filled.Dispose();
+            ho_ImageRegion.Dispose();
             return true;
         }
 
@@ -2249,7 +2293,55 @@ namespace ThressPinShaft
             yu = 0;
         }
 
-        static private bool self_lock = false;
+
+
+
+
+
+        
+            //write a file, existed file will be overwritten if append = false
+            public static void WriteCSV(string filePathName,  List<String[]> ls, bool append = true)
+            {
+                StreamWriter fileWriter = new StreamWriter(filePathName, append, Encoding.Default);
+                foreach (String[] strArr in ls)
+                {
+                    fileWriter.WriteLine(String.Join(", ",strArr) );
+                }
+            fileWriter.WriteLine("\r\n");
+            fileWriter.Flush();
+            fileWriter.Close();
+
+            }
+
+        public static void WriteCSV(string filePathName, string ls, bool append = true)
+        {
+            StreamWriter fileWriter = new StreamWriter(filePathName, append, Encoding.Default);
+            fileWriter.WriteLine(ls + "\r\n");
+            fileWriter.Flush();
+            fileWriter.Close();
+
+        }
+
+        public static List<String[]> ReadCSV(string filePathName)
+            {
+                List<String[]> ls = new List<String[]>();
+                StreamReader fileReader = new StreamReader(filePathName);
+                string strLine = "";
+                while (strLine != null)
+                {
+                    strLine = fileReader.ReadLine();
+                    if (strLine != null && strLine.Length > 0)
+                    {
+                        ls.Add(strLine.Split(','));
+                        //Debug.WriteLine(strLine);
+                    }
+                }
+                fileReader.Close();
+                return ls;
+            }
+        
+
+    static private bool self_lock = false;
         public string check_axis(HObject ho_Image, int Cam_idx, HTuple _Track_Model, HTuple Window)
         {
 
@@ -2267,6 +2359,10 @@ namespace ThressPinShaft
             }
             action(ho_Image, Window);
             Info_Ctrl infc = new Info_Ctrl();
+
+            string Record = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")+ ",相机:" +(1+Cam_idx).ToString()+",";
+
+           
             try
             {
                 int ng_info = 0;
@@ -2286,7 +2382,7 @@ namespace ThressPinShaft
 
 
                 //不赋值 0  可有bug
-                HTuple hv_r = 0, hv_c = 0, string_disp_row = 80, string_gap = 240;
+                HTuple hv_r = 0, hv_c = 0, string_disp_row = 60, string_gap = 160;
                 double Angle_ = Disp_Adjust_Line(ho_Image, INI.axis_roi[Cam_idx].adjust_r1, INI.axis_roi[Cam_idx].adjust_c1, INI.axis_roi[Cam_idx].adjust_phi, INI.axis_roi[Cam_idx].adjust_r2, INI.axis_roi[Cam_idx].adjust_c2, Window, false);
                 HOperatorSet.RotateImage(ho_Image, out Ho_RImage, Angle_, "constant");
                 //action(Ho_RImage);
@@ -2309,7 +2405,7 @@ namespace ThressPinShaft
                 //INI.axis_roi[Cam_idx].axis_d2_phi + Angle,
                 
                 string out_D = Measure_Diameter(ho_Image, y_center, x_center, new HTuple(-Angle_).TupleRad(), INI.axis_roi[Cam_idx].axis_d2_r2, INI.axis_roi[Cam_idx].axis_d2_c2, out infc, Window, _Track_Model, false, "#00FFFF");
-                double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
+                double out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D) + INI.axis_roi[Cam_idx].d1_bias;
                 if (out_D_data < INI.axis_roi[Cam_idx].d2_min || out_D_data > INI.axis_roi[Cam_idx].d2_max)
                 {
 
@@ -2325,6 +2421,8 @@ namespace ThressPinShaft
                     HOperatorSet.WriteString(Window, "沟槽直径:" + out_D_data.ToString("N4") + " mm");
                 }
 
+                Record += "沟槽直径:," + out_D_data.ToString("N4") + ",";
+
     
                 //疑问
                 //测轴直径
@@ -2332,7 +2430,7 @@ namespace ThressPinShaft
                 y_center = y_bias - y_center;
                 x_center = x_bias + x_center;
                 out_D = Measure_Diameter(ho_Image, y_center, x_center, new HTuple(-Angle_).TupleRad(), INI.axis_roi[Cam_idx].axis_d1_r2, INI.axis_roi[Cam_idx].axis_d1_c2, out infc, Window, _Track_Model, false);
-                out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D);
+                out_D_data = INI.axis_roi[Cam_idx].d1_mmppix * Convert.ToDouble(out_D) + INI.axis_roi[Cam_idx].d1_bias;
                 if (out_D_data < INI.axis_roi[Cam_idx].d1_min || out_D_data > INI.axis_roi[Cam_idx].d1_max)
                 {
                     ng_info |= 1;
@@ -2347,7 +2445,8 @@ namespace ThressPinShaft
                     HOperatorSet.WriteString(Window, "轴直径:" + out_D_data.ToString("N4") + " mm");
                 }
 
-               
+                Record += "轴直径:," + out_D_data.ToString("N4") + ",";
+
                 //获得了角度和中心距离
                 double x = 0;
                 double y = 0;
@@ -2368,20 +2467,24 @@ namespace ThressPinShaft
 
 
                 GetPoint(infc.c_x, infc.c_y,Angle_, out x, out y);
-                draw_line(infc.c_y, infc.c_x, y, x, Window, "#EF56F0");
+                draw_line(infc.c_y, infc.c_x, y, x, Window, "#56F056");
                 GetPoint(infc.c_x, infc.c_y, Angle_+180, out x, out y);
-                draw_line(infc.c_y, infc.c_x, y, x, Window, "#EF56F0");
+                draw_line(infc.c_y, infc.c_x, y, x, Window, "#56F056");
                 GetXPoint(infc.c_x, infc.c_y, x, y, y_base, out x_detect);
 
-
                 draw_line(y_base, x_base, y_base, x_detect, Window, "yellow");
+                double chazhi = x_detect - x_base;
 
-                double chazhi = x_base - x_detect;
+
 
                 HOperatorSet.SetTposition(Window, y_base + 30, infc.c_x);
                 HOperatorSet.WriteString(Window, chazhi.ToString("N4"));
-                chazhi = Math.Abs(chazhi);
-                if (chazhi < INI.axis_roi[Cam_idx].d3_max)
+
+                if (0 == Cam_idx) chazhi = -chazhi;
+                double _chazhi = Math.Abs(chazhi);
+
+                double axis_height = INI.axis_roi[Cam_idx].d3_base_h + INI.axis_roi[Cam_idx].d1_mmppix * chazhi;
+                if ((axis_height < INI.axis_roi[Cam_idx].d3_max) && (axis_height > INI.axis_roi[Cam_idx].d3_min))
                 {
                     HOperatorSet.SetColor(Window, "green");
                 }
@@ -2392,6 +2495,15 @@ namespace ThressPinShaft
                 }
                 HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
                 HOperatorSet.WriteString(Window, "轴心高度偏差值 ：" + (INI.axis_roi[Cam_idx].d1_mmppix * chazhi).ToString("N4") + "mm");
+                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                HOperatorSet.WriteString(Window, "轴心高度：" + axis_height.ToString("N4") + "mm");
+                Record += "轴心高度:," + (axis_height).ToString("N4") + ",";
+                string file_name = AppDomain.CurrentDomain.BaseDirectory  + "/" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv"; 
+                WriteCSV(file_name,Record);
+                HOperatorSet.SetColor(Window, "green");
+                HOperatorSet.SetTposition(Window, string_disp_row += string_gap, 20);
+                string String = "y = " + (INI.axis_roi[Cam_idx].d1_mmppix).ToString("N4") + "x+" + INI.axis_roi[Cam_idx].d1_bias.ToString("N4");
+                HOperatorSet.WriteString(Window, String);
 
                 return "0" + ng_info.ToString();
                 //      INI.axis_roi[Cam_idx].d3_min = hv_c;

@@ -50,7 +50,7 @@
 
                         <Button Content="检测沟槽直径"  Name="Bt_Slot"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Slot_Measure" Canvas.Left="30" Canvas.Top="141"/>
 
-                        <Button Content="检测轴基准高度"   Name="Bt_Height" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure" Canvas.Left="30" Canvas.Top="224"/>
+                        <Button Content="获取检测轴基准高度"   Name="Bt_Height" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Height_Measure" Canvas.Left="30" Canvas.Top="224"/>
 
                         <Button Content="检测内齿"  Name="Bt_Gear"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="35" Click="Button_Click_Gear_Measure" Canvas.Left="30" Canvas.Top="314.5"/>
 
@@ -69,8 +69,15 @@
                         <ComboBox Canvas.Left="30" Canvas.Top="10" Width="150" Height="20" x:Name ="pCamSel"   DropDownClosed="CamSel_DropDownClosedClick" />
 
                         <TextBox Name="Ratio" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="60" Width="120"/>
-                        <Label Name ="L_Ratio" Content="像素比例" Canvas.Left="180" Canvas.Top="60"/>
-                        <Label Name ="L_Ratio_" Content="mm/pix" Canvas.Left="360" Canvas.Top="60"/>
+                        <Label Name ="L_Ratio" Content="像素比例" Canvas.Left="180" Canvas.Top="63"/>
+                        <Label Name ="L_Ratio_" Content="mm/pix" Canvas.Left="353" Canvas.Top="61"/>
+
+                        <TextBox Name="Bias" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="60" Width="120"/>
+                        <Label Name ="L_Bias" Content="偏差值b" Canvas.Left="455" Canvas.Top="63"/>
+                        <Label Name ="L_Bias_" Content="mm" Canvas.Left="632" Canvas.Top="61" RenderTransformOrigin="-8.312,3.96"/>
+
+
+
 
                         <TextBox Name="D1_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="183" Width="120"/>
                         <Label Name ="L_D1_Min" Content="外径下限" Canvas.Left="180" Canvas.Top="183"/>
@@ -85,16 +92,27 @@
                         <Label Name ="L_D2_Max"  Content="沟槽上限" Canvas.Left="455" Canvas.Top="141"/>
 
                         <TextBox Name="D3_Min" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="224" Width="120"/>
-                        <Label Name ="L_D3_Min"  Content="基准高度" Canvas.Left="180" Canvas.Top="224"/>
+                        <Label Name ="L_D3_Min"  Content="高度下限" Canvas.Left="180" Canvas.Top="224"/>
+
+
+                        <TextBox Name="D3_BaseH_" Height="30" Canvas.Left="234" TextWrapping="Wrap"  Canvas.Top="264" Width="120"/>
+                        <Label Name ="L_D3_BaseH_"  Content="基准高度" Canvas.Left="180" Canvas.Top="264"/>
 
                         <TextBox Name="D3_Max" Height="30" Canvas.Left="515" TextWrapping="Wrap"  Canvas.Top="224" Width="120"/>
-                        <Label Name ="L_D3_Max"  Content="基准偏差" Canvas.Left="455" Canvas.Top="224"/>
+                        <Label Name ="L_D3_Max"  Content="高度上限" Canvas.Left="455" Canvas.Top="224"/>
 
                         <TextBox Name="Gear_Threshold" Height="30" Canvas.Left="325" TextWrapping="Wrap"  Canvas.Top="314.5" Width="120"/>
                         <Label Name ="L_Gear_Threshold"  Content="齿轮相似阈值" Canvas.Left="204" Canvas.Top="314.5"/>
 
                         <TextBox Name="Image_Threshold" Height="30" Canvas.Left="325" TextWrapping="Wrap"  Canvas.Top="354.5" Width="120" RenderTransformOrigin="0.496,2.533"/>
                         <Label Name ="L_Image_Threshold"  Content="二值化阈值" Canvas.Left="204" Canvas.Top="354.5"/>
+
+                        <Label x:Name ="L_Bias__Copy1" Content="mm" Canvas.Left="359" Canvas.Top="141" RenderTransformOrigin="-8.312,3.96"/>
+                        <Label x:Name ="L_Bias__Copy2" Content="mm" Canvas.Left="358" Canvas.Top="224" RenderTransformOrigin="-8.312,3.96"/>
+                        <Label x:Name ="L_Bias__Copy3" Content="mm" Canvas.Left="359" Canvas.Top="183" RenderTransformOrigin="-8.312,3.96"/>
+                        <Label x:Name ="L_Bias__Copy4" Content="mm" Canvas.Left="640" Canvas.Top="224" RenderTransformOrigin="-8.312,3.96"/>
+                        <Label x:Name ="L_Bias__Copy5" Content="mm" Canvas.Left="640" Canvas.Top="183" RenderTransformOrigin="-8.312,3.96"/>
+                        <Label x:Name ="L_Bias__Copy6" Content="mm" Canvas.Left="640" Canvas.Top="146" RenderTransformOrigin="-8.312,3.96"/>
 
 
                     </Canvas>

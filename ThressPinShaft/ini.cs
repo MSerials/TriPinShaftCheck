@@ -129,6 +129,7 @@ namespace ThressPinShaft
                         WriteIni("IMAGE", "D1_MIN_" + i.ToString(), axis_roi[i].d1_min.ToString());
                         WriteIni("IMAGE", "D1_MAX_" + i.ToString(), axis_roi[i].d1_max.ToString());
                         WriteIni("IMAGE", "D1_RATIO_" + i.ToString(), axis_roi[i].d1_mmppix.ToString());
+                        WriteIni("IMAGE", "D1_BIAS_" + i.ToString(), axis_roi[i].d1_bias.ToString());
 
                         WriteIni("IMAGE", "D2_R1_" + i.ToString(), axis_roi[i].axis_d2_r1.ToString());
                         WriteIni("IMAGE", "D2_C1_" + i.ToString(), axis_roi[i].axis_d2_c1.ToString());
@@ -153,9 +154,7 @@ namespace ThressPinShaft
 
                         WriteIni("IMAGE", "D3_MIN_" + i.ToString(), axis_roi[i].d3_min.ToString());
                         WriteIni("IMAGE", "D3_MAX_" + i.ToString(), axis_roi[i].d3_max.ToString());
-                     //   WriteIni("IMAGE", "D3_MAX_" + i.ToString(), axis_roi[i].d3_mmppix.ToString());
-
-            
+                        WriteIni("IMAGE", "D3_BASE_" + i.ToString(), axis_roi[i].d3_base_h.ToString());
                     }
 
                 }
@@ -216,6 +215,7 @@ namespace ThressPinShaft
                         axis_roi[i].d1_min = Convert.ToDouble(ReadIni("IMAGE", "D1_MIN_" + i.ToString()));
                         axis_roi[i].d1_max = Convert.ToDouble(ReadIni("IMAGE", "D1_MAX_" + i.ToString()));
                         axis_roi[i].d1_mmppix = Convert.ToDouble(ReadIni("IMAGE", "D1_RATIO_" + i.ToString()));
+                        axis_roi[i].d1_bias = Convert.ToDouble(ReadIni("IMAGE", "D1_BIAS_" + i.ToString()));
 
                         axis_roi[i].axis_d2_r1 = Convert.ToDouble(ReadIni("IMAGE", "D2_R1_" + i.ToString()));
                         axis_roi[i].axis_d2_c1 = Convert.ToDouble(ReadIni("IMAGE", "D2_C1_" + i.ToString()));
@@ -236,10 +236,10 @@ namespace ThressPinShaft
                         axis_roi[i].axis_d3_relative_base = Convert.ToDouble(ReadIni("IMAGE", "D3_RELATIVE_BASE_" + i.ToString()));
                         axis_roi[i].d3_min = Convert.ToDouble(ReadIni("IMAGE", "D3_MIN_" + i.ToString()));
                         axis_roi[i].d3_max = Convert.ToDouble(ReadIni("IMAGE", "D3_MAX_" + i.ToString()));
-
-                 //       axis_roi[i].d3_mmppix = Convert.ToDouble(ReadIni("IMAGE", "D3_RATIO_" + i.ToString()));
-                      //  public double d1_mmppix = 0.00812;
-    }
+                        axis_roi[i].d3_base_h = Convert.ToDouble(ReadIni("IMAGE", "D3_BASE_" + i.ToString()));
+                        //       axis_roi[i].d3_mmppix = Convert.ToDouble(ReadIni("IMAGE", "D3_RATIO_" + i.ToString()));
+                        //  public double d1_mmppix = 0.00812;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -276,6 +276,7 @@ namespace ThressPinShaft
             public double d1_min = 20;
             public double d1_max = 3000;
             public double d1_mmppix = 0.00812;
+            public double d1_bias = 0;
             //轴2的roi
             public double axis_d2_r1 = 0;
             public double axis_d2_c1 = 0;
@@ -295,8 +296,9 @@ namespace ThressPinShaft
             public double axis_d3_relative_phi = 0;
             //轴高度基准
             public double axis_d3_relative_base = 0;
-            public double d3_min = 2300;
-            public double d3_max = 0.5;
+            public double d3_min = 11.0;
+            public double d3_max = 13.0;
+            public double d3_base_h = 12.0;
        //     public double d3_mmppix = 0.00812;
         }
 

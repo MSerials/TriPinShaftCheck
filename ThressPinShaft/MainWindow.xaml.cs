@@ -249,16 +249,16 @@ namespace ThressPinShaft
        // static HObject Obj[0]=null, Obj[1]=null, Obj[2]=null, Obj[3]=null, ho_Rectange_Again;
         HObject[] Obj = new HObject[4];
 
-        static HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
+      //  static HDevelopExportGrab CameraA = new HDevelopExportGrab("A");
         static HDevelopExportDisp CameraADisp = new HDevelopExportDisp();
 
-        static HDevelopExportGrab CameraB = new HDevelopExportGrab("B");
+     //   static HDevelopExportGrab CameraB = new HDevelopExportGrab("B");
         static HDevelopExportDisp CameraBDisp = new HDevelopExportDisp();
 
-        static HDevelopExportGrab CameraC = new HDevelopExportGrab("C");
+//static HDevelopExportGrab CameraC = new HDevelopExportGrab("C");
         static HDevelopExportDisp CameraCDisp = new HDevelopExportDisp();
 
-        static HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
+    //    static HDevelopExportGrab CameraD = new HDevelopExportGrab("D");
          static HDevelopExportDisp CameraDDisp = new HDevelopExportDisp();
 
         HDevelopExportDisp ImageOperate = new HDevelopExportDisp();
@@ -336,18 +336,17 @@ namespace ThressPinShaft
 #endif
             try
             {
-                switch (global.GetIns().CamSel)
-                {
-                    case 0: Obj[0].Dispose(); CameraA.Grab(out Obj[0]); CameraADisp.RunHalcon(this.CamSetting.HalconID, Obj[0]); break;
-                    case 1: Obj[1].Dispose(); CameraB.Grab(out Obj[1]); CameraBDisp.RunHalcon(this.CamSetting.HalconID, Obj[1]); break;
-                    case 2: Obj[2].Dispose(); CameraC.Grab(out Obj[2]); CameraCDisp.RunHalcon(this.CamSetting.HalconID, Obj[2]); break;
-                    case 3: Obj[3].Dispose(); CameraD.Grab(out Obj[3]); CameraDDisp.RunHalcon(this.CamSetting.HalconID, Obj[3]); break;
-                    default: break;
-                }
+                Obj[global.GetIns().CamSel].Dispose();
+                GrabImage.Grab(out Obj[global.GetIns().CamSel], global.GetIns().CamSel);
+                CameraADisp.RunHalcon(this.CamSetting.HalconID, Obj[global.GetIns().CamSel]);
             }
             catch (HalconException ex)
             {
                 Console.WriteLine(ex.ToString());
+            }
+            catch (Exception _ex)
+            {
+                Console.WriteLine(_ex.ToString());
             }
         }
 
@@ -365,14 +364,20 @@ namespace ThressPinShaft
 #endif
             try
             {
-                Obj[0].Dispose();
-                Obj[1].Dispose();
-                Obj[2].Dispose();
-                Obj[3].Dispose();
-                CameraA.Grab(out Obj[0]);
-                CameraB.Grab(out Obj[1]);
-                CameraC.Grab(out Obj[2]);
-                CameraD.Grab(out Obj[3]);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    try
+                    {
+                        Obj[i].Dispose();
+                        GrabImage.Grab(out Obj[i], global.GetIns().CamSel);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        continue;
+                    }
+                }
 
             }
             catch (HalconException HDevExpDefaultException)
@@ -536,9 +541,9 @@ namespace ThressPinShaft
                     }
                 }
             }
-            catch {
+            catch (HalconException ex){
                 HOperatorSet.SetColor(this.CamSetting.HalconID, "red");
-                CameraADisp.disp_message(this.CamSetting.HalconID, "检测失败", "window",20, 20, "red", "true", this.CamSetting.HalconID);
+                CameraADisp.disp_message(this.CamSetting.HalconID, "检测失败 "+ex.ToString(), "window",20, 20, "red", "true", this.CamSetting.HalconID);
             }
         }
 
@@ -746,13 +751,13 @@ namespace ThressPinShaft
                 CameraADisp.GetPoint(hv_c, hv_r, Angle + 180, out x, out y);
                 CameraADisp.draw_line(hv_r, hv_c, y, x, this.CamSetting.HalconID, "green");
 
-                INI.axis_roi[Cam_idx].d3_min = hv_c;
+                //INI.axis_roi[Cam_idx].d3_min = hv_c;
                 INI.axis_roi[Cam_idx].axis_d3_r1 = hv_r;
                 INI.axis_roi[Cam_idx].axis_d3_c1 = hv_c;
                 INI.axis_roi[Cam_idx].axis_d3_relative_phi = Angle;
 
 
-                this.D3_Min.Text = INI.axis_roi[Cam_idx].d3_min.ToString();
+                //this.D3_Min.Text = INI.axis_roi[Cam_idx].d3_min.ToString();
                 INI.writting();
             }
             catch (HalconException ex)
@@ -778,6 +783,10 @@ namespace ThressPinShaft
                     INI.axis_roi[idx].d1_min = Convert.ToDouble(this.D1_Min.Text);
                     INI.axis_roi[idx].d1_max = Convert.ToDouble(this.D1_Max.Text);
                     INI.axis_roi[idx].d1_mmppix = Convert.ToDouble(this.Ratio.Text);
+                    INI.axis_roi[idx].d1_bias = Convert.ToDouble(this.Bias.Text);
+
+
+                    //Bias
 
 
                     INI.axis_roi[idx].d2_min = Convert.ToDouble(this.D2_Min.Text);
@@ -786,6 +795,9 @@ namespace ThressPinShaft
 
                     INI.axis_roi[idx].d3_min = Convert.ToDouble(this.D3_Min.Text);
                     INI.axis_roi[idx].d3_max = Convert.ToDouble(this.D3_Max.Text);
+                    INI.axis_roi[idx].d3_base_h = Convert.ToDouble(this.D3_BaseH_.Text);
+
+
                 }
                 INI.writting();
             }
@@ -835,6 +847,19 @@ namespace ThressPinShaft
                 this.L_D2_Max.Visibility = Visibility.Hidden;
                 this.L_D3_Min.Visibility = Visibility.Hidden;
                 this.L_D3_Max.Visibility = Visibility.Hidden;
+                this.L_D3_BaseH_.Visibility = Visibility.Hidden;
+                this.D3_BaseH_.Visibility = Visibility.Hidden;
+
+                this.Bias.Visibility = Visibility.Hidden;
+                this.L_Bias.Visibility = Visibility.Hidden;
+                this.L_Bias_.Visibility = Visibility.Hidden;
+
+                this.L_Bias__Copy1.Visibility = Visibility.Hidden;
+                this.L_Bias__Copy2.Visibility = Visibility.Hidden;
+                this.L_Bias__Copy3.Visibility = Visibility.Hidden;
+                this.L_Bias__Copy4.Visibility = Visibility.Hidden;
+                this.L_Bias__Copy5.Visibility = Visibility.Hidden;
+                this.L_Bias__Copy6.Visibility = Visibility.Hidden;
 
 
                 this.Bt_Track.Visibility = Visibility.Hidden;
@@ -850,6 +875,9 @@ namespace ThressPinShaft
                 this.Bt_ImgThreshold.Visibility = Visibility.Visible;
                 this.Image_Threshold.Visibility = Visibility.Visible;
                 this.L_Image_Threshold.Visibility = Visibility.Visible;
+
+                
+
 
                 this.Image_Threshold.Text = Convert.ToInt32(INI.gear_roi.imgthreshold.ToString()).ToString();
                 this.Gear_Threshold.Text = INI.gear_roi.threshold.ToString();
@@ -879,6 +907,23 @@ namespace ThressPinShaft
                 this.L_D3_Min.Visibility = Visibility.Visible;
                 this.L_D3_Max.Visibility = Visibility.Visible;
 
+                this.Bias.Visibility = Visibility.Visible;
+                this.L_Bias.Visibility = Visibility.Visible;
+                this.L_Bias_.Visibility = Visibility.Visible;
+
+
+                this.L_Bias__Copy1.Visibility = Visibility.Visible;
+                this.L_Bias__Copy2.Visibility = Visibility.Visible;
+                this.L_Bias__Copy3.Visibility = Visibility.Visible;
+                this.L_Bias__Copy4.Visibility = Visibility.Visible;
+                this.L_Bias__Copy5.Visibility = Visibility.Visible;
+                this.L_Bias__Copy6.Visibility = Visibility.Visible;
+
+
+                this.L_D3_BaseH_.Visibility = Visibility.Visible;
+                this.D3_BaseH_.Visibility = Visibility.Visible;
+
+
                 this.Bt_Track.Visibility = Visibility.Visible;
 
                 this.Ratio.Visibility = Visibility.Visible;
@@ -905,7 +950,9 @@ namespace ThressPinShaft
 
                 this.D3_Min.Text = INI.axis_roi[sel].d3_min.ToString();
                 this.D3_Max.Text = INI.axis_roi[sel].d3_max.ToString();
+                this.D3_BaseH_.Text = INI.axis_roi[sel].d3_base_h.ToString();
                 this.Ratio.Text = INI.axis_roi[sel].d1_mmppix.ToString();
+                this.Bias.Text = INI.axis_roi[sel].d1_bias.ToString();
             }
 
 
@@ -1173,6 +1220,7 @@ namespace ThressPinShaft
         {
 
             string error_init = "";
+            /*
             try
             {
                 CameraA.InitHalcon(camera_name[0]);
@@ -1232,6 +1280,10 @@ namespace ThressPinShaft
 #endif
             }
 
+            
+
+    
+
             if (error_init.Length > 0)
             {
             //    MessageBox.Show(error_init);
@@ -1240,9 +1292,14 @@ namespace ThressPinShaft
             else {
                 history.HistoryNotify += "相机初始化成功!\r\n";
             }
-
-
-
+            
+            */
+            string cnames = "";
+            history.HistoryNotify += GrabImage.InitCamera(out cnames).ToString()+"个相机被找到！\r\n";
+            if ("" != cnames)
+            {
+                history.HistoryNotify += cnames + "\r\n";
+            }
         }
 
         private void Button_Click_Find_Track(object sender, RoutedEventArgs e)

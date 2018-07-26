@@ -57,6 +57,9 @@
     <Reference Include="hdevenginedotnet">
       <HintPath>..\..\..\..\..\..\Program Files\MVTec\HALCON-12.0\bin\dotnet35\hdevenginedotnet.dll</HintPath>
     </Reference>
+    <Reference Include="MvCameraControl.Net">
+      <HintPath>.\MvCameraControl.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -86,6 +89,7 @@
     </Compile>
     <Compile Include="csv.cs" />
     <Compile Include="grab.cs" />
+    <Compile Include="HKVision.cs" />
     <Compile Include="SerialPort.cs" />
     <Compile Include="ini.cs" />
     <Compile Include="MainWindow.xaml.cs">

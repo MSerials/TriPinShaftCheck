@@ -229,7 +229,8 @@ namespace ThressPinShaft
                 try
                 {
                     Obj[idx].Dispose();
-                    CameraA.Grab(out Obj[idx]);
+                    GrabImage.Grab(out Obj[idx],idx);
+                    //CameraA.Grab(out Obj[idx]);
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
@@ -266,7 +267,7 @@ namespace ThressPinShaft
                 try
                 {
                     Obj[idx].Dispose();
-                    CameraB.Grab(out Obj[idx]);
+                    GrabImage.Grab(out Obj[idx], idx);
                     //Thread.Sleep(5);
                     global.GetIns().GotImage[idx] = 1;
                 }
@@ -305,7 +306,7 @@ namespace ThressPinShaft
                 try
                 {
                     Obj[idx].Dispose();
-                    CameraC.Grab(out Obj[idx]);
+                    GrabImage.Grab(out Obj[idx], idx);
                     global.GetIns().GotImage[idx] = 1;
                 }
                 catch (HalconException ex)
@@ -341,7 +342,7 @@ namespace ThressPinShaft
                 try
                 {
                     Obj[idx].Dispose();
-                    CameraD.Grab(out Obj[idx]);
+                    GrabImage.Grab(out Obj[idx], idx);
                     global.GetIns().res[idx] = "T4," + ImageOperate.Check_gear(Obj[idx], this.Cam4_Disp.HalconID, INI.gear_roi.imgthreshold, INI.gear_roi.threshold,ImageOperate.Gear_Model) + ",";
                     global.GetIns().GotImage[idx] = 1;
                 }

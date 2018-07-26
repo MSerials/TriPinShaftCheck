@@ -28,7 +28,9 @@ public partial class HDevelopExportGrab
 #endif
      try
     {
-            HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1,
+            HOperatorSet.OpenFramegrabber("MVision", 0, 0, 0, 0, 0, 0, "default", -1,
+
+//            HOperatorSet.OpenFramegrabber("GigEVision", 0, 0, 0, 0, 0, 0, "default", -1,
                 "default", -1, "false", "default", UID, 0, -1, out hv_AcqHandle);
             HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "ExposureTime", 5000);
             HOperatorSet.SetFramegrabberParam(hv_AcqHandle, "Gain", 0);
