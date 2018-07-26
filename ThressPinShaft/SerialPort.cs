@@ -368,9 +368,6 @@ namespace ThressPinShaft
         {
             string text = (string)obj;
             // interface_camera = ;//实例化委托对象
-
-
-
         }
 
         // private static MainWindow instance = 

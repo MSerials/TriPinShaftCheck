@@ -354,14 +354,6 @@ namespace ThressPinShaft
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-#if DEBUG
-            mEvt_CamCtrl.Set();
-     //       for (int i = 0; i < 4; i++)
-       //     {
-         //       mEvt_Cam[i].Set();
-           // }
-            return;
-#endif
             try
             {
 
@@ -438,11 +430,6 @@ namespace ThressPinShaft
             INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_r2 = hv_r2w;
             INI.axis_roi.ElementAt(global.GetIns().CamSel).adjust_phi = hv_r2phi;
             INI.writting();
-
-#if DEBUG
-            //Console.Write("abcdefg\n");
-            System.Console.WriteLine("w {0:G3}, h {1:G3}", hv_r2w, hv_r2h);
-#endif
         }
 
 
