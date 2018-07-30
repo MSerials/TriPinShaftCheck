@@ -134,7 +134,6 @@ namespace ThressPinShaft
                 serial_port.BaudRate = Convert.ToInt32(INI.BaudRate);
                 serial_port.DataBits = Convert.ToInt32(INI.DataBits);
                 serial_port.NewLine = "\r\n";
-
                 Console.Write("COM " + INI.com_sel + " BD " + INI.BaudRate + " DataBIt " + INI.DataBits + " Pa " + INI.Parity + " Stopbit " + INI.StopBits);
 
                 if (INI.Parity == "Odd")
