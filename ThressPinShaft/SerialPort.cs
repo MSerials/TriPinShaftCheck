@@ -149,7 +149,6 @@ namespace ThressPinShaft
                   //  INI.Parity = "None";
                     serial_port.Parity = Parity.None;
                 }
-
                 if ("2" == INI.StopBits)
                 {
                     serial_port.StopBits = StopBits.One;
